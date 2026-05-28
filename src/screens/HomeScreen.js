@@ -5,6 +5,7 @@ import {
   ActivityIndicator, Platform,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
@@ -160,6 +161,17 @@ export default function HomeScreen({ navigation }) {
       Audio.setAudioModeAsync({ allowsRecordingIOS: false }).catch(() => {});
     };
   }, []);
+
+  // Reset UI state whenever this screen comes back into focus (e.g., from Result)
+  useFocusEffect(
+    useCallback(() => {
+      if (!recordingRef.current) {
+        setIsRecording(false);
+        setRecordingObj(null);
+        setLoading(false);
+      }
+    }, [])
+  );
 
   useEffect(() => {
     Animated.timing(dimAnim, {

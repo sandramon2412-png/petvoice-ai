@@ -8,16 +8,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 
-// Emoji-face icons are replaced with minimal linear/vector icons (Lucide-style)
+// Premium icons — all colors harmonize with the indigo/violet app theme
 const EMOTION_MAP = {
-  Feliz:      { pillBg: "rgba(16,185,129,0.13)",  pillText: "#059669", barColors: ["#10B981","#34D399"], icon: "flare",                  cardBg: "rgba(16,185,129,0.07)" },
-  Juguetón:   { pillBg: "rgba(16,185,129,0.13)",  pillText: "#059669", barColors: ["#10B981","#34D399"], icon: "lightning-bolt",          cardBg: "rgba(16,185,129,0.07)" },
-  Alerta:     { pillBg: "rgba(245,158,11,0.13)",  pillText: "#D97706", barColors: ["#F59E0B","#FBBF24"], icon: "alert-circle-outline",    cardBg: "rgba(245,158,11,0.07)" },
-  Curioso:    { pillBg: "rgba(251,191,36,0.13)",  pillText: "#B45309", barColors: ["#FBBF24","#FCD34D"], icon: "help-circle-outline",     cardBg: "rgba(251,191,36,0.07)" },
-  Estresado:  { pillBg: "rgba(239,68,68,0.13)",   pillText: "#DC2626", barColors: ["#EF4444","#F87171"], icon: "alert-rhombus-outline",   cardBg: "rgba(239,68,68,0.08)"  },
-  Asustado:   { pillBg: "rgba(220,38,38,0.13)",   pillText: "#B91C1C", barColors: ["#DC2626","#EF4444"], icon: "shield-alert-outline",    cardBg: "rgba(220,38,38,0.08)"  },
-  Tranquilo:  { pillBg: "rgba(100,116,139,0.13)", pillText: "#475569", barColors: ["#64748B","#94A3B8"], icon: "leaf",                    cardBg: "rgba(100,116,139,0.07)"},
-  Hambriento: { pillBg: "rgba(249,115,22,0.13)",  pillText: "#EA580C", barColors: ["#F97316","#FB923C"], icon: "food-outline",            cardBg: "rgba(249,115,22,0.07)" },
+  Feliz:      { color: "#10B981", iconColors: ["#10B981","#34D399"], barColors: ["#10B981","#34D399"], icon: "heart-pulse"            },
+  Juguetón:   { color: "#3B82F6", iconColors: ["#3B82F6","#60A5FA"], barColors: ["#3B82F6","#60A5FA"], icon: "lightning-bolt-outline" },
+  Alerta:     { color: "#8B5CF6", iconColors: ["#7C3AED","#A78BFA"], barColors: ["#7C3AED","#A78BFA"], icon: "eye-outline"            },
+  Curioso:    { color: "#4F46E5", iconColors: ["#4F46E5","#818CF8"], barColors: ["#4F46E5","#818CF8"], icon: "compass-outline"        },
+  Estresado:  { color: "#EC4899", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"], icon: "alert-rhombus-outline"  },
+  Asustado:   { color: "#7C3AED", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"], icon: "shield-alert-outline"   },
+  Tranquilo:  { color: "#64748B", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"], icon: "leaf"                   },
+  Hambriento: { color: "#D97706", iconColors: ["#D97706","#FBBF24"], barColors: ["#D97706","#FBBF24"], icon: "silverware-fork-knife"  },
 };
 
 function getEmo(emocion) {
@@ -146,21 +146,28 @@ export default function ResultScreen({ navigation }) {
             <Text style={styles.petSaysLabel}>{petName} dice:</Text>
           </View>
 
-          {/* ── Hero: emotion pill + translation (glassmorphism card) ── */}
+          {/* ── Hero: premium icon circle + spacious quote card ── */}
           <Animated.View
             style={[styles.heroSection, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}
           >
-            {/* Minimal eliptical badge with linear vector icon */}
-            <View style={[styles.emotionPill, { backgroundColor: emo.pillBg }]}>
-              <MaterialCommunityIcons name={emo.icon} size={14} color={emo.pillText} style={{ marginRight: 5 }} />
-              <Text style={[styles.emotionPillText, { color: emo.pillText }]}>
+            {/* Large centered gradient icon + emotion label */}
+            <View style={styles.emotionHero}>
+              <LinearGradient
+                colors={emo.iconColors}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                style={styles.emotionIconCircle}
+              >
+                <MaterialCommunityIcons name={emo.icon} size={30} color="#fff" />
+              </LinearGradient>
+              <Text style={[styles.emotionName, { color: emo.color }]}>
                 {result.emocion_principal}
               </Text>
             </View>
 
-            {/* Real glassmorphism translation card */}
-            <View style={styles.translationCard}>
-              <Text style={styles.translationHero}>
+            {/* Spacious quote card */}
+            <View style={styles.quoteCard}>
+              <Text style={styles.quoteDecor}>"</Text>
+              <Text style={styles.quoteText}>
                 {result.traduccion_humana}
               </Text>
             </View>
@@ -248,29 +255,43 @@ const styles = StyleSheet.create({
   petSaysLabel: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#64748B", marginTop: 12 },
 
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
-  // Minimal eliptical badge
-  emotionPill: {
-    alignSelf: "flex-start",
-    flexDirection: "row", alignItems: "center",
-    borderRadius: 9999, paddingHorizontal: 14, paddingVertical: 6, marginBottom: 16,
+  // Premium centered icon + emotion name
+  emotionHero: { alignItems: "center", marginBottom: 24 },
+  emotionIconCircle: {
+    width: 72, height: 72, borderRadius: 36,
+    alignItems: "center", justifyContent: "center", marginBottom: 14,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.15, shadowRadius: 14, elevation: 8,
   },
-  emotionPillText: { fontFamily: "Inter_700Bold", fontSize: 13, letterSpacing: 0.1 },
-  // Real glassmorphism card — translucent white with crisp white border
-  translationCard: {
-    borderRadius: 20,
-    padding: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.65)",
+  emotionName: {
+    fontFamily: "Inter_800ExtraBold", fontSize: 24, letterSpacing: -0.6,
+  },
+  // Spacious quote card with decorative quotation mark
+  quoteCard: {
+    borderRadius: 24,
+    paddingHorizontal: 28,
+    paddingTop: 16,
+    paddingBottom: 28,
+    backgroundColor: "rgba(255,255,255,0.72)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.5)",
-    shadowColor: "#1F2687",
+    borderColor: "rgba(255,255,255,0.55)",
+    shadowColor: "#4F46E5",
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.04,
-    shadowRadius: 32,
-    elevation: 2,
+    shadowOpacity: 0.06,
+    shadowRadius: 28,
+    elevation: 3,
   },
-  translationHero: {
-    fontFamily: "Inter_500Medium", fontSize: 18,
-    color: "#1E293B", lineHeight: 30, letterSpacing: -0.2,
+  quoteDecor: {
+    fontFamily: "Inter_800ExtraBold",
+    fontSize: 72,
+    color: "rgba(79,70,229,0.13)",
+    lineHeight: 60,
+    marginBottom: 4,
+    marginLeft: -4,
+  },
+  quoteText: {
+    fontFamily: "Inter_500Medium", fontSize: 19,
+    color: "#1E293B", lineHeight: 32, letterSpacing: -0.3,
   },
 
   // Unified card
