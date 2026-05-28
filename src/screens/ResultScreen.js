@@ -123,7 +123,7 @@ export default function ResultScreen({ navigation }) {
 
           {/* ── Top bar with back button ── */}
           <View style={styles.topBar}>
-            <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.85}>
+            <TouchableOpacity onPress={() => navigation.navigate("Home")} activeOpacity={0.85}>
               <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={styles.backBtn}>
                 <MaterialCommunityIcons name="arrow-left" size={20} color="#fff" />
               </LinearGradient>

@@ -150,9 +150,15 @@ export default function HomeScreen({ navigation }) {
   const selectedEnv = ENVIRONMENTS.find(e => e.key === environment) || ENVIRONMENTS[0];
   const petInitial = pet?.name ? pet.name[0].toUpperCase() : "?";
 
-  // Release microphone on unmount
+  // Release microphone on unmount and reset audio session
   useEffect(() => {
-    return () => { recordingRef.current?.stopAndUnloadAsync().catch(() => {}); };
+    return () => {
+      if (recordingRef.current) {
+        recordingRef.current.stopAndUnloadAsync().catch(() => {});
+        recordingRef.current = null;
+      }
+      Audio.setAudioModeAsync({ allowsRecordingIOS: false }).catch(() => {});
+    };
   }, []);
 
   useEffect(() => {
@@ -197,6 +203,20 @@ export default function HomeScreen({ navigation }) {
     isRecording ? stopAndAnalyze() : startRecording();
   }, [isRecording, loading, startRecording, stopAndAnalyze]);
 
+  // Stop recording, reset audio session, then navigate to Onboarding safely
+  const handleGoBack = useCallback(async () => {
+    if (recordingObj) {
+      setIsRecording(false);
+      try {
+        await recordingObj.stopAndUnloadAsync();
+      } catch (e) {}
+      recordingRef.current = null;
+      setRecordingObj(null);
+    }
+    await Audio.setAudioModeAsync({ allowsRecordingIOS: false }).catch(() => {});
+    navigation.reset({ index: 0, routes: [{ name: "Onboarding" }] });
+  }, [recordingObj, navigation]);
+
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient colors={["#F8FAFC", "#EEF2FF", "#F5F3FF"]} style={StyleSheet.absoluteFill} />
@@ -209,7 +229,7 @@ export default function HomeScreen({ navigation }) {
           {/* Header */}
           <View style={s.header}>
             <View style={s.headerLeft}>
-              <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBackBtn} activeOpacity={0.7}>
+              <TouchableOpacity onPress={handleGoBack} style={s.navBackBtn} activeOpacity={0.7}>
                 <MaterialCommunityIcons name="chevron-left" size={26} color={C.muted} />
               </TouchableOpacity>
               <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.logoMark}>
@@ -447,21 +467,21 @@ const s = StyleSheet.create({
     width: BTN_SIZE + 28, height: BTN_SIZE + 28, borderRadius: (BTN_SIZE + 28) / 2,
     alignItems: "center", justifyContent: "center",
     shadowColor: C.coral,
-    shadowOffset: { width: 0, height: 18 },
-    shadowOpacity: 0.18,
-    shadowRadius: 36,
-    elevation: 14,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.45,
+    shadowRadius: 44,
+    elevation: 22,
   },
   // Inner raised base — tighter contact shadow
   btnBase: {
     width: BTN_SIZE + 8, height: BTN_SIZE + 8, borderRadius: (BTN_SIZE + 8) / 2,
-    backgroundColor: "rgba(244,81,30,0.25)",
+    backgroundColor: "rgba(244,81,30,0.30)",
     alignItems: "center", justifyContent: "center",
-    shadowColor: C.coral,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.48,
-    shadowRadius: 14,
-    elevation: 10,
+    shadowColor: C.coralDark,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.65,
+    shadowRadius: 16,
+    elevation: 14,
   },
   recordBtn: {
     width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
