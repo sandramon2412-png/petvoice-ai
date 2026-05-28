@@ -1,507 +1,478 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Animated,
-  Image,
-  Platform,
-  Alert,
-} from 'react-native';
-import { Audio } from 'expo-av';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../context/AppContext';
-import RecordButton from '../components/RecordButton';
-import { COLORS } from '../constants/colors';
-import { FONTS } from '../constants/typography';
+  View, Text, TouchableOpacity, StyleSheet, ScrollView,
+  Animated, Dimensions, Image, StatusBar, Modal,
+  ActivityIndicator, Platform,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Audio } from "expo-av";
+import { useApp } from "../context/AppContext";
+import { analyzeSound } from "../services/aiService";
 
-// Animated waveform dots
-const WaveformDots = ({ isActive }) => {
-  const anims = useRef([
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-    new Animated.Value(1),
-  ]).current;
+const { width: SCREEN_W } = Dimensions.get("window");
+const BTN_SIZE = 96;
 
-  useEffect(() => {
-    if (!isActive) {
-      anims.forEach((a) => {
-        a.stopAnimation();
-        Animated.timing(a, { toValue: 1, duration: 200, useNativeDriver: true }).start();
-      });
-      return;
-    }
-
-    const animations = anims.map((anim, i) =>
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(i * 80),
-          Animated.timing(anim, {
-            toValue: 2.2 + Math.random() * 1.2,
-            duration: 280 + i * 40,
-            useNativeDriver: true,
-          }),
-          Animated.timing(anim, {
-            toValue: 0.6,
-            duration: 280 + i * 40,
-            useNativeDriver: true,
-          }),
-        ])
-      )
-    );
-
-    Animated.parallel(animations).start();
-    return () => animations.forEach((a) => a.stop());
-  }, [isActive, anims]);
-
-  return (
-    <View style={waveStyles.container}>
-      {anims.map((anim, i) => (
-        <Animated.View
-          key={i}
-          style={[
-            waveStyles.dot,
-            {
-              backgroundColor: isActive ? COLORS.DANGER : COLORS.BORDER,
-              transform: [{ scaleY: anim }],
-            },
-          ]}
-        />
-      ))}
-    </View>
-  );
+const C = {
+  text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
+  card: "rgba(255,255,255,0.88)", indigo: "#4F46E5", violet: "#7C3AED",
+  indigoLight: "#EEF2FF", coral: "#FF8A65", coralDark: "#F4511E",
 };
 
-const waveStyles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    height: 48,
-  },
-  dot: {
-    width: 5,
-    height: 20,
-    borderRadius: 3,
-  },
-});
+const GLASS = {
+  backgroundColor: "rgba(255,255,255,0.92)",
+  borderWidth: 1, borderColor: "rgba(0,0,0,0.05)",
+  shadowColor: "#0F172A", shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.06, shadowRadius: 12, elevation: 4,
+};
 
-const HomeScreen = ({ navigation }) => {
-  const { pet, user, canTranslate, resetDailyIfNeeded } = useApp();
-  const insets = useSafeAreaInsets();
+const POSTURES_CAT = [
+  { key: "relajado", label: "Relajado", icon: "cat" },
+  { key: "alerta",   label: "Alerta",   icon: "eye-outline" },
+  { key: "arqueado", label: "Arqueado", icon: "arrow-up-bold" },
+  { key: "sentado",  label: "Sentado",  icon: "seat" },
+  { key: "tumbado",  label: "Tumbado",  icon: "sleep" },
+  { key: "jugueton", label: "Juguetón", icon: "run-fast" },
+];
+const POSTURES_DOG = [
+  { key: "relajado", label: "Relajado", icon: "dog" },
+  { key: "alerta",   label: "Alerta",   icon: "eye-outline" },
+  { key: "sentado",  label: "Sentado",  icon: "seat" },
+  { key: "tumbado",  label: "Tumbado",  icon: "sleep" },
+  { key: "jugueton", label: "Juguetón", icon: "run-fast" },
+  { key: "sumiso",   label: "Sumiso",   icon: "paw-outline" },
+];
+const ENVIRONMENTS = [
+  { key: "llegada",  label: "Llegada a casa",     icon: "home-heart" },
+  { key: "comida",   label: "Hora de comida",      icon: "food-variant" },
+  { key: "extrano",  label: "Extraños / ruido",    icon: "account-alert" },
+  { key: "juego",    label: "Sesión de juego",     icon: "toy-brick" },
+  { key: "descanso", label: "Hora de descanso",    icon: "moon-waning-crescent" },
+];
 
+// ─── PressableScale ───────────────────────────────────────────────────────────
+function PressableScale({ onPress, onPressIn: extIn, onPressOut: extOut, style, children, disabled, activeScale = 0.97 }) {
+  const anim = useRef(new Animated.Value(1)).current;
+  const cfg = { useNativeDriver: true };
+  const handleIn = () => {
+    Animated.spring(anim, { toValue: activeScale, tension: 300, friction: 12, ...cfg }).start();
+    extIn?.();
+  };
+  const handleOut = () => {
+    Animated.spring(anim, { toValue: 1, tension: 200, friction: 8, ...cfg }).start();
+    extOut?.();
+  };
+  return (
+    <TouchableOpacity onPressIn={handleIn} onPressOut={handleOut} onPress={onPress} disabled={disabled} activeOpacity={1}>
+      <Animated.View style={[style, { transform: [{ scale: anim }] }]}>{children}</Animated.View>
+    </TouchableOpacity>
+  );
+}
+
+// ─── Wave Ring ────────────────────────────────────────────────────────────────
+function WaveRing({ delay, isRecording }) {
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    let anim;
+    if (isRecording) {
+      opacity.setValue(0.4);
+      anim = Animated.loop(Animated.sequence([
+        Animated.delay(delay),
+        Animated.parallel([
+          Animated.timing(scale,   { toValue: 3.0, duration: 1600, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 0,   duration: 1600, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.timing(scale,   { toValue: 1,   duration: 0, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 0.4, duration: 0, useNativeDriver: true }),
+        ]),
+      ]));
+      anim.start();
+    } else {
+      scale.setValue(1);
+      opacity.setValue(0);
+    }
+    return () => anim?.stop();
+  }, [isRecording, delay]);
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[s.wave, { opacity, transform: [{ scale }] }]}
+    />
+  );
+}
+
+// ─── Env Dropdown ─────────────────────────────────────────────────────────────
+function EnvDropdown({ visible, onClose, selected, onSelect }) {
+  return (
+    <Modal transparent animationType="fade" visible={visible} onRequestClose={onClose}>
+      <TouchableOpacity style={s.dropOverlay} activeOpacity={1} onPress={onClose}>
+        <View style={s.dropSheet}>
+          <LinearGradient colors={["#4F46E5", "#7C3AED"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.dropHandle} />
+          <Text style={s.dropTitle}>Contexto / Estímulo</Text>
+          {ENVIRONMENTS.map(env => (
+            <PressableScale key={env.key} onPress={() => { onSelect(env.key); onClose(); }} activeScale={0.98}>
+              <View style={[s.dropItem, selected === env.key && s.dropItemSel]}>
+                <View style={[s.dropIconBox, selected === env.key && s.dropIconBoxActive]}>
+                  <MaterialCommunityIcons name={env.icon} size={18} color={selected === env.key ? "#fff" : C.muted} />
+                </View>
+                <Text style={[s.dropItemText, selected === env.key && s.dropItemTextSel]}>{env.label}</Text>
+                {selected === env.key && (
+                  <MaterialCommunityIcons name="check-circle" size={18} color={C.indigo} style={{ marginLeft: "auto" }} />
+                )}
+              </View>
+            </PressableScale>
+          ))}
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
+
+// ─── HomeScreen ───────────────────────────────────────────────────────────────
+export default function HomeScreen({ navigation }) {
+  const { pet, canRecord, remaining, setLastPosture, setLastEnvironment, setLastAnalysisAudio, saveResult } = useApp();
+
+  const species = pet?.species || "dog";
+  const postures = species === "cat" ? POSTURES_CAT : POSTURES_DOG;
+
+  const [posture, setPosture] = useState(postures[0].key);
+  const [environment, setEnvironment] = useState("llegada");
+  const [envDropOpen, setEnvDropOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [hasPermission, setHasPermission] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [recordingObj, setRecordingObj] = useState(null);
+
+  const dimAnim = useRef(new Animated.Value(0)).current;
   const recordingRef = useRef(null);
+  const selectedEnv = ENVIRONMENTS.find(e => e.key === environment) || ENVIRONMENTS[0];
+  const petInitial = pet?.name ? pet.name[0].toUpperCase() : "?";
 
   useEffect(() => {
-    (async () => {
-      await resetDailyIfNeeded();
-      const { status } = await Audio.requestPermissionsAsync();
-      setHasPermission(status === 'granted');
-    })();
+    return () => { recordingRef.current?.stopAndUnloadAsync().catch(() => {}); };
   }, []);
 
-  const startRecording = async () => {
-    if (!hasPermission) {
-      Alert.alert(
-        'Permiso requerido',
-        'Necesitamos acceso al micrófono para grabar los sonidos de tu mascota.',
-        [{ text: 'Entendido' }]
-      );
-      return;
-    }
+  useEffect(() => {
+    Animated.timing(dimAnim, {
+      toValue: isRecording ? 0.12 : 0, duration: 300, useNativeDriver: true,
+    }).start();
+  }, [isRecording]);
 
-    if (!canTranslate()) {
-      navigation.navigate('Paywall');
-      return;
-    }
-
+  const startRecording = useCallback(async () => {
+    if (!canRecord) return;
     try {
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
-
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      const { recording } = await Audio.Recording.createAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
       recordingRef.current = recording;
+      setRecordingObj(recording);
       setIsRecording(true);
-    } catch (err) {
-      console.error('Failed to start recording:', err);
-      Alert.alert('Error', 'No se pudo iniciar la grabación. Intenta de nuevo.');
-    }
-  };
+    } catch (e) { console.warn("startRecording:", e); }
+  }, [canRecord]);
 
-  const stopRecording = async () => {
-    if (!recordingRef.current) return;
+  const stopAndAnalyze = useCallback(async () => {
+    if (!recordingObj) return;
     setIsRecording(false);
-
+    setLoading(true);
     try {
-      await recordingRef.current.stopAndUnloadAsync();
-      const uri = recordingRef.current.getURI();
+      await recordingObj.stopAndUnloadAsync();
+      const uri = recordingObj.getURI();
+      setLastAnalysisAudio(uri);
       recordingRef.current = null;
+      setRecordingObj(null);
+      setLastPosture(posture);
+      setLastEnvironment(environment);
+      navigation.navigate("Loading", { posture, environment });
+      const result = await analyzeSound(pet?.species || "dog", pet?.name || "Tu mascota", posture, environment);
+      saveResult(result);
+    } catch (e) { console.warn("analyze:", e); setLoading(false); }
+  }, [recordingObj, posture, environment, pet, navigation]);
 
-      await Audio.setAudioModeAsync({ allowsRecordingIOS: false });
-
-      if (uri) {
-        navigation.navigate('Result', { audioUri: uri });
-      }
-    } catch (err) {
-      console.error('Failed to stop recording:', err);
-      recordingRef.current = null;
-    }
-  };
-
-  const handleRecordPress = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
-  };
-
-  const petInitial = pet?.name ? pet.name.charAt(0).toUpperCase() : '?';
-  const translationsLeft = Math.max(0, 3 - user.translationsToday);
-  const limitReached = !canTranslate();
+  const handlePress = useCallback(() => {
+    if (loading) return;
+    isRecording ? stopAndAnalyze() : startRecording();
+  }, [isRecording, loading, startRecording, stopAndAnalyze]);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top + 12 }]}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.greeting}>
-            ¡Hola! Soy{' '}
-            <Text style={styles.petNameInline}>{pet?.name || 'tu mascota'}</Text>
-          </Text>
-          <Text
-            style={[styles.counter, limitReached && styles.counterLimit]}
-          >
-            {user.isPremium
-              ? 'Traducciones ilimitadas ✨'
-              : limitReached
-              ? 'Límite diario alcanzado 🔒'
-              : `Traducciones hoy: ${user.translationsToday} de 3`}
-          </Text>
-        </View>
+    <View style={{ flex: 1 }}>
+      <LinearGradient colors={["#F8FAFC", "#EEF2FF", "#F5F3FF"]} style={StyleSheet.absoluteFill} />
+      <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000", opacity: dimAnim }]} />
 
-        {/* Pet avatar */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Ajustes')}
-          activeOpacity={0.8}
-        >
-          {pet?.photo ? (
-            <Image source={{ uri: pet.photo }} style={styles.petAvatar} />
-          ) : (
-            <View style={styles.petAvatarFallback}>
-              <Text style={styles.petAvatarInitial}>{petInitial}</Text>
+      <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+        <StatusBar barStyle="dark-content" />
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>
+
+          {/* Header */}
+          <View style={s.header}>
+            <View style={s.headerLeft}>
+              <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.logoMark}>
+                <MaterialCommunityIcons name="waveform" size={15} color="#fff" />
+              </LinearGradient>
+              <Text style={s.appLabel}>PetVoice AI</Text>
             </View>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {/* Progress bar (non-premium) */}
-      {!user.isPremium && (
-        <View style={styles.progressWrapper}>
-          <View style={styles.progressBg}>
-            <View
-              style={[
-                styles.progressFill,
-                {
-                  width: `${Math.min(100, (user.translationsToday / 3) * 100)}%`,
-                  backgroundColor: limitReached ? COLORS.DANGER : COLORS.PRIMARY,
-                },
-              ]}
-            />
+            <View style={s.headerRight}>
+              {pet?.photo
+                ? <Image source={{ uri: pet.photo }} style={s.petAvatar} />
+                : <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.petAvatar}>
+                    <Text style={s.petAvatarLetter}>{petInitial}</Text>
+                  </LinearGradient>}
+              <PressableScale activeScale={0.94}>
+                <LinearGradient colors={["#EEF2FF", "#F5F3FF"]} style={s.upgradeBtn}>
+                  <MaterialCommunityIcons name="crown-outline" size={13} color={C.indigo} />
+                  <Text style={s.upgradeBtnText}>Pro</Text>
+                </LinearGradient>
+              </PressableScale>
+            </View>
           </View>
-          <Text style={styles.progressLabel}>
-            {translationsLeft} restante{translationsLeft !== 1 ? 's' : ''} hoy
-          </Text>
-        </View>
-      )}
 
-      {/* Center area */}
-      <View style={styles.centerArea}>
-        {/* Large pet avatar */}
-        <View style={styles.bigAvatarWrapper}>
-          {pet?.photo ? (
-            <Image source={{ uri: pet.photo }} style={styles.bigAvatar} />
-          ) : (
-            <View style={styles.bigAvatarFallback}>
-              <Text style={styles.bigAvatarEmoji}>
-                {pet?.species === 'cat' ? '🐱' : '🐶'}
+          {/* Status card */}
+          <View style={[s.statusCard, GLASS]}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.petName}>{pet?.name || "Tu Mascota"}</Text>
+              <Text style={s.petBreed}>
+                {species === "cat" ? "Gato" : "Perro"}
+                {pet?.age ? ` · ${pet.age} años` : ""}
               </Text>
             </View>
-          )}
-          {isRecording && (
-            <View style={styles.recordingBadge}>
-              <Text style={styles.recordingBadgeText}>REC</Text>
+            <View style={[s.limitBadge, !canRecord && s.limitBadgeWarn]}>
+              <MaterialCommunityIcons name="microphone" size={13} color={canRecord ? C.indigo : "#DC2626"} />
+              <Text style={[s.limitText, !canRecord && s.limitTextWarn]}>
+                {canRecord ? `${remaining} restantes` : "Límite alcanzado"}
+              </Text>
             </View>
-          )}
-        </View>
+          </View>
 
-        {/* Pet name */}
-        <Text style={styles.petName}>{pet?.name || 'Tu mascota'}</Text>
-        {pet?.breed ? (
-          <Text style={styles.petBreed}>{pet.breed}</Text>
-        ) : null}
+          {/* Posture chips */}
+          <View style={s.section}>
+            <Text style={s.sectionLabel}>Postura corporal</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipsRow}>
+              {postures.map(p => {
+                const active = posture === p.key;
+                return (
+                  <PressableScale key={p.key} onPress={() => setPosture(p.key)} activeScale={0.95}>
+                    {active ? (
+                      <View style={s.chipActive}>
+                        <MaterialCommunityIcons name={p.icon} size={16} color={C.indigo} style={{ marginRight: 5 }} />
+                        <Text style={s.chipTextActive}>{p.label}</Text>
+                      </View>
+                    ) : (
+                      <View style={[s.chip, GLASS]}>
+                        <MaterialCommunityIcons name={p.icon} size={16} color={C.muted} style={{ marginRight: 5 }} />
+                        <Text style={s.chipText}>{p.label}</Text>
+                      </View>
+                    )}
+                  </PressableScale>
+                );
+              })}
+            </ScrollView>
+          </View>
 
-        {/* Waveform */}
-        <View style={styles.waveformArea}>
-          <WaveformDots isActive={isRecording} />
-        </View>
+          {/* Environment selector */}
+          <View style={s.section}>
+            <Text style={s.sectionLabel}>Contexto / Estímulo</Text>
+            <PressableScale onPress={() => setEnvDropOpen(true)} activeScale={0.98} style={[s.envSelector, GLASS]}>
+              <View style={s.envSelectorLeft}>
+                <View style={s.envIconBox}>
+                  <MaterialCommunityIcons name={selectedEnv.icon} size={18} color={C.indigo} />
+                </View>
+                <Text style={s.envText}>{selectedEnv.label}</Text>
+              </View>
+              <MaterialCommunityIcons name="chevron-down" size={20} color={C.muted} />
+            </PressableScale>
+          </View>
 
-        {/* Instruction */}
-        {!isRecording && (
-          <Text style={[styles.instruction, limitReached && styles.instructionLimit]}>
-            {limitReached
-              ? 'Actualiza a Premium para continuar'
-              : 'Toca el botón para grabar'}
-          </Text>
-        )}
-        {isRecording && (
-          <Text style={styles.instructionRecording}>
-            Escuchando a {pet?.name || 'tu mascota'}...{'\n'}Toca de nuevo para analizar
-          </Text>
-        )}
-      </View>
+          {/* Record section */}
+          <View style={s.recordSection}>
+            <Text style={s.recordHint}>
+              {isRecording
+                ? "Grabando... toca para analizar"
+                : canRecord
+                ? "Toca para comenzar a grabar"
+                : "Actualiza a Pro para más análisis"}
+            </Text>
 
-      {/* Record button */}
-      <View style={styles.recordArea}>
-        <RecordButton
-          isRecording={isRecording}
-          onPress={limitReached ? () => navigation.navigate('Paywall') : handleRecordPress}
-        />
+            <View style={s.btnOuter}>
+              {[0, 1, 2].map(i => <WaveRing key={i} delay={i * 420} isRecording={isRecording} />)}
 
-        {limitReached && (
-          <TouchableOpacity
-            style={styles.upgradeBtn}
-            onPress={() => navigation.navigate('Paywall')}
-            activeOpacity={0.85}
-          >
-            <Text style={styles.upgradeBtnText}>🔓 Obtener Premium</Text>
-          </TouchableOpacity>
-        )}
-      </View>
+              {/* 3D base layer */}
+              <View style={s.btnBase}>
+                <PressableScale
+                  onPress={handlePress}
+                  disabled={loading || !canRecord}
+                  activeScale={0.94}
+                >
+                  <LinearGradient
+                    colors={
+                      loading ? [C.indigo, C.violet]
+                      : isRecording ? [C.coralDark, "#C63E17"]
+                      : !canRecord ? ["#CBD5E1", "#CBD5E1"]
+                      : [C.coral, C.coralDark]
+                    }
+                    style={s.recordBtn}
+                  >
+                    {loading
+                      ? <ActivityIndicator size="large" color="#fff" />
+                      : <MaterialCommunityIcons name={isRecording ? "stop" : "microphone"} size={40} color="#fff" />}
+                  </LinearGradient>
+                </PressableScale>
+              </View>
+            </View>
 
-      <View style={{ height: insets.bottom + 16 }} />
+            {isRecording && (
+              <View style={s.recIndicator}>
+                <View style={s.recDot} />
+                <Text style={s.recText}>REC</Text>
+              </View>
+            )}
+          </View>
+
+          {/* Tip card */}
+          <View style={[s.tipCard, GLASS]}>
+            <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.tipAccent} />
+            <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color={C.indigo} style={{ marginRight: 10 }} />
+            <Text style={s.tipText}>
+              Graba 3–10 segundos de forma natural. Más contexto = traducción más precisa.
+            </Text>
+          </View>
+
+        </ScrollView>
+      </SafeAreaView>
+
+      <EnvDropdown
+        visible={envDropOpen}
+        onClose={() => setEnvDropOpen(false)}
+        selected={environment}
+        onSelect={setEnvironment}
+      />
     </View>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BG,
-  },
+// ─── Styles ───────────────────────────────────────────────────────────────────
+const s = StyleSheet.create({
+  scrollContent: { paddingBottom: 40 },
+
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    paddingHorizontal: 24,
-    marginBottom: 8,
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    paddingHorizontal: 20, paddingVertical: 14,
   },
-  greeting: {
-    fontSize: FONTS.size.md,
-    color: COLORS.MUTED,
-    marginBottom: 3,
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
+  logoMark: {
+    width: 32, height: 32, borderRadius: 9,
+    alignItems: "center", justifyContent: "center",
   },
-  petNameInline: {
-    color: COLORS.PRIMARY,
-    fontWeight: FONTS.weight.bold,
-  },
-  counter: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.DARK,
-    fontWeight: FONTS.weight.semibold,
-  },
-  counterLimit: {
-    color: COLORS.DANGER,
-  },
+  appLabel: { fontFamily: "Inter_700Bold", fontSize: 17, color: C.text },
+  headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
   petAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    borderWidth: 2,
-    borderColor: COLORS.PRIMARY,
+    width: 38, height: 38, borderRadius: 19,
+    alignItems: "center", justifyContent: "center",
   },
-  petAvatarFallback: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: COLORS.PRIMARY,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  petAvatarInitial: {
-    color: COLORS.WHITE,
-    fontSize: FONTS.size.lg,
-    fontWeight: FONTS.weight.bold,
-  },
-
-  // Progress bar
-  progressWrapper: {
-    paddingHorizontal: 24,
-    marginBottom: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  progressBg: {
-    flex: 1,
-    height: 6,
-    backgroundColor: COLORS.BORDER,
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: 6,
-    borderRadius: 3,
-  },
-  progressLabel: {
-    fontSize: FONTS.size.xs,
-    color: COLORS.MUTED,
-    fontWeight: FONTS.weight.medium,
-    minWidth: 80,
-    textAlign: 'right',
-  },
-
-  // Center
-  centerArea: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 24,
-  },
-  bigAvatarWrapper: {
-    position: 'relative',
-    marginBottom: 16,
-  },
-  bigAvatar: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    borderWidth: 4,
-    borderColor: COLORS.WHITE,
-    ...Platform.select({
-      ios: {
-        shadowColor: COLORS.PRIMARY,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.2,
-        shadowRadius: 14,
-      },
-      android: { elevation: 8 },
-    }),
-  },
-  bigAvatarFallback: {
-    width: 130,
-    height: 130,
-    borderRadius: 65,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 4,
-    borderColor: COLORS.WHITE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: COLORS.PRIMARY,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.2,
-        shadowRadius: 14,
-      },
-      android: { elevation: 8 },
-    }),
-  },
-  bigAvatarEmoji: {
-    fontSize: 64,
-  },
-  recordingBadge: {
-    position: 'absolute',
-    bottom: 4,
-    right: 4,
-    backgroundColor: COLORS.DANGER,
-    borderRadius: 10,
-    paddingHorizontal: 7,
-    paddingVertical: 3,
-    borderWidth: 2,
-    borderColor: COLORS.WHITE,
-  },
-  recordingBadgeText: {
-    color: COLORS.WHITE,
-    fontSize: FONTS.size.xs,
-    fontWeight: FONTS.weight.bold,
-    letterSpacing: 0.5,
-  },
-  petName: {
-    fontSize: FONTS.size.xxl,
-    fontWeight: FONTS.weight.extrabold,
-    color: COLORS.DARK,
-    marginBottom: 4,
-  },
-  petBreed: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.MUTED,
-    marginBottom: 8,
-    fontWeight: FONTS.weight.medium,
-  },
-  waveformArea: {
-    marginVertical: 20,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  instruction: {
-    fontSize: FONTS.size.md,
-    color: COLORS.MUTED,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-  instructionLimit: {
-    color: COLORS.DANGER,
-    fontWeight: FONTS.weight.medium,
-  },
-  instructionRecording: {
-    fontSize: FONTS.size.md,
-    color: COLORS.PRIMARY,
-    textAlign: 'center',
-    lineHeight: 24,
-    fontWeight: FONTS.weight.medium,
-  },
-
-  // Record area
-  recordArea: {
-    alignItems: 'center',
-    paddingBottom: 16,
-    gap: 20,
-  },
+  petAvatarLetter: { fontFamily: "Inter_700Bold", fontSize: 15, color: "#fff" },
   upgradeBtn: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 12,
-    paddingHorizontal: 28,
-    paddingVertical: 14,
-    ...Platform.select({
-      ios: {
-        shadowColor: COLORS.PRIMARY,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.35,
-        shadowRadius: 10,
-      },
-      android: { elevation: 6 },
-    }),
+    flexDirection: "row", alignItems: "center", gap: 4,
+    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6,
+    borderWidth: 1, borderColor: "rgba(79,70,229,0.2)",
   },
-  upgradeBtnText: {
-    color: COLORS.WHITE,
-    fontSize: FONTS.size.md,
-    fontWeight: FONTS.weight.bold,
-    letterSpacing: 0.3,
-  },
-});
+  upgradeBtnText: { fontFamily: "Inter_700Bold", fontSize: 12, color: C.indigo },
 
-export default HomeScreen;
+  statusCard: {
+    marginHorizontal: 20, marginBottom: 20, borderRadius: 18, padding: 16,
+    flexDirection: "row", alignItems: "center",
+  },
+  petName: { fontFamily: "Inter_800ExtraBold", fontSize: 18, color: C.text, marginBottom: 3 },
+  petBreed: { fontFamily: "Inter_400Regular", fontSize: 13, color: C.muted },
+  limitBadge: {
+    flexDirection: "row", alignItems: "center", gap: 5,
+    backgroundColor: C.indigoLight, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 6,
+  },
+  limitBadgeWarn: { backgroundColor: "#FEE2E2" },
+  limitText: { fontFamily: "Inter_600SemiBold", fontSize: 12, color: C.indigo },
+  limitTextWarn: { color: "#DC2626" },
+
+  section: { marginHorizontal: 20, marginBottom: 20 },
+  sectionLabel: {
+    fontFamily: "Inter_600SemiBold", fontSize: 11, color: C.muted,
+    marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8,
+  },
+
+  chipsRow: { gap: 8, flexDirection: "row", paddingRight: 4 },
+  chip: {
+    flexDirection: "row", alignItems: "center",
+    borderRadius: 24, paddingHorizontal: 14, paddingVertical: 9,
+  },
+  chipActive: {
+    flexDirection: "row", alignItems: "center",
+    borderRadius: 24, paddingHorizontal: 14, paddingVertical: 9,
+    backgroundColor: "rgba(79,70,229,0.10)",
+    borderWidth: 1, borderColor: "rgba(79,70,229,0.25)",
+  },
+  chipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: C.muted },
+  chipTextActive: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: C.indigo },
+
+  envSelector: {
+    borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14,
+    flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+  },
+  envSelectorLeft: { flexDirection: "row", alignItems: "center" },
+  envIconBox: {
+    width: 34, height: 34, borderRadius: 10,
+    backgroundColor: C.indigoLight, alignItems: "center", justifyContent: "center", marginRight: 10,
+  },
+  envText: { fontFamily: "Inter_500Medium", fontSize: 15, color: C.text },
+
+  recordSection: { alignItems: "center", paddingVertical: 20, marginBottom: 8 },
+  recordHint: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 28 },
+  btnOuter: { width: BTN_SIZE * 3, height: BTN_SIZE * 3, alignItems: "center", justifyContent: "center" },
+  wave: {
+    position: "absolute", width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
+    backgroundColor: C.coral,
+  },
+  btnBase: {
+    width: BTN_SIZE + 8, height: BTN_SIZE + 8, borderRadius: (BTN_SIZE + 8) / 2,
+    backgroundColor: "rgba(244,81,30,0.3)",
+    alignItems: "center", justifyContent: "center",
+    shadowColor: C.coral, shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.4, shadowRadius: 20, elevation: 12,
+  },
+  recordBtn: {
+    width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 3, borderColor: "rgba(255,255,255,0.3)",
+  },
+  recIndicator: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 20 },
+  recDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#EF4444" },
+  recText: { fontFamily: "Inter_800ExtraBold", fontSize: 13, color: "#EF4444", letterSpacing: 2 },
+
+  tipCard: {
+    marginHorizontal: 20, marginBottom: 32, borderRadius: 16, padding: 14,
+    flexDirection: "row", alignItems: "flex-start", overflow: "hidden",
+  },
+  tipAccent: {
+    position: "absolute", left: 0, top: 0, bottom: 0, width: 4,
+  },
+  tipText: { fontFamily: "Inter_400Regular", fontSize: 13, color: C.indigo, flex: 1, lineHeight: 20 },
+
+  // Dropdown
+  dropOverlay: { flex: 1, backgroundColor: "rgba(15,23,42,0.5)", justifyContent: "flex-end" },
+  dropSheet: {
+    backgroundColor: "#fff", borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    paddingTop: 12, paddingBottom: Platform.OS === "ios" ? 40 : 28, paddingHorizontal: 20,
+    shadowColor: "#000", shadowOffset: { width: 0, height: -6 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 14,
+  },
+  dropHandle: { width: 36, height: 4, borderRadius: 2, alignSelf: "center", marginBottom: 18 },
+  dropTitle: { fontFamily: "Inter_700Bold", fontSize: 17, color: C.text, marginBottom: 12 },
+  dropItem: {
+    flexDirection: "row", alignItems: "center",
+    paddingVertical: 12, borderRadius: 12, paddingHorizontal: 8, marginBottom: 4,
+  },
+  dropItemSel: { backgroundColor: C.indigoLight },
+  dropIconBox: {
+    width: 36, height: 36, borderRadius: 10, backgroundColor: "#F1F5F9",
+    alignItems: "center", justifyContent: "center", marginRight: 12,
+  },
+  dropIconBoxActive: { backgroundColor: C.indigo },
+  dropItemText: { fontFamily: "Inter_400Regular", fontSize: 15, color: C.text },
+  dropItemTextSel: { fontFamily: "Inter_600SemiBold", color: C.indigo },
+});

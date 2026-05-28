@@ -1,458 +1,395 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
-  ScrollView,
-  Image,
-  Alert,
-  Platform,
-  KeyboardAvoidingView,
-} from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import { useApp } from '../context/AppContext';
-import { COLORS } from '../constants/colors';
-import { FONTS } from '../constants/typography';
+  View, Text, TextInput, TouchableOpacity, StyleSheet,
+  Image, ScrollView, Animated, StatusBar, Easing,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { useApp } from "../context/AppContext";
 
-const AGE_OPTIONS = [
-  { label: 'Cachorro', sublabel: '0–1 año', value: 'cachorro' },
-  { label: 'Joven', sublabel: '1–3 años', value: 'joven' },
-  { label: 'Adulto', sublabel: '3–8 años', value: 'adulto' },
-  { label: 'Senior', sublabel: '8+ años', value: 'senior' },
-];
+const TOTAL_STEPS = 4;
+const CARD_SIZE = 110;
 
-const OnboardingScreen = ({ navigation }) => {
+const C = {
+  text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
+  indigo: "#4F46E5", violet: "#7C3AED", indigoLight: "#EEF2FF",
+  inputBorder: "#CBD5E1",
+};
+
+const GLASS = {
+  backgroundColor: "rgba(255,255,255,0.92)",
+  borderWidth: 1,
+  borderColor: "rgba(0,0,0,0.05)",
+  shadowColor: "#0F172A",
+  shadowOffset: { width: 0, height: 3 },
+  shadowOpacity: 0.06,
+  shadowRadius: 14,
+  elevation: 5,
+};
+
+// ─── PressableScale ───────────────────────────────────────────────────────────
+function PressableScale({ onPress, style, children, disabled, activeScale = 0.97 }) {
+  const anim = useRef(new Animated.Value(1)).current;
+  const cfg = { useNativeDriver: true };
+  const press = () => Animated.spring(anim, { toValue: activeScale, tension: 300, friction: 12, ...cfg }).start();
+  const release = () => Animated.spring(anim, { toValue: 1, tension: 200, friction: 8, ...cfg }).start();
+  return (
+    <TouchableOpacity onPressIn={press} onPressOut={release} onPress={onPress} disabled={disabled} activeOpacity={1} style={style}>
+      <Animated.View style={[style, { transform: [{ scale: anim }] }]}>{children}</Animated.View>
+    </TouchableOpacity>
+  );
+}
+
+// ─── GradientButton ───────────────────────────────────────────────────────────
+function GradientButton({ onPress, disabled, label, icon }) {
+  return (
+    <PressableScale onPress={onPress} disabled={disabled} activeScale={0.96}>
+      <LinearGradient
+        colors={disabled ? ["#CBD5E1", "#CBD5E1"] : ["#4F46E5", "#7C3AED"]}
+        start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+        style={s.gradBtn}
+      >
+        <Text style={s.gradBtnText}>{label}</Text>
+        {icon && <MaterialCommunityIcons name={icon} size={17} color="#fff" style={{ marginLeft: 6 }} />}
+      </LinearGradient>
+    </PressableScale>
+  );
+}
+
+// ─── AnimatedProgressBar ──────────────────────────────────────────────────────
+function ProgressBar({ step, total }) {
+  const anim = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(anim, {
+      toValue: step / total, duration: 320,
+      easing: Easing.inOut(Easing.ease), useNativeDriver: false,
+    }).start();
+  }, [step]);
+  const barW = anim.interpolate({ inputRange: [0, 1], outputRange: ["0%", "100%"] });
+  return (
+    <View style={s.progressTrack}>
+      <Animated.View style={[s.progressFillWrap, { width: barW }]}>
+        <LinearGradient colors={["#6366F1", "#8B5CF6", "#A78BFA"]}
+          start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1 }} />
+      </Animated.View>
+    </View>
+  );
+}
+
+// ─── OnboardingScreen ─────────────────────────────────────────────────────────
+export default function OnboardingScreen({ navigation }) {
   const { savePet } = useApp();
-  const [photo, setPhoto] = useState(null);
-  const [name, setName] = useState('');
+  const [step, setStep] = useState(0);
   const [species, setSpecies] = useState(null);
-  const [breed, setBreed] = useState('');
-  const [age, setAge] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
+  const [petName, setPetName] = useState("");
+  const [petAge, setPetAge] = useState("");
+  const [petPhoto, setPetPhoto] = useState(null);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const cardOpacity = useRef(new Animated.Value(1)).current;
+
+  const animStep = () => {
+    Animated.sequence([
+      Animated.parallel([
+        Animated.timing(cardOpacity, { toValue: 0, duration: 100, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: -16, duration: 100, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(cardOpacity, { toValue: 1, duration: 200, useNativeDriver: true }),
+        Animated.timing(slideAnim, { toValue: 0, duration: 200, useNativeDriver: true }),
+      ]),
+    ]).start();
+  };
+
+  const goNext = () => { animStep(); setStep(n => n + 1); };
+  const goBack = () => { animStep(); setStep(n => Math.max(0, n - 1)); };
 
   const pickPhoto = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert(
-        'Permiso requerido',
-        'Necesitamos acceso a tu galería para elegir la foto de tu mascota.'
-      );
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-
-    if (!result.canceled && result.assets?.[0]) {
-      setPhoto(result.assets[0].uri);
-    }
+    if (status !== "granted") return;
+    const r = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.8 });
+    if (!r.canceled && r.assets?.[0]?.uri) setPetPhoto(r.assets[0].uri);
   };
 
-  const handleSubmit = async () => {
-    if (!name.trim()) {
-      Alert.alert('Nombre requerido', 'Por favor ingresa el nombre de tu mascota.');
-      return;
-    }
-    if (!species) {
-      Alert.alert('Especie requerida', 'Selecciona si tu mascota es perro o gato.');
-      return;
-    }
-
-    setIsSaving(true);
-    try {
-      await savePet({
-        name: name.trim(),
-        species,
-        breed: breed.trim(),
-        age: age || 'adulto',
-        photo,
-      });
-      navigation.replace('MainTabs');
-    } catch (err) {
-      Alert.alert('Error', 'No se pudo guardar la información. Intenta de nuevo.');
-    } finally {
-      setIsSaving(false);
-    }
+  const takePhoto = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== "granted") return;
+    const r = await ImagePicker.launchCameraAsync({ allowsEditing: true, aspect: [1, 1], quality: 0.8 });
+    if (!r.canceled && r.assets?.[0]?.uri) setPetPhoto(r.assets[0].uri);
   };
 
-  const nameInitials = name.trim().charAt(0).toUpperCase() || '🐾';
+  const finish = () => {
+    savePet({ name: petName.trim(), species, age: petAge.trim(), photo: petPhoto });
+    navigation.replace("Home");
+  };
+
+  const canContinue = () => {
+    if (step === 0) return !!species;
+    if (step === 1) return petName.trim().length > 0;
+    return true;
+  };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.flex}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        style={styles.flex}
-        contentContainerStyle={styles.container}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Logo + heading */}
-        <View style={styles.logoArea}>
-          <Text style={styles.appLogo}>🐾 PetVoice AI</Text>
-          <Text style={styles.title}>Configura tu mascota</Text>
-          <Text style={styles.subtitle}>
-            Cuéntanos sobre ella para personalizar las traducciones
-          </Text>
-        </View>
+    <View style={{ flex: 1 }}>
+      <LinearGradient colors={["#EEF2FF", "#F0EAFF", "#FAF8FF"]} style={StyleSheet.absoluteFill} />
+      <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+        <StatusBar barStyle="dark-content" />
+        <ScrollView
+          contentContainerStyle={s.scroll}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Logo */}
+          <View style={s.logoSection}>
+            <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.logoCircle}>
+              <MaterialCommunityIcons name="waveform" size={28} color="#fff" />
+            </LinearGradient>
+            <Text style={s.logoTitle}>PetVoice AI</Text>
+            <Text style={s.logoTagline}>Entiende a tu mascota con inteligencia artificial</Text>
+            <View style={[s.badge, GLASS, { borderRadius: 20 }]}>
+              <MaterialCommunityIcons name="flask-outline" size={13} color={C.indigo} style={{ marginRight: 4 }} />
+              <Text style={s.badgeText}>Etología computacional</Text>
+            </View>
+          </View>
 
-        {/* Photo picker */}
-        <View style={styles.photoPicker}>
-          <TouchableOpacity style={styles.photoCircle} onPress={pickPhoto} activeOpacity={0.8}>
-            {photo ? (
-              <Image source={{ uri: photo }} style={styles.photoImage} />
-            ) : (
-              <View style={styles.photoPlaceholder}>
-                <Text style={styles.photoPlaceholderText}>
-                  {name.trim() ? nameInitials : '📷'}
-                </Text>
-                <Text style={styles.photoHint}>Toca para agregar foto</Text>
+          {/* Progress */}
+          <View style={s.progressSection}>
+            <ProgressBar step={step} total={TOTAL_STEPS} />
+            <Text style={s.progressLabel}>Paso {step + 1} de {TOTAL_STEPS + 1}</Text>
+          </View>
+
+          {/* Step card */}
+          <Animated.View style={[s.card, GLASS, { opacity: cardOpacity, transform: [{ translateX: slideAnim }] }]}>
+
+            {/* PASO 1 — Especie */}
+            {step === 0 && (
+              <View>
+                <Text style={s.title}>¿Qué tipo de mascota tienes?</Text>
+                <Text style={s.subtitle}>El modelo de análisis se adapta por especie</Text>
+                <View style={s.speciesRow}>
+                  {[{ key: "dog", label: "Perro", icon: "dog" }, { key: "cat", label: "Gato", icon: "cat" }].map(sp => {
+                    const active = species === sp.key;
+                    return (
+                      <PressableScale key={sp.key} onPress={() => setSpecies(sp.key)} activeScale={0.95}>
+                        <View style={[s.speciesCard, active && s.speciesCardActive]}>
+                          <MaterialCommunityIcons name={sp.icon} size={40} color={active ? C.indigo : C.muted} />
+                          <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
+                        </View>
+                      </PressableScale>
+                    );
+                  })}
+                </View>
               </View>
             )}
-          </TouchableOpacity>
-          {photo && (
-            <TouchableOpacity onPress={pickPhoto} style={styles.changePhotoBtn}>
-              <Text style={styles.changePhotoText}>Cambiar foto</Text>
-            </TouchableOpacity>
-          )}
-        </View>
 
-        {/* Name input */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Nombre de la mascota *</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ej. Luna, Max, Mochi..."
-            placeholderTextColor={COLORS.MUTED}
-            value={name}
-            onChangeText={setName}
-            maxLength={30}
-            autoCapitalize="words"
-            returnKeyType="next"
-          />
-        </View>
+            {/* PASO 2 — Nombre */}
+            {step === 1 && (
+              <View>
+                <Text style={s.title}>¿Cómo se llama?</Text>
+                <Text style={s.subtitle}>Usaremos el nombre en las traducciones</Text>
+                <Text style={s.fieldLabel}>Nombre de tu mascota</Text>
+                <TextInput style={s.input} placeholder="Ej: Max, Luna, Pelusa..."
+                  placeholderTextColor={C.muted} value={petName} onChangeText={setPetName} autoFocus maxLength={24} />
+              </View>
+            )}
 
-        {/* Species selector */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Especie *</Text>
-          <View style={styles.speciesRow}>
-            <TouchableOpacity
-              style={[
-                styles.speciesBtn,
-                species === 'dog' && styles.speciesBtnSelected,
-              ]}
-              onPress={() => setSpecies('dog')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.speciesEmoji}>🐶</Text>
-              <Text
-                style={[
-                  styles.speciesLabel,
-                  species === 'dog' && styles.speciesLabelSelected,
-                ]}
-              >
-                Perro
-              </Text>
-            </TouchableOpacity>
+            {/* PASO 3 — Edad */}
+            {step === 2 && (
+              <View>
+                <Text style={s.title}>¿Cuántos años tiene?</Text>
+                <Text style={s.subtitle}>Opcional - mejora la precisión del análisis</Text>
+                <Text style={s.fieldLabel}>Edad (años)</Text>
+                <TextInput style={[s.input, { width: 120 }]} placeholder="Ej: 2"
+                  placeholderTextColor={C.muted} value={petAge} onChangeText={setPetAge}
+                  keyboardType="numeric" maxLength={2} autoFocus />
+                <Text style={s.skipNote}>Puedes dejarlo en blanco y continuar</Text>
+              </View>
+            )}
 
-            <TouchableOpacity
-              style={[
-                styles.speciesBtn,
-                species === 'cat' && styles.speciesBtnSelected,
-              ]}
-              onPress={() => setSpecies('cat')}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.speciesEmoji}>🐱</Text>
-              <Text
-                style={[
-                  styles.speciesLabel,
-                  species === 'cat' && styles.speciesLabelSelected,
-                ]}
-              >
-                Gato
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+            {/* PASO 4 — Foto */}
+            {step === 3 && (
+              <View>
+                <Text style={s.title}>Agrega una foto</Text>
+                <Text style={s.subtitle}>Aparecerá en la pantalla de resultados</Text>
+                <View style={s.photoArea}>
+                  {petPhoto ? (
+                    <PressableScale onPress={pickPhoto} activeScale={0.96}>
+                      <View>
+                        <Image source={{ uri: petPhoto }} style={s.photoPreview} />
+                        <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.photoEditBtn}>
+                          <MaterialCommunityIcons name="pencil" size={15} color="#fff" />
+                        </LinearGradient>
+                      </View>
+                    </PressableScale>
+                  ) : (
+                    <LinearGradient colors={["#EEF2FF", "#F5F3FF"]} style={s.photoPlaceholder}>
+                      <View style={s.cameraCircle}>
+                        <MaterialCommunityIcons name="camera-outline" size={28} color={C.indigo} />
+                      </View>
+                      <Text style={s.photoHint}>Foto de {petName || "tu mascota"}</Text>
+                      <Text style={s.photoSubHint}>Opcional (JPG o PNG)</Text>
+                    </LinearGradient>
+                  )}
+                </View>
+                <View style={s.photoActions}>
+                  {[{ label: "Cámara", icon: "camera", fn: takePhoto }, { label: "Galería", icon: "image-outline", fn: pickPhoto }].map(b => (
+                    <PressableScale key={b.label} onPress={b.fn} activeScale={0.95}>
+                      <LinearGradient colors={["#EEF2FF", "#F5F3FF"]} style={s.photoBtn}>
+                        <MaterialCommunityIcons name={b.icon} size={16} color={C.indigo} style={{ marginRight: 6 }} />
+                        <Text style={s.photoBtnText}>{b.label}</Text>
+                      </LinearGradient>
+                    </PressableScale>
+                  ))}
+                </View>
+              </View>
+            )}
 
-        {/* Breed input */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Raza (opcional)</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Ej. Labrador, Siamés, Mestizo..."
-            placeholderTextColor={COLORS.MUTED}
-            value={breed}
-            onChangeText={setBreed}
-            maxLength={40}
-            autoCapitalize="words"
-            returnKeyType="next"
-          />
-        </View>
-
-        {/* Age selector */}
-        <View style={styles.section}>
-          <Text style={styles.label}>Edad</Text>
-          <View style={styles.ageGrid}>
-            {AGE_OPTIONS.map((opt) => (
-              <TouchableOpacity
-                key={opt.value}
-                style={[
-                  styles.ageBtn,
-                  age === opt.value && styles.ageBtnSelected,
-                ]}
-                onPress={() => setAge(opt.value)}
-                activeOpacity={0.8}
-              >
-                <Text
-                  style={[
-                    styles.ageBtnLabel,
-                    age === opt.value && styles.ageBtnLabelSelected,
-                  ]}
-                >
-                  {opt.label}
+            {/* PASO 5 — Confirmación (sin óvalo vacío) */}
+            {step === 4 && (
+              <View style={s.completionWrap}>
+                <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.completionIcon}>
+                  <MaterialCommunityIcons name="check-circle-outline" size={36} color="#fff" />
+                </LinearGradient>
+                <Text style={s.completionTitle}>¡Todo listo!</Text>
+                <Text style={s.completionBody}>
+                  El perfil biológico de {petName || "tu mascota"} ha sido configurado correctamente para calibrar el algoritmo de análisis.
                 </Text>
-                <Text
-                  style={[
-                    styles.ageBtnSublabel,
-                    age === opt.value && styles.ageBtnSublabelSelected,
-                  ]}
-                >
-                  {opt.sublabel}
-                </Text>
+              </View>
+            )}
+
+          </Animated.View>
+
+          {/* Nav */}
+          <View style={s.navRow}>
+            {step > 0 && (
+              <TouchableOpacity style={s.backBtn} onPress={goBack}>
+                <MaterialCommunityIcons name="arrow-left" size={17} color={C.muted} style={{ marginRight: 4 }} />
+                <Text style={s.backBtnText}>Atrás</Text>
               </TouchableOpacity>
+            )}
+            <View style={{ flex: 1 }} />
+            <GradientButton
+              onPress={step < TOTAL_STEPS ? goNext : finish}
+              disabled={!canContinue()}
+              label={step < TOTAL_STEPS ? "Continuar" : "¡Empezar!"}
+              icon={step < TOTAL_STEPS ? "arrow-right" : "check"}
+            />
+          </View>
+
+          {/* Dots */}
+          <View style={s.dotsRow}>
+            {[...Array(TOTAL_STEPS + 1)].map((_, i) => (
+              <View key={i} style={[s.dot, i === step && s.dotActive]} />
             ))}
           </View>
-        </View>
-
-        {/* Submit button */}
-        <TouchableOpacity
-          style={[styles.submitBtn, isSaving && styles.submitBtnDisabled]}
-          onPress={handleSubmit}
-          activeOpacity={0.85}
-          disabled={isSaving}
-        >
-          <Text style={styles.submitBtnText}>
-            {isSaving ? 'Guardando...' : 'Comenzar 🐾'}
-          </Text>
-        </TouchableOpacity>
-
-        <View style={styles.bottomSpacer} />
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: COLORS.BG },
-  container: {
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    paddingBottom: 40,
-  },
-  logoArea: {
-    alignItems: 'center',
-    marginBottom: 32,
-  },
-  appLogo: {
-    fontSize: FONTS.size.xxl,
-    fontWeight: FONTS.weight.extrabold,
-    color: COLORS.PRIMARY,
-    marginBottom: 12,
-    letterSpacing: -0.5,
-  },
-  title: {
-    fontSize: FONTS.size.xl,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.DARK,
-    marginBottom: 6,
-  },
-  subtitle: {
-    fontSize: FONTS.size.md,
-    color: COLORS.MUTED,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
+const s = StyleSheet.create({
+  scroll: { paddingHorizontal: 24, paddingBottom: 40, flexGrow: 1 },
 
-  // Photo picker
-  photoPicker: {
-    alignItems: 'center',
-    marginBottom: 28,
+  logoSection: { alignItems: "center", paddingTop: 28, paddingBottom: 24 },
+  logoCircle: {
+    width: 72, height: 72, borderRadius: 22,
+    alignItems: "center", justifyContent: "center", marginBottom: 14,
+    shadowColor: "#0F172A", shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.16, shadowRadius: 12, elevation: 6,
   },
-  photoCircle: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-    backgroundColor: '#EEF2FF',
-    borderWidth: 2.5,
-    borderColor: COLORS.PRIMARY,
-    borderStyle: 'dashed',
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoImage: {
-    width: 110,
-    height: 110,
-    borderRadius: 55,
-  },
-  photoPlaceholder: {
-    alignItems: 'center',
-    gap: 4,
-  },
-  photoPlaceholderText: {
-    fontSize: 36,
-  },
-  photoHint: {
-    fontSize: FONTS.size.xs,
-    color: COLORS.PRIMARY,
-    fontWeight: FONTS.weight.medium,
-    textAlign: 'center',
-    paddingHorizontal: 8,
-  },
-  changePhotoBtn: {
-    marginTop: 10,
-  },
-  changePhotoText: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.PRIMARY,
-    fontWeight: FONTS.weight.semibold,
-  },
+  logoTitle: { fontFamily: "Inter_800ExtraBold", fontSize: 28, color: C.text, marginBottom: 6, letterSpacing: -0.8 },
+  logoTagline: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, textAlign: "center", lineHeight: 21, marginBottom: 14, paddingHorizontal: 16 },
+  badge: { flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 6 },
+  badgeText: { fontFamily: "Inter_500Medium", fontSize: 12, color: C.indigo },
 
-  // Form sections
-  section: {
-    marginBottom: 24,
+  progressSection: { marginBottom: 20 },
+  progressTrack: { height: 6, backgroundColor: "rgba(0,0,0,0.07)", borderRadius: 3, overflow: "hidden", marginBottom: 8 },
+  progressFillWrap: { height: "100%", borderRadius: 3, overflow: "hidden" },
+  progressLabel: { fontFamily: "Inter_500Medium", fontSize: 12, color: C.muted, textAlign: "right" },
+
+  card: { borderRadius: 24, padding: 26, paddingBottom: 28, marginBottom: 24 },
+  title: { fontFamily: "Inter_700Bold", fontSize: 21, color: C.text, marginBottom: 7, letterSpacing: -0.4 },
+  subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 21 },
+
+  speciesRow: { flexDirection: "row", gap: 16, justifyContent: "center" },
+  speciesCard: {
+    width: CARD_SIZE, height: CARD_SIZE,
+    backgroundColor: "#F8FAFC", borderRadius: 16,
+    borderWidth: 1, borderColor: "#E2E8F0",
+    alignItems: "center", justifyContent: "center", gap: 10,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
   },
-  label: {
-    fontSize: FONTS.size.sm,
-    fontWeight: FONTS.weight.semibold,
-    color: COLORS.DARK,
-    marginBottom: 10,
-    letterSpacing: 0.2,
+  speciesCardActive: {
+    backgroundColor: "#EEF2FF",
+    borderColor: "#4F46E5", borderWidth: 1.5,
+    shadowColor: "#4F46E5", shadowOpacity: 0.12,
+    shadowRadius: 12, elevation: 4,
   },
+  speciesLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.muted },
+
+  fieldLabel: { fontFamily: "Inter_700Bold", fontSize: 13, color: C.text, marginBottom: 9 },
   input: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: COLORS.BORDER,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: FONTS.size.md,
-    color: COLORS.DARK,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.06,
-        shadowRadius: 4,
-      },
-      android: { elevation: 1 },
-    }),
+    backgroundColor: "rgba(255,255,255,0.9)", borderWidth: 1.5, borderColor: C.inputBorder,
+    borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14,
+    fontFamily: "Inter_500Medium", fontSize: 16, color: C.text,
+  },
+  skipNote: { fontFamily: "Inter_400Regular", fontSize: 12, color: C.muted, marginTop: 12 },
+
+  photoArea: { alignItems: "center", marginBottom: 22 },
+  photoPlaceholder: {
+    width: 160, height: 160, borderRadius: 80, alignItems: "center", justifyContent: "center", padding: 16,
+    borderWidth: 2, borderColor: "rgba(79,70,229,0.2)",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 12, elevation: 4,
+  },
+  cameraCircle: {
+    width: 54, height: 54, borderRadius: 27, backgroundColor: "rgba(255,255,255,0.9)",
+    alignItems: "center", justifyContent: "center", marginBottom: 10,
+  },
+  photoHint: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: C.indigo, textAlign: "center" },
+  photoSubHint: { fontFamily: "Inter_400Regular", fontSize: 11, color: C.muted, marginTop: 4, textAlign: "center" },
+  photoPreview: { width: 160, height: 160, borderRadius: 80, borderWidth: 3, borderColor: C.indigo },
+  photoEditBtn: {
+    position: "absolute", bottom: 6, right: 6, width: 34, height: 34,
+    borderRadius: 17, alignItems: "center", justifyContent: "center",
+  },
+  photoActions: { flexDirection: "row", gap: 14, justifyContent: "center" },
+  photoBtn: {
+    flexDirection: "row", alignItems: "center", borderRadius: 24, paddingHorizontal: 18, paddingVertical: 11,
+    borderWidth: 1, borderColor: "rgba(79,70,229,0.18)",
+  },
+  photoBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.indigo },
+
+  // Completion step (step 4)
+  completionWrap: { alignItems: "center", paddingVertical: 12 },
+  completionIcon: {
+    width: 72, height: 72, borderRadius: 22,
+    alignItems: "center", justifyContent: "center", marginBottom: 20,
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35, shadowRadius: 14, elevation: 8,
+  },
+  completionTitle: {
+    fontFamily: "Inter_800ExtraBold", fontSize: 24, color: C.text,
+    letterSpacing: -0.5, marginBottom: 14, textAlign: "center",
+  },
+  completionBody: {
+    fontFamily: "Inter_400Regular", fontSize: 15, color: C.muted,
+    textAlign: "center", lineHeight: 24, paddingHorizontal: 8,
   },
 
-  // Species
-  speciesRow: {
-    flexDirection: 'row',
-    gap: 12,
+  navRow: { flexDirection: "row", alignItems: "center", marginBottom: 24 },
+  backBtn: { flexDirection: "row", alignItems: "center", paddingVertical: 10, paddingHorizontal: 8 },
+  backBtnText: { fontFamily: "Inter_500Medium", fontSize: 15, color: C.muted },
+  gradBtn: {
+    flexDirection: "row", alignItems: "center", borderRadius: 14,
+    paddingHorizontal: 24, paddingVertical: 14,
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 6,
   },
-  speciesBtn: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: COLORS.BORDER,
-    paddingVertical: 16,
-    alignItems: 'center',
-    gap: 6,
-  },
-  speciesBtnSelected: {
-    borderColor: COLORS.PRIMARY,
-    backgroundColor: '#EEF2FF',
-  },
-  speciesEmoji: {
-    fontSize: 32,
-  },
-  speciesLabel: {
-    fontSize: FONTS.size.md,
-    fontWeight: FONTS.weight.semibold,
-    color: COLORS.MUTED,
-  },
-  speciesLabelSelected: {
-    color: COLORS.PRIMARY,
-  },
+  gradBtnText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#fff" },
 
-  // Age
-  ageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 10,
-  },
-  ageBtn: {
-    width: '47.5%',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: COLORS.BORDER,
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    alignItems: 'center',
-  },
-  ageBtnSelected: {
-    borderColor: COLORS.PRIMARY,
-    backgroundColor: '#EEF2FF',
-  },
-  ageBtnLabel: {
-    fontSize: FONTS.size.md,
-    fontWeight: FONTS.weight.semibold,
-    color: COLORS.DARK,
-    marginBottom: 2,
-  },
-  ageBtnLabelSelected: {
-    color: COLORS.PRIMARY,
-  },
-  ageBtnSublabel: {
-    fontSize: FONTS.size.xs,
-    color: COLORS.MUTED,
-  },
-  ageBtnSublabelSelected: {
-    color: COLORS.PRIMARY,
-  },
-
-  // Submit
-  submitBtn: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 14,
-    paddingVertical: 18,
-    alignItems: 'center',
-    marginTop: 8,
-    ...Platform.select({
-      ios: {
-        shadowColor: COLORS.PRIMARY,
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.35,
-        shadowRadius: 14,
-      },
-      android: { elevation: 8 },
-    }),
-  },
-  submitBtnDisabled: {
-    opacity: 0.65,
-  },
-  submitBtnText: {
-    fontSize: FONTS.size.lg,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.WHITE,
-    letterSpacing: 0.3,
-  },
-  bottomSpacer: { height: 20 },
+  dotsRow: { flexDirection: "row", justifyContent: "center", gap: 8 },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "rgba(0,0,0,0.12)" },
+  dotActive: { width: 24, backgroundColor: C.indigo },
 });
-
-export default OnboardingScreen;
