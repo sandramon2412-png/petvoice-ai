@@ -8,15 +8,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 
+// Emoji-face icons are replaced with minimal linear/vector icons (Lucide-style)
 const EMOTION_MAP = {
-  Feliz:      { pillBg: "rgba(16,185,129,0.13)",  pillText: "#059669", barColors: ["#10B981","#34D399"], icon: "emoticon-happy-outline",  cardBg: "rgba(16,185,129,0.07)" },
-  Juguetón:   { pillBg: "rgba(16,185,129,0.13)",  pillText: "#059669", barColors: ["#10B981","#34D399"], icon: "emoticon-excited-outline", cardBg: "rgba(16,185,129,0.07)" },
-  Alerta:     { pillBg: "rgba(245,158,11,0.13)",  pillText: "#D97706", barColors: ["#F59E0B","#FBBF24"], icon: "alert-circle-outline",     cardBg: "rgba(245,158,11,0.07)" },
-  Curioso:    { pillBg: "rgba(251,191,36,0.13)",  pillText: "#B45309", barColors: ["#FBBF24","#FCD34D"], icon: "help-circle-outline",      cardBg: "rgba(251,191,36,0.07)" },
-  Estresado:  { pillBg: "rgba(239,68,68,0.13)",   pillText: "#DC2626", barColors: ["#EF4444","#F87171"], icon: "emoticon-sad-outline",     cardBg: "rgba(239,68,68,0.08)"  },
-  Asustado:   { pillBg: "rgba(220,38,38,0.13)",   pillText: "#B91C1C", barColors: ["#DC2626","#EF4444"], icon: "shield-alert-outline",     cardBg: "rgba(220,38,38,0.08)"  },
-  Tranquilo:  { pillBg: "rgba(100,116,139,0.13)", pillText: "#475569", barColors: ["#64748B","#94A3B8"], icon: "sleep",                    cardBg: "rgba(100,116,139,0.07)"},
-  Hambriento: { pillBg: "rgba(249,115,22,0.13)",  pillText: "#EA580C", barColors: ["#F97316","#FB923C"], icon: "food-outline",             cardBg: "rgba(249,115,22,0.07)" },
+  Feliz:      { pillBg: "rgba(16,185,129,0.13)",  pillText: "#059669", barColors: ["#10B981","#34D399"], icon: "flare",                  cardBg: "rgba(16,185,129,0.07)" },
+  Juguetón:   { pillBg: "rgba(16,185,129,0.13)",  pillText: "#059669", barColors: ["#10B981","#34D399"], icon: "lightning-bolt",          cardBg: "rgba(16,185,129,0.07)" },
+  Alerta:     { pillBg: "rgba(245,158,11,0.13)",  pillText: "#D97706", barColors: ["#F59E0B","#FBBF24"], icon: "alert-circle-outline",    cardBg: "rgba(245,158,11,0.07)" },
+  Curioso:    { pillBg: "rgba(251,191,36,0.13)",  pillText: "#B45309", barColors: ["#FBBF24","#FCD34D"], icon: "help-circle-outline",     cardBg: "rgba(251,191,36,0.07)" },
+  Estresado:  { pillBg: "rgba(239,68,68,0.13)",   pillText: "#DC2626", barColors: ["#EF4444","#F87171"], icon: "alert-rhombus-outline",   cardBg: "rgba(239,68,68,0.08)"  },
+  Asustado:   { pillBg: "rgba(220,38,38,0.13)",   pillText: "#B91C1C", barColors: ["#DC2626","#EF4444"], icon: "shield-alert-outline",    cardBg: "rgba(220,38,38,0.08)"  },
+  Tranquilo:  { pillBg: "rgba(100,116,139,0.13)", pillText: "#475569", barColors: ["#64748B","#94A3B8"], icon: "leaf",                    cardBg: "rgba(100,116,139,0.07)"},
+  Hambriento: { pillBg: "rgba(249,115,22,0.13)",  pillText: "#EA580C", barColors: ["#F97316","#FB923C"], icon: "food-outline",            cardBg: "rgba(249,115,22,0.07)" },
 };
 
 function getEmo(emocion) {
@@ -101,7 +102,7 @@ export default function ResultScreen({ navigation }) {
     emocion_principal: "Feliz",
     porcentaje_confianza: 91,
     traduccion_humana: "¡Estoy tan contento de verte! Eres mi persona favorita.",
-    consejo_propietario: "Tu mascota está muy feliz ahora mismo. Refuerza este momento con una caricia o su juguete favorito.",
+    consejo_propietario: "Tu mascota está muy feliz. Refuerza con una caricia o juguete.",
     keyword_publicidad: "bienestar_animal",
   };
 
@@ -120,9 +121,9 @@ export default function ResultScreen({ navigation }) {
           showsVerticalScrollIndicator={false}
         >
 
-          {/* ── Top bar ── */}
+          {/* ── Top bar with back button ── */}
           <View style={styles.topBar}>
-            <TouchableOpacity onPress={() => navigation.navigate("Home")} activeOpacity={0.85}>
+            <TouchableOpacity onPress={() => navigation.goBack()} activeOpacity={0.85}>
               <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={styles.backBtn}>
                 <MaterialCommunityIcons name="arrow-left" size={20} color="#fff" />
               </LinearGradient>
@@ -145,10 +146,11 @@ export default function ResultScreen({ navigation }) {
             <Text style={styles.petSaysLabel}>{petName} dice:</Text>
           </View>
 
-          {/* ── Hero: emotion pill + translation (sin tarjeta, sin comillas) ── */}
+          {/* ── Hero: emotion pill + translation (glassmorphism card) ── */}
           <Animated.View
             style={[styles.heroSection, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}
           >
+            {/* Minimal eliptical badge with linear vector icon */}
             <View style={[styles.emotionPill, { backgroundColor: emo.pillBg }]}>
               <MaterialCommunityIcons name={emo.icon} size={14} color={emo.pillText} style={{ marginRight: 5 }} />
               <Text style={[styles.emotionPillText, { color: emo.pillText }]}>
@@ -156,7 +158,8 @@ export default function ResultScreen({ navigation }) {
               </Text>
             </View>
 
-            <View style={[styles.translationCard, { backgroundColor: emo.cardBg }]}>
+            {/* Real glassmorphism translation card */}
+            <View style={styles.translationCard}>
               <Text style={styles.translationHero}>
                 {result.traduccion_humana}
               </Text>
@@ -244,19 +247,26 @@ const styles = StyleSheet.create({
   petCircleLetter: { fontFamily: "Inter_800ExtraBold", fontSize: 32, color: "#4F46E5" },
   petSaysLabel: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#64748B", marginTop: 12 },
 
-  // Hero (no card)
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
+  // Minimal eliptical badge
   emotionPill: {
     alignSelf: "flex-start",
     flexDirection: "row", alignItems: "center",
     borderRadius: 9999, paddingHorizontal: 14, paddingVertical: 6, marginBottom: 16,
   },
   emotionPillText: { fontFamily: "Inter_700Bold", fontSize: 13, letterSpacing: 0.1 },
+  // Real glassmorphism card — translucent white with crisp white border
   translationCard: {
-    borderRadius: 20, padding: 20,
-    borderWidth: 1, borderColor: "rgba(255,255,255,0.65)",
-    shadowColor: "#0F172A", shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, shadowRadius: 12, elevation: 2,
+    borderRadius: 20,
+    padding: 20,
+    backgroundColor: "rgba(255, 255, 255, 0.65)",
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.5)",
+    shadowColor: "#1F2687",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.04,
+    shadowRadius: 32,
+    elevation: 2,
   },
   translationHero: {
     fontFamily: "Inter_500Medium", fontSize: 18,

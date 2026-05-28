@@ -10,7 +10,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../context/AppContext";
 
 const TOTAL_STEPS = 4;
-const CARD_SIZE = 110;
+const CARD_SIZE = 120;
 
 const C = {
   text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
@@ -140,6 +140,17 @@ export default function OnboardingScreen({ navigation }) {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
+
+          {/* Top nav back button — visible on steps 1+ */}
+          {step > 0 && (
+            <View style={s.topNav}>
+              <TouchableOpacity onPress={goBack} style={s.topNavBack} activeOpacity={0.7}>
+                <MaterialCommunityIcons name="chevron-left" size={22} color={C.muted} />
+                <Text style={s.topNavBackText}>Atrás</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* Logo */}
           <View style={s.logoSection}>
             <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.logoCircle}>
@@ -172,10 +183,16 @@ export default function OnboardingScreen({ navigation }) {
                     const active = species === sp.key;
                     return (
                       <PressableScale key={sp.key} onPress={() => setSpecies(sp.key)} activeScale={0.95}>
-                        <View style={[s.speciesCard, active && s.speciesCardActive]}>
-                          <MaterialCommunityIcons name={sp.icon} size={40} color={active ? C.indigo : C.muted} />
+                        {/* Gradient card — eliminates flat/white look */}
+                        <LinearGradient
+                          colors={active
+                            ? ["rgba(99,102,241,0.16)", "rgba(124,58,237,0.10)"]
+                            : ["rgba(248,250,252,0.98)", "rgba(238,242,255,0.85)"]}
+                          style={[s.speciesCard, active && s.speciesCardActive]}
+                        >
+                          <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
                           <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
-                        </View>
+                        </LinearGradient>
                       </PressableScale>
                     );
                   })}
@@ -245,7 +262,7 @@ export default function OnboardingScreen({ navigation }) {
               </View>
             )}
 
-            {/* PASO 5 — Confirmación (sin óvalo vacío) */}
+            {/* PASO 5 — Confirmación */}
             {step === 4 && (
               <View style={s.completionWrap}>
                 <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.completionIcon}>
@@ -260,7 +277,7 @@ export default function OnboardingScreen({ navigation }) {
 
           </Animated.View>
 
-          {/* Nav */}
+          {/* Nav row (bottom) */}
           <View style={s.navRow}>
             {step > 0 && (
               <TouchableOpacity style={s.backBtn} onPress={goBack}>
@@ -292,7 +309,18 @@ export default function OnboardingScreen({ navigation }) {
 const s = StyleSheet.create({
   scroll: { paddingHorizontal: 24, paddingBottom: 40, flexGrow: 1 },
 
-  logoSection: { alignItems: "center", paddingTop: 28, paddingBottom: 24 },
+  // Top navigation back button (header area)
+  topNav: {
+    flexDirection: "row", alignItems: "center",
+    paddingTop: 8, paddingBottom: 4, paddingHorizontal: 0,
+  },
+  topNavBack: {
+    flexDirection: "row", alignItems: "center", gap: 2,
+    paddingVertical: 8, paddingHorizontal: 4,
+  },
+  topNavBackText: { fontFamily: "Inter_500Medium", fontSize: 15, color: C.muted },
+
+  logoSection: { alignItems: "center", paddingTop: 20, paddingBottom: 24 },
   logoCircle: {
     width: 72, height: 72, borderRadius: 22,
     alignItems: "center", justifyContent: "center", marginBottom: 14,
@@ -314,19 +342,29 @@ const s = StyleSheet.create({
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 21 },
 
   speciesRow: { flexDirection: "row", gap: 16, justifyContent: "center" },
+  // Perfect 1:1 square card with gradient bg + deep diffuse shadow
   speciesCard: {
-    width: CARD_SIZE, height: CARD_SIZE,
-    backgroundColor: "#F8FAFC", borderRadius: 16,
-    borderWidth: 1, borderColor: "#E2E8F0",
-    alignItems: "center", justifyContent: "center", gap: 10,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
+    width: CARD_SIZE,
+    height: CARD_SIZE,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(226,232,240,0.9)",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    shadowColor: "#4F46E5",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.10,
+    shadowRadius: 20,
+    elevation: 5,
   },
   speciesCardActive: {
-    backgroundColor: "#EEF2FF",
-    borderColor: "#4F46E5", borderWidth: 1.5,
-    shadowColor: "#4F46E5", shadowOpacity: 0.12,
-    shadowRadius: 12, elevation: 4,
+    borderColor: "#4F46E5",
+    borderWidth: 1.5,
+    shadowColor: "#4F46E5",
+    shadowOpacity: 0.22,
+    shadowRadius: 24,
+    elevation: 8,
   },
   speciesLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.muted },
 
@@ -362,7 +400,7 @@ const s = StyleSheet.create({
   },
   photoBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.indigo },
 
-  // Completion step (step 4)
+  // Completion step
   completionWrap: { alignItems: "center", paddingVertical: 12 },
   completionIcon: {
     width: 72, height: 72, borderRadius: 22,

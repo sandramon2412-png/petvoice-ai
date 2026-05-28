@@ -150,6 +150,7 @@ export default function HomeScreen({ navigation }) {
   const selectedEnv = ENVIRONMENTS.find(e => e.key === environment) || ENVIRONMENTS[0];
   const petInitial = pet?.name ? pet.name[0].toUpperCase() : "?";
 
+  // Release microphone on unmount
   useEffect(() => {
     return () => { recordingRef.current?.stopAndUnloadAsync().catch(() => {}); };
   }, []);
@@ -177,6 +178,7 @@ export default function HomeScreen({ navigation }) {
     setIsRecording(false);
     setLoading(true);
     try {
+      // Always stop and unload to release the microphone
       await recordingObj.stopAndUnloadAsync();
       const uri = recordingObj.getURI();
       setLastAnalysisAudio(uri);
@@ -207,6 +209,9 @@ export default function HomeScreen({ navigation }) {
           {/* Header */}
           <View style={s.header}>
             <View style={s.headerLeft}>
+              <TouchableOpacity onPress={() => navigation.goBack()} style={s.navBackBtn} activeOpacity={0.7}>
+                <MaterialCommunityIcons name="chevron-left" size={26} color={C.muted} />
+              </TouchableOpacity>
               <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.logoMark}>
                 <MaterialCommunityIcons name="waveform" size={15} color="#fff" />
               </LinearGradient>
@@ -296,27 +301,34 @@ export default function HomeScreen({ navigation }) {
             <View style={s.btnOuter}>
               {[0, 1, 2].map(i => <WaveRing key={i} delay={i * 420} isRecording={isRecording} />)}
 
-              {/* 3D base layer */}
-              <View style={s.btnBase}>
-                <PressableScale
-                  onPress={handlePress}
-                  disabled={loading || !canRecord}
-                  activeScale={0.94}
-                >
-                  <LinearGradient
-                    colors={
-                      loading ? [C.indigo, C.violet]
-                      : isRecording ? [C.coralDark, "#C63E17"]
-                      : !canRecord ? ["#CBD5E1", "#CBD5E1"]
-                      : [C.coral, C.coralDark]
-                    }
-                    style={s.recordBtn}
+              {/* Outermost ambient glow layer */}
+              <View style={s.btnGlow}>
+                {/* Mid raised base layer */}
+                <View style={s.btnBase}>
+                  <PressableScale
+                    onPress={handlePress}
+                    disabled={loading || !canRecord}
+                    activeScale={0.94}
                   >
-                    {loading
-                      ? <ActivityIndicator size="large" color="#fff" />
-                      : <MaterialCommunityIcons name={isRecording ? "stop" : "microphone"} size={40} color="#fff" />}
-                  </LinearGradient>
-                </PressableScale>
+                    <LinearGradient
+                      colors={
+                        loading ? [C.indigo, C.violet]
+                        : isRecording ? [C.coralDark, "#C63E17"]
+                        : !canRecord ? ["#CBD5E1", "#CBD5E1"]
+                        : [C.coral, C.coralDark]
+                      }
+                      style={s.recordBtn}
+                    >
+                      {loading
+                        ? <ActivityIndicator size="large" color="#fff" />
+                        : <MaterialCommunityIcons
+                            name={isRecording ? "pause" : "microphone"}
+                            size={40}
+                            color="#fff"
+                          />}
+                    </LinearGradient>
+                  </PressableScale>
+                </View>
               </View>
             </View>
 
@@ -356,9 +368,10 @@ const s = StyleSheet.create({
 
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 20, paddingVertical: 14,
+    paddingHorizontal: 14, paddingVertical: 14,
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 6 },
+  navBackBtn: { padding: 4, marginRight: 0 },
   logoMark: {
     width: 32, height: 32, borderRadius: 9,
     alignItems: "center", justifyContent: "center",
@@ -429,12 +442,26 @@ const s = StyleSheet.create({
     position: "absolute", width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
     backgroundColor: C.coral,
   },
+  // Outermost ambient glow — large diffuse halo
+  btnGlow: {
+    width: BTN_SIZE + 28, height: BTN_SIZE + 28, borderRadius: (BTN_SIZE + 28) / 2,
+    alignItems: "center", justifyContent: "center",
+    shadowColor: C.coral,
+    shadowOffset: { width: 0, height: 18 },
+    shadowOpacity: 0.18,
+    shadowRadius: 36,
+    elevation: 14,
+  },
+  // Inner raised base — tighter contact shadow
   btnBase: {
     width: BTN_SIZE + 8, height: BTN_SIZE + 8, borderRadius: (BTN_SIZE + 8) / 2,
-    backgroundColor: "rgba(244,81,30,0.3)",
+    backgroundColor: "rgba(244,81,30,0.25)",
     alignItems: "center", justifyContent: "center",
-    shadowColor: C.coral, shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.4, shadowRadius: 20, elevation: 12,
+    shadowColor: C.coral,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.48,
+    shadowRadius: 14,
+    elevation: 10,
   },
   recordBtn: {
     width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
