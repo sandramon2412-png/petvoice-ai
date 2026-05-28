@@ -190,7 +190,7 @@ export default function OnboardingScreen({ navigation }) {
                             : ["rgba(248,250,252,0.98)", "rgba(238,242,255,0.85)"]}
                           style={[s.speciesCard, active && s.speciesCardActive]}
                         >
-                          <View style={{ alignItems: "center" }}>
+                          <View style={s.speciesContent}>
                             <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
                             <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
                           </View>
@@ -351,8 +351,6 @@ const s = StyleSheet.create({
     borderRadius: 16,
     borderWidth: 1,
     borderColor: "rgba(226,232,240,0.9)",
-    alignItems: "center",
-    justifyContent: "center",
     shadowColor: "#4F46E5",
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.28,
@@ -366,6 +364,10 @@ const s = StyleSheet.create({
     shadowOpacity: 0.45,
     shadowRadius: 28,
     elevation: 18,
+  },
+  speciesContent: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    alignItems: "center", justifyContent: "center",
   },
   speciesLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.muted, marginTop: 10 },
 
