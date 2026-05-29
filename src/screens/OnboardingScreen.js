@@ -182,23 +182,12 @@ export default function OnboardingScreen({ navigation }) {
                   {[{ key: "dog", label: "Perro", icon: "dog" }, { key: "cat", label: "Gato", icon: "cat" }].map(sp => {
                     const active = species === sp.key;
                     return (
-                      <PressableScale key={sp.key} onPress={() => setSpecies(sp.key)} activeScale={0.95}>
-                        <View style={[s.speciesCardShadow, active && s.speciesCardShadowActive]}>
-                          <View style={[s.speciesCardInner, active && s.speciesCardInnerActive]}>
-                            <LinearGradient
-                              colors={active
-                                ? ["rgba(99,102,241,0.16)", "rgba(124,58,237,0.10)"]
-                                : ["rgba(248,250,252,0.98)", "rgba(238,242,255,0.85)"]}
-                              style={StyleSheet.absoluteFill}
-                            />
-                            {/* Absolute overlay fills exactly 120×120 — most reliable centering on Android */}
-                            <View style={s.speciesCardContent}>
-                              <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
-                              <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
-                            </View>
-                          </View>
+                      <TouchableOpacity key={sp.key} onPress={() => setSpecies(sp.key)} activeOpacity={0.8}>
+                        <View style={[s.speciesCard, active && s.speciesCardActive]}>
+                          <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
+                          <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
                         </View>
-                      </PressableScale>
+                      </TouchableOpacity>
                     );
                   })}
                 </View>
@@ -347,29 +336,19 @@ const s = StyleSheet.create({
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 21 },
 
   speciesRow: { flexDirection: "row", gap: 16, justifyContent: "center" },
-  // Outer wrapper: shadow/elevation only — transparent bg prevents Android elevation's white surface
-  speciesCardShadow: {
-    borderRadius: 16,
-    backgroundColor: "transparent",
-    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.22, shadowRadius: 16, elevation: 8,
-  },
-  speciesCardShadowActive: {
-    shadowOpacity: 0.40, shadowRadius: 22, elevation: 14,
-  },
-  // Inner container: explicit dimensions + overflow:hidden clips gradient to corners + centers content
-  speciesCardInner: {
+  // Single flat View — explicit backgroundColor overrides Android elevation white surface
+  speciesCard: {
     width: CARD_SIZE, height: CARD_SIZE, borderRadius: 16,
     borderWidth: 1, borderColor: "rgba(226,232,240,0.9)",
-    overflow: "hidden",
-  },
-  // Absolute fill: fills the full 120×120 area and centers — bypasses flex centering bugs on Android
-  speciesCardContent: {
-    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: "#F8FAFF",
     alignItems: "center", justifyContent: "center",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12, shadowRadius: 14, elevation: 3,
   },
-  speciesCardInnerActive: {
+  speciesCardActive: {
     borderColor: "#4F46E5", borderWidth: 1.5,
+    backgroundColor: "#EEF0FF",
+    shadowOpacity: 0.30, elevation: 7,
   },
   speciesLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.muted, marginTop: 10 },
 
