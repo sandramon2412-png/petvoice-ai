@@ -183,9 +183,7 @@ export default function OnboardingScreen({ navigation }) {
                     const active = species === sp.key;
                     return (
                       <PressableScale key={sp.key} onPress={() => setSpecies(sp.key)} activeScale={0.95}>
-                        {/* Outer: shadow only — backgroundColor transparent stops Android elevation's auto white bg */}
                         <View style={[s.speciesCardShadow, active && s.speciesCardShadowActive]}>
-                          {/* Inner: explicit 120×120, overflow:hidden clips gradient corners, View centers content */}
                           <View style={[s.speciesCardInner, active && s.speciesCardInnerActive]}>
                             <LinearGradient
                               colors={active
@@ -193,8 +191,11 @@ export default function OnboardingScreen({ navigation }) {
                                 : ["rgba(248,250,252,0.98)", "rgba(238,242,255,0.85)"]}
                               style={StyleSheet.absoluteFill}
                             />
-                            <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
-                            <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
+                            {/* Absolute overlay fills exactly 120×120 — most reliable centering on Android */}
+                            <View style={s.speciesCardContent}>
+                              <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
+                              <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
+                            </View>
                           </View>
                         </View>
                       </PressableScale>
@@ -360,8 +361,12 @@ const s = StyleSheet.create({
   speciesCardInner: {
     width: CARD_SIZE, height: CARD_SIZE, borderRadius: 16,
     borderWidth: 1, borderColor: "rgba(226,232,240,0.9)",
-    alignItems: "center", justifyContent: "center",
     overflow: "hidden",
+  },
+  // Absolute fill: fills the full 120×120 area and centers — bypasses flex centering bugs on Android
+  speciesCardContent: {
+    position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+    alignItems: "center", justifyContent: "center",
   },
   speciesCardInnerActive: {
     borderColor: "#4F46E5", borderWidth: 1.5,
