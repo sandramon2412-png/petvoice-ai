@@ -183,19 +183,16 @@ export default function OnboardingScreen({ navigation }) {
                     const active = species === sp.key;
                     return (
                       <PressableScale key={sp.key} onPress={() => setSpecies(sp.key)} activeScale={0.95}>
-                        {/* Shadow wrapper — no overflow:hidden so shadow is visible */}
-                        <View style={[s.speciesCardShadow, active && s.speciesCardShadowActive]}>
-                          {/* Content layer — overflow:hidden clips gradient corners */}
-                          <View style={[s.speciesCardInner, active && s.speciesCardInnerActive]}>
-                            <LinearGradient
-                              colors={active
-                                ? ["rgba(99,102,241,0.16)", "rgba(124,58,237,0.10)"]
-                                : ["rgba(248,250,252,0.98)", "rgba(238,242,255,0.85)"]}
-                              style={StyleSheet.absoluteFill}
-                            />
-                            <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
-                            <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
-                          </View>
+                        {/* View centers content — LinearGradient is background-only (absoluteFill) */}
+                        <View style={[s.speciesCard, active && s.speciesCardActive]}>
+                          <LinearGradient
+                            colors={active
+                              ? ["rgba(99,102,241,0.16)", "rgba(124,58,237,0.10)"]
+                              : ["rgba(248,250,252,0.98)", "rgba(238,242,255,0.85)"]}
+                            style={[StyleSheet.absoluteFill, { borderRadius: 15 }]}
+                          />
+                          <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
+                          <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
                         </View>
                       </PressableScale>
                     );
@@ -346,24 +343,18 @@ const s = StyleSheet.create({
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 21 },
 
   speciesRow: { flexDirection: "row", gap: 16, justifyContent: "center" },
-  // Shadow wrapper — keeps elevation/shadow visible (no overflow:hidden)
-  speciesCardShadow: {
+  // View is the flex container — reliable centering on Android (unlike LinearGradient)
+  // LinearGradient rendered as absoluteFill background with its own borderRadius
+  speciesCard: {
     width: CARD_SIZE, height: CARD_SIZE, borderRadius: 16,
+    borderWidth: 1, borderColor: "rgba(226,232,240,0.9)",
+    alignItems: "center", justifyContent: "center",
     shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.28, shadowRadius: 22, elevation: 12,
   },
-  speciesCardShadowActive: {
-    shadowOpacity: 0.45, shadowRadius: 28, elevation: 18,
-  },
-  // Content layer — overflow:hidden clips gradient to border radius; View centers icon+label
-  speciesCardInner: {
-    flex: 1, borderRadius: 16, borderWidth: 1,
-    borderColor: "rgba(226,232,240,0.9)",
-    alignItems: "center", justifyContent: "center",
-    overflow: "hidden",
-  },
-  speciesCardInnerActive: {
+  speciesCardActive: {
     borderColor: "#4F46E5", borderWidth: 1.5,
+    shadowOpacity: 0.45, shadowRadius: 28, elevation: 18,
   },
   speciesLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.muted, marginTop: 10 },
 
