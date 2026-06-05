@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
   Animated, Dimensions, Image, StatusBar, Modal,
-  ActivityIndicator, Platform,
+  ActivityIndicator, Platform, Easing,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
@@ -68,6 +68,41 @@ function PressableScale({ onPress, onPressIn: extIn, onPressOut: extOut, style, 
     <TouchableOpacity onPressIn={handleIn} onPressOut={handleOut} onPress={onPress} disabled={disabled} activeOpacity={1}>
       <Animated.View style={[style, { transform: [{ scale: anim }] }]}>{children}</Animated.View>
     </TouchableOpacity>
+  );
+}
+
+// ─── Idle Pulse Ring ─────────────────────────────────────────────────────────
+function IdleRing({ active }) {
+  const scale   = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    let anim;
+    if (active) {
+      opacity.setValue(0.4);
+      anim = Animated.loop(
+        Animated.sequence([
+          Animated.parallel([
+            Animated.timing(scale,   { toValue: 2.1, duration: 1400, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+            Animated.timing(opacity, { toValue: 0,   duration: 1400, useNativeDriver: true }),
+          ]),
+          Animated.timing(scale, { toValue: 1, duration: 0, useNativeDriver: true }),
+          Animated.timing(opacity, { toValue: 0.4, duration: 0, useNativeDriver: true }),
+          Animated.delay(700),
+        ])
+      );
+      anim.start();
+    } else {
+      anim?.stop();
+      scale.setValue(1);
+      opacity.setValue(0);
+    }
+    return () => anim?.stop();
+  }, [active]);
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[s.wave, { opacity, transform: [{ scale }], backgroundColor: C.indigo }]}
+    />
   );
 }
 
@@ -331,6 +366,7 @@ export default function HomeScreen({ navigation }) {
             </Text>
 
             <View style={s.btnOuter}>
+              <IdleRing active={!isRecording && !loading && canRecord} />
               {[0, 1, 2].map(i => <WaveRing key={i} delay={i * 420} isRecording={isRecording} />)}
 
               {/* Outermost ambient glow layer */}

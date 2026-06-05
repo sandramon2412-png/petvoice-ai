@@ -197,59 +197,114 @@ export default function OnboardingScreen({ navigation }) {
             {/* PASO 2 — Nombre */}
             {step === 1 && (
               <View>
+                <View style={s.stepIconWrap}>
+                  <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.stepIconBadge}>
+                    <MaterialCommunityIcons name="tag-heart-outline" size={24} color="#fff" />
+                  </LinearGradient>
+                </View>
                 <Text style={s.title}>¿Cómo se llama?</Text>
-                <Text style={s.subtitle}>Usaremos el nombre en las traducciones</Text>
-                <Text style={s.fieldLabel}>Nombre de tu mascota</Text>
-                <TextInput style={s.input} placeholder="Ej: Max, Luna, Pelusa..."
-                  placeholderTextColor={C.muted} value={petName} onChangeText={setPetName} autoFocus maxLength={24} />
+                <Text style={s.subtitle}>Usaremos el nombre en cada traducción</Text>
+                <View style={s.inputRow}>
+                  <View style={s.inputIconBox}>
+                    <MaterialCommunityIcons name="paw" size={18} color={C.indigo} />
+                  </View>
+                  <TextInput
+                    style={s.inputWithIcon}
+                    placeholder="Ej: Max, Luna, Pelusa…"
+                    placeholderTextColor={C.muted}
+                    value={petName}
+                    onChangeText={setPetName}
+                    autoFocus
+                    maxLength={24}
+                  />
+                </View>
+                <Text style={s.charCount}>{petName.length}/24 caracteres</Text>
               </View>
             )}
 
             {/* PASO 3 — Edad */}
             {step === 2 && (
               <View>
+                <View style={s.stepIconWrap}>
+                  <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.stepIconBadge}>
+                    <MaterialCommunityIcons name="calendar-heart" size={24} color="#fff" />
+                  </LinearGradient>
+                </View>
                 <Text style={s.title}>¿Cuántos años tiene?</Text>
-                <Text style={s.subtitle}>Opcional - mejora la precisión del análisis</Text>
-                <Text style={s.fieldLabel}>Edad (años)</Text>
-                <TextInput style={[s.input, { width: 120 }]} placeholder="Ej: 2"
-                  placeholderTextColor={C.muted} value={petAge} onChangeText={setPetAge}
-                  keyboardType="numeric" maxLength={2} autoFocus />
-                <Text style={s.skipNote}>Puedes dejarlo en blanco y continuar</Text>
+                <Text style={s.subtitle}>Opcional — mejora la precisión del análisis</Text>
+                <View style={s.ageStepper}>
+                  <TouchableOpacity
+                    style={s.ageStepBtn}
+                    onPress={() => {
+                      const v = parseInt(petAge || "0") - 1;
+                      if (v >= 0) setPetAge(String(v));
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialCommunityIcons name="minus" size={24} color={C.indigo} />
+                  </TouchableOpacity>
+                  <View style={s.ageDisplayBox}>
+                    <Text style={s.ageNumber}>{petAge || "0"}</Text>
+                    <Text style={s.ageUnit}>años</Text>
+                  </View>
+                  <TouchableOpacity
+                    style={s.ageStepBtn}
+                    onPress={() => {
+                      const v = parseInt(petAge || "0") + 1;
+                      if (v <= 30) setPetAge(String(v));
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <MaterialCommunityIcons name="plus" size={24} color={C.indigo} />
+                  </TouchableOpacity>
+                </View>
+                <Text style={s.skipNote}>Deja en 0 para continuar sin especificar</Text>
               </View>
             )}
 
             {/* PASO 4 — Foto */}
             {step === 3 && (
               <View>
+                <View style={s.stepIconWrap}>
+                  <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.stepIconBadge}>
+                    <MaterialCommunityIcons name="image-filter-hdr" size={24} color="#fff" />
+                  </LinearGradient>
+                </View>
                 <Text style={s.title}>Agrega una foto</Text>
                 <Text style={s.subtitle}>Aparecerá en la pantalla de resultados</Text>
                 <View style={s.photoArea}>
                   {petPhoto ? (
                     <PressableScale onPress={pickPhoto} activeScale={0.96}>
                       <View>
-                        <Image source={{ uri: petPhoto }} style={s.photoPreview} />
+                        <View style={s.photoRingOuter}>
+                          <Image source={{ uri: petPhoto }} style={s.photoPreview} />
+                        </View>
                         <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.photoEditBtn}>
                           <MaterialCommunityIcons name="pencil" size={15} color="#fff" />
                         </LinearGradient>
                       </View>
                     </PressableScale>
                   ) : (
-                    <LinearGradient colors={["#EEF2FF", "#F5F3FF"]} style={s.photoPlaceholder}>
-                      <View style={s.cameraCircle}>
-                        <MaterialCommunityIcons name="camera-outline" size={28} color={C.indigo} />
+                    <View style={s.photoPlaceholderOuter}>
+                      <View style={s.photoPlaceholder}>
+                        <View style={s.cameraCircle}>
+                          <MaterialCommunityIcons name="camera-plus-outline" size={30} color={C.indigo} />
+                        </View>
+                        <Text style={s.photoHint}>{petName || "Tu mascota"}</Text>
+                        <Text style={s.photoSubHint}>Toca para agregar foto</Text>
                       </View>
-                      <Text style={s.photoHint}>Foto de {petName || "tu mascota"}</Text>
-                      <Text style={s.photoSubHint}>Opcional (JPG o PNG)</Text>
-                    </LinearGradient>
+                    </View>
                   )}
                 </View>
                 <View style={s.photoActions}>
-                  {[{ label: "Cámara", icon: "camera", fn: takePhoto }, { label: "Galería", icon: "image-outline", fn: pickPhoto }].map(b => (
+                  {[{ label: "Cámara", icon: "camera", fn: takePhoto }, { label: "Galería", icon: "image-multiple-outline", fn: pickPhoto }].map(b => (
                     <PressableScale key={b.label} onPress={b.fn} activeScale={0.95}>
-                      <LinearGradient colors={["#EEF2FF", "#F5F3FF"]} style={s.photoBtn}>
-                        <MaterialCommunityIcons name={b.icon} size={16} color={C.indigo} style={{ marginRight: 6 }} />
+                      <View style={s.photoBtn}>
+                        <LinearGradient colors={["#4F46E5","#7C3AED"]} style={s.photoBtnIcon}>
+                          <MaterialCommunityIcons name={b.icon} size={16} color="#fff" />
+                        </LinearGradient>
                         <Text style={s.photoBtnText}>{b.label}</Text>
-                      </LinearGradient>
+                      </View>
                     </PressableScale>
                   ))}
                 </View>
@@ -352,35 +407,105 @@ const s = StyleSheet.create({
   },
   speciesLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.muted, marginTop: 10 },
 
-  fieldLabel: { fontFamily: "Inter_700Bold", fontSize: 13, color: C.text, marginBottom: 9 },
-  input: {
-    backgroundColor: "rgba(255,255,255,0.9)", borderWidth: 1.5, borderColor: C.inputBorder,
-    borderRadius: 14, paddingHorizontal: 16, paddingVertical: 14,
+  // Step icon badge (steps 2-4)
+  stepIconWrap: { alignItems: "center", marginBottom: 18 },
+  stepIconBadge: {
+    width: 56, height: 56, borderRadius: 18,
+    alignItems: "center", justifyContent: "center",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.28, shadowRadius: 10, elevation: 6,
+  },
+
+  // Name input with icon prefix
+  inputRow: {
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.92)",
+    borderWidth: 1.5, borderColor: C.inputBorder,
+    borderRadius: 14, overflow: "hidden",
+  },
+  inputIconBox: {
+    width: 46, alignItems: "center", justifyContent: "center",
+    borderRightWidth: 1, borderRightColor: "rgba(203,213,225,0.6)",
+    paddingVertical: 14,
+  },
+  inputWithIcon: {
+    flex: 1, paddingHorizontal: 14, paddingVertical: 14,
     fontFamily: "Inter_500Medium", fontSize: 16, color: C.text,
   },
-  skipNote: { fontFamily: "Inter_400Regular", fontSize: 12, color: C.muted, marginTop: 12 },
+  charCount: { fontFamily: "Inter_400Regular", fontSize: 11, color: C.muted, marginTop: 8, textAlign: "right" },
 
-  photoArea: { alignItems: "center", marginBottom: 22 },
+  // Age stepper
+  ageStepper: {
+    flexDirection: "row", alignItems: "center", justifyContent: "center",
+    gap: 20, marginVertical: 12,
+  },
+  ageStepBtn: {
+    width: 52, height: 52, borderRadius: 16,
+    backgroundColor: C.indigoLight, alignItems: "center", justifyContent: "center",
+    borderWidth: 1, borderColor: "rgba(79,70,229,0.18)",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.12, shadowRadius: 8, elevation: 3,
+  },
+  ageDisplayBox: {
+    width: 96, height: 80, borderRadius: 18,
+    backgroundColor: "rgba(255,255,255,0.95)",
+    borderWidth: 1.5, borderColor: "rgba(79,70,229,0.2)",
+    alignItems: "center", justifyContent: "center",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.10, shadowRadius: 10, elevation: 3,
+  },
+  ageNumber: { fontFamily: "Inter_800ExtraBold", fontSize: 36, color: C.indigo, letterSpacing: -1 },
+  ageUnit: { fontFamily: "Inter_400Regular", fontSize: 12, color: C.muted, marginTop: 2 },
+
+  skipNote: { fontFamily: "Inter_400Regular", fontSize: 12, color: C.muted, marginTop: 12, textAlign: "center" },
+
+  // Photo step
+  photoArea: { alignItems: "center", marginBottom: 24 },
+  photoPlaceholderOuter: {
+    width: 168, height: 168, borderRadius: 84,
+    padding: 3,
+    backgroundColor: "rgba(79,70,229,0.15)",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18, shadowRadius: 16, elevation: 6,
+  },
   photoPlaceholder: {
-    width: 160, height: 160, borderRadius: 80, alignItems: "center", justifyContent: "center", padding: 16,
-    borderWidth: 2, borderColor: "rgba(79,70,229,0.2)",
-    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.12, shadowRadius: 12, elevation: 4,
+    flex: 1, borderRadius: 81,
+    backgroundColor: "#EEF2FF",
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 2, borderColor: "rgba(79,70,229,0.12)",
   },
   cameraCircle: {
-    width: 54, height: 54, borderRadius: 27, backgroundColor: "rgba(255,255,255,0.9)",
-    alignItems: "center", justifyContent: "center", marginBottom: 10,
+    width: 54, height: 54, borderRadius: 27,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    alignItems: "center", justifyContent: "center", marginBottom: 8,
   },
-  photoHint: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: C.indigo, textAlign: "center" },
-  photoSubHint: { fontFamily: "Inter_400Regular", fontSize: 11, color: C.muted, marginTop: 4, textAlign: "center" },
-  photoPreview: { width: 160, height: 160, borderRadius: 80, borderWidth: 3, borderColor: C.indigo },
+  photoHint: { fontFamily: "Inter_700Bold", fontSize: 13, color: C.indigo, textAlign: "center" },
+  photoSubHint: { fontFamily: "Inter_400Regular", fontSize: 11, color: C.muted, marginTop: 3, textAlign: "center" },
+  photoRingOuter: {
+    width: 168, height: 168, borderRadius: 84,
+    borderWidth: 3, borderColor: C.indigo,
+    overflow: "hidden",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25, shadowRadius: 14, elevation: 7,
+  },
+  photoPreview: { width: "100%", height: "100%", borderRadius: 81 },
   photoEditBtn: {
-    position: "absolute", bottom: 6, right: 6, width: 34, height: 34,
-    borderRadius: 17, alignItems: "center", justifyContent: "center",
+    position: "absolute", bottom: 8, right: 8, width: 36, height: 36,
+    borderRadius: 18, alignItems: "center", justifyContent: "center",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3, shadowRadius: 6, elevation: 4,
   },
   photoActions: { flexDirection: "row", gap: 14, justifyContent: "center" },
   photoBtn: {
-    flexDirection: "row", alignItems: "center", borderRadius: 24, paddingHorizontal: 18, paddingVertical: 11,
-    borderWidth: 1, borderColor: "rgba(79,70,229,0.18)",
+    flexDirection: "row", alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.9)",
+    borderRadius: 24, paddingHorizontal: 16, paddingVertical: 10,
+    borderWidth: 1, borderColor: "rgba(79,70,229,0.15)",
+    gap: 8,
+  },
+  photoBtnIcon: {
+    width: 28, height: 28, borderRadius: 8,
+    alignItems: "center", justifyContent: "center",
   },
   photoBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.indigo },
 

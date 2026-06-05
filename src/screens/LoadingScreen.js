@@ -4,16 +4,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 const BAR_COUNT = 36;
 const MESSAGES = [
-  "Extrayendo frecuencia fundamental (F0)...",
-  "Analizando variaciones de tono y ritmo...",
-  "Detectando patrones de vocalización...",
-  "Cruzando datos con postura corporal...",
-  "Generando traducción personalizada...",
+  "Escuchando la voz única de tu mascota...",
+  "Detectando patrones emocionales...",
+  "Analizando 247 parámetros de bioacústica...",
+  "Correlacionando postura y contexto...",
+  "¡Casi listo! Generando tu traducción...",
 ];
 const MSG_INTERVAL = 800;
 const TOTAL_DURATION = 4200;
@@ -89,9 +90,11 @@ function SpectroBar({ index, total }) {
 export default function LoadingScreen({ navigation }) {
   const { analysisResult } = useApp();
   const [msgIndex, setMsgIndex] = useState(0);
+  const [progressPct, setProgressPct] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
-  const dotScale = useRef(new Animated.Value(1)).current;
+  const logoScale = useRef(new Animated.Value(1)).current;
+  const logoGlow = useRef(new Animated.Value(0.4)).current;
   const navigatedRef = useRef(false);
 
   useEffect(() => {
@@ -104,10 +107,23 @@ export default function LoadingScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
+    const listener = progressAnim.addListener(({ value }) => {
+      setProgressPct(Math.round(value * 100));
+    });
+    return () => progressAnim.removeListener(listener);
+  }, []);
+
+  useEffect(() => {
     Animated.loop(
       Animated.sequence([
-        Animated.timing(dotScale, { toValue: 1.5, duration: 650, useNativeDriver: true }),
-        Animated.timing(dotScale, { toValue: 1.0, duration: 650, useNativeDriver: true }),
+        Animated.parallel([
+          Animated.timing(logoScale, { toValue: 1.12, duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+          Animated.timing(logoGlow,  { toValue: 1.0,  duration: 900, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.timing(logoScale, { toValue: 1.0,  duration: 900, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
+          Animated.timing(logoGlow,  { toValue: 0.4,  duration: 900, useNativeDriver: true }),
+        ]),
       ])
     ).start();
   }, []);
@@ -158,19 +174,23 @@ export default function LoadingScreen({ navigation }) {
 
         <View style={styles.container}>
 
-          {/* Top label */}
-          <View style={styles.topRow}>
-            <Animated.View style={[styles.dotWrap, { transform: [{ scale: dotScale }] }]}>
-              <LinearGradient
-                colors={["#818CF8", "#C084FC"]}
-                style={styles.dot}
-              />
+          {/* Branded header */}
+          <View style={styles.header}>
+            <Animated.View style={{ transform: [{ scale: logoScale }] }}>
+              <Animated.View style={[styles.logoGlowRing, { opacity: logoGlow }]} />
+              <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={styles.logoCircle}>
+                <MaterialCommunityIcons name="waveform" size={22} color="#fff" />
+              </LinearGradient>
             </Animated.View>
-            <Text style={styles.topLabel}>Analizando tu mascota...</Text>
+            <View style={styles.headerText}>
+              <Text style={styles.headerTitle}>Analizando...</Text>
+              <Text style={styles.headerSub}>PetVoice AI · Procesando audio</Text>
+            </View>
           </View>
 
-          {/* Spectrogram */}
+          {/* Spectrogram with glow backdrop */}
           <View style={styles.spectroWrap}>
+            <View style={styles.spectroGlow} />
             <View style={styles.spectroContainer}>
               {[...Array(BAR_COUNT)].map((_, i) => (
                 <SpectroBar key={i} index={i} total={BAR_COUNT} />
@@ -194,22 +214,25 @@ export default function LoadingScreen({ navigation }) {
             </Animated.Text>
           </View>
 
-          {/* Gradient progress bar */}
-          <View style={styles.progressTrack}>
-            <Animated.View style={{ width: progressWidth, height: "100%", overflow: "hidden", borderRadius: 3 }}>
-              <LinearGradient
-                colors={["#4F46E5", "#7C3AED", "#A855F7"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={{ flex: 1 }}
-              />
-            </Animated.View>
+          {/* Progress bar + percentage */}
+          <View style={styles.progressRow}>
+            <View style={styles.progressTrack}>
+              <Animated.View style={{ width: progressWidth, height: "100%", overflow: "hidden", borderRadius: 4 }}>
+                <LinearGradient
+                  colors={["#4F46E5", "#7C3AED", "#A855F7"]}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}
+                  style={{ flex: 1 }}
+                />
+              </Animated.View>
+            </View>
+            <Text style={styles.progressPct}>{progressPct}%</Text>
           </View>
 
           {/* Science badge */}
           <View style={styles.scienceBadge}>
+            <MaterialCommunityIcons name="flask-outline" size={12} color="#818CF8" style={{ marginRight: 6 }} />
             <Text style={styles.scienceText}>
-              Modelo de etología computacional · Análisis multimodal
+              Etología computacional · Análisis multimodal
             </Text>
           </View>
 
@@ -226,14 +249,34 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
 
-  topRow: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 44 },
-  dotWrap: { width: 12, height: 12, borderRadius: 6 },
-  dot: { width: 12, height: 12, borderRadius: 6 },
-  topLabel: {
-    fontFamily: "Inter_700Bold", fontSize: 22, color: "#F1F5F9", letterSpacing: -0.3,
+  // Branded header
+  header: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 48 },
+  logoGlowRing: {
+    position: "absolute",
+    width: 56, height: 56, borderRadius: 28,
+    backgroundColor: "#6366F1",
+    top: -6, left: -6,
+  },
+  logoCircle: {
+    width: 44, height: 44, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.5, shadowRadius: 10, elevation: 6,
+  },
+  headerText: { gap: 3 },
+  headerTitle: {
+    fontFamily: "Inter_800ExtraBold", fontSize: 24, color: "#F1F5F9", letterSpacing: -0.5,
+  },
+  headerSub: {
+    fontFamily: "Inter_400Regular", fontSize: 12, color: "#475569", letterSpacing: 0.2,
   },
 
+  // Spectrogram
   spectroWrap: { width: SCREEN_W - 48, marginBottom: 10, position: "relative" },
+  spectroGlow: {
+    position: "absolute", bottom: 0, left: "10%", right: "10%", height: 40,
+    backgroundColor: "#6366F1", opacity: 0.08, borderRadius: 20,
+  },
   spectroContainer: {
     flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between",
     height: 92, width: "100%",
@@ -249,19 +292,30 @@ const styles = StyleSheet.create({
   },
   freqLabel: { fontFamily: "Inter_400Regular", fontSize: 10, color: "#475569" },
 
-  msgWrap: { height: 48, alignItems: "center", justifyContent: "center", marginBottom: 28 },
+  // Message
+  msgWrap: { height: 52, alignItems: "center", justifyContent: "center", marginBottom: 24 },
   msgText: {
-    fontFamily: "Inter_500Medium", fontSize: 14, color: "#94A3B8",
-    textAlign: "center", letterSpacing: 0.1,
+    fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#94A3B8",
+    textAlign: "center", letterSpacing: 0,
   },
 
+  // Progress row
+  progressRow: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    width: SCREEN_W - 48, marginBottom: 28,
+  },
   progressTrack: {
-    width: SCREEN_W - 48, height: 5,
+    flex: 1, height: 6,
     backgroundColor: "rgba(255,255,255,0.08)",
-    borderRadius: 3, overflow: "hidden", marginBottom: 28,
+    borderRadius: 4, overflow: "hidden",
+  },
+  progressPct: {
+    fontFamily: "Inter_700Bold", fontSize: 13, color: "#818CF8",
+    minWidth: 36, textAlign: "right",
   },
 
   scienceBadge: {
+    flexDirection: "row", alignItems: "center",
     borderWidth: 1, borderColor: "rgba(129,140,248,0.3)", borderRadius: 20,
     paddingHorizontal: 14, paddingVertical: 7,
     backgroundColor: "rgba(79,70,229,0.1)",

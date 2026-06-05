@@ -37,18 +37,50 @@ function PressableScale({ onPress, style, children, disabled }) {
   );
 }
 
-// ─── Confidence bar ───────────────────────────────────────────────────────────
-function ConfidenceBar({ pct, colors }) {
-  const anim = useRef(new Animated.Value(0)).current;
+// ─── Circular confidence indicator ───────────────────────────────────────────
+function CircleProgress({ pct, colors }) {
+  const SIZE = 112;
+  const STROKE = 10;
+  const R = SIZE / 2;
+  const animVal = useRef(new Animated.Value(0)).current;
+
   useEffect(() => {
-    Animated.spring(anim, { toValue: pct / 100, tension: 60, friction: 8, useNativeDriver: false }).start();
+    Animated.spring(animVal, { toValue: pct / 100, tension: 55, friction: 7, useNativeDriver: false }).start();
   }, [pct]);
-  const barWidth = anim.interpolate({ inputRange: [0, 1], outputRange: ["0%", "100%"] });
+
+  // Right fill covers 0→50%, left fill covers 50→100%
+  const rightRot = animVal.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: ["-180deg", "0deg", "0deg"],
+  });
+  const leftRot = animVal.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: ["-180deg", "-180deg", "0deg"],
+  });
+
   return (
-    <View style={styles.barTrack}>
-      <Animated.View style={{ width: barWidth, height: "100%", overflow: "hidden", borderRadius: 3 }}>
-        <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1 }} />
-      </Animated.View>
+    <View style={{ width: SIZE, height: SIZE }}>
+      {/* Gray track */}
+      <View style={{ position: "absolute", width: SIZE, height: SIZE, borderRadius: R, borderWidth: STROKE, borderColor: "#E2E8F0" }} />
+      {/* Right half fill */}
+      <View style={{ position: "absolute", width: R, height: SIZE, left: R, overflow: "hidden" }}>
+        <Animated.View style={{
+          width: SIZE, height: SIZE, borderRadius: R, borderWidth: STROKE, borderColor: colors[0],
+          position: "absolute", left: -R, transform: [{ rotate: rightRot }],
+        }} />
+      </View>
+      {/* Left half fill */}
+      <View style={{ position: "absolute", width: R, height: SIZE, left: 0, overflow: "hidden" }}>
+        <Animated.View style={{
+          width: SIZE, height: SIZE, borderRadius: R, borderWidth: STROKE, borderColor: colors[0],
+          position: "absolute", left: 0, transform: [{ rotate: leftRot }],
+        }} />
+      </View>
+      {/* Center text */}
+      <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center" }}>
+        <Text style={{ fontFamily: "Inter_800ExtraBold", fontSize: 22, color: colors[0], letterSpacing: -0.5 }}>{pct}%</Text>
+        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 9, color: "#94A3B8", letterSpacing: 0.8 }}>CONFIANZA</Text>
+      </View>
     </View>
   );
 }
@@ -177,13 +209,10 @@ export default function ResultScreen({ navigation }) {
           >
             {/* Confidence */}
             <View style={styles.confSection}>
-              <View style={styles.confHeader}>
-                <Text style={styles.confLabel}>Confianza del análisis</Text>
-                <Text style={[styles.confPct, { color: emo.barColors[0] }]}>
-                  {result.porcentaje_confianza}%
-                </Text>
+              <Text style={styles.confLabel}>Confianza del análisis</Text>
+              <View style={{ alignItems: "center", paddingVertical: 16 }}>
+                <CircleProgress pct={result.porcentaje_confianza} colors={emo.barColors} />
               </View>
-              <ConfidenceBar pct={result.porcentaje_confianza} colors={emo.barColors} />
               <Text style={styles.confNote}>Basado en audio, postura corporal y entorno</Text>
             </View>
 
@@ -285,17 +314,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   confSection: { padding: 20, paddingBottom: 16 },
-  confHeader: {
-    flexDirection: "row", justifyContent: "space-between",
-    alignItems: "center", marginBottom: 12,
-  },
   confLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: "#1E293B" },
-  confPct: { fontFamily: "Inter_800ExtraBold", fontSize: 22, letterSpacing: -0.5 },
-  barTrack: {
-    height: 6, backgroundColor: "#E2E8F0", borderRadius: 3,
-    overflow: "hidden", marginBottom: 10,
-  },
-  confNote: { fontFamily: "Inter_400Regular", fontSize: 12, color: "#94A3B8" },
+  confNote: { fontFamily: "Inter_400Regular", fontSize: 12, color: "#94A3B8", textAlign: "center" },
 
   divider: { height: 1, backgroundColor: "rgba(0,0,0,0.06)", marginHorizontal: 20 },
 
