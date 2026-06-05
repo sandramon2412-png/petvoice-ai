@@ -8,16 +8,27 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 
-// Iconos reconocibles y expresivos — todos verificados en MaterialCommunityIcons
+// Imágenes PNG de alta calidad — Noto Emoji 128px
+const EMOTION_IMAGES = {
+  Feliz:      require("../../assets/emotions/feliz.png"),
+  Juguetón:   require("../../assets/emotions/jugueton.png"),
+  Alerta:     require("../../assets/emotions/alerta.png"),
+  Curioso:    require("../../assets/emotions/curioso.png"),
+  Estresado:  require("../../assets/emotions/estresado.png"),
+  Asustado:   require("../../assets/emotions/asustado.png"),
+  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
+  Hambriento: require("../../assets/emotions/hambriento.png"),
+};
+
 const EMOTION_MAP = {
-  Feliz:      { color: "#10B981", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"], icon: "star"                    },
-  Juguetón:   { color: "#3B82F6", iconColors: ["#2563EB","#60A5FA"], barColors: ["#3B82F6","#60A5FA"], icon: "lightning-bolt"          },
-  Alerta:     { color: "#8B5CF6", iconColors: ["#7C3AED","#A78BFA"], barColors: ["#7C3AED","#A78BFA"], icon: "bell-ring"               },
-  Curioso:    { color: "#4F46E5", iconColors: ["#4338CA","#818CF8"], barColors: ["#4F46E5","#818CF8"], icon: "telescope"               },
-  Estresado:  { color: "#EC4899", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"], icon: "fire"                    },
-  Asustado:   { color: "#7C3AED", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"], icon: "weather-lightning-rainy" },
-  Tranquilo:  { color: "#64748B", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"], icon: "leaf"                    },
-  Hambriento: { color: "#D97706", iconColors: ["#B45309","#FBBF24"], barColors: ["#D97706","#FBBF24"], icon: "food"                    },
+  Feliz:      { color: "#10B981", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"] },
+  Juguetón:   { color: "#3B82F6", iconColors: ["#2563EB","#60A5FA"], barColors: ["#3B82F6","#60A5FA"] },
+  Alerta:     { color: "#8B5CF6", iconColors: ["#7C3AED","#A78BFA"], barColors: ["#7C3AED","#A78BFA"] },
+  Curioso:    { color: "#4F46E5", iconColors: ["#4338CA","#818CF8"], barColors: ["#4F46E5","#818CF8"] },
+  Estresado:  { color: "#EC4899", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"] },
+  Asustado:   { color: "#7C3AED", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"] },
+  Tranquilo:  { color: "#64748B", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"] },
+  Hambriento: { color: "#D97706", iconColors: ["#B45309","#FBBF24"], barColors: ["#D97706","#FBBF24"] },
 };
 
 function getEmo(emocion) {
@@ -190,16 +201,14 @@ export default function ResultScreen({ navigation }) {
             style={[styles.heroSection, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}
           >
             <View style={styles.emotionHero}>
-              {/* Outer glow ring */}
-              <View style={[styles.emotionIconGlow, { backgroundColor: emo.iconColors[0] + "30" }]}>
-                <LinearGradient
-                  colors={emo.iconColors}
-                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                  style={styles.emotionIconCircle}
-                >
-                  <MaterialCommunityIcons name={emo.icon} size={48} color="#fff" />
-                </LinearGradient>
-              </View>
+              {/* Color aura behind image */}
+              <View style={[styles.emotionAura, { backgroundColor: emo.iconColors[0] + "35" }]} />
+              {/* PNG emoji image */}
+              <Image
+                source={EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES["Feliz"]}
+                style={styles.emotionImage}
+                resizeMode="contain"
+              />
               <Text style={[styles.emotionName, { color: emo.color }]}>
                 {result.emocion_principal}
               </Text>
@@ -303,15 +312,15 @@ const styles = StyleSheet.create({
 
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
   emotionHero: { alignItems: "center", marginBottom: 24 },
-  emotionIconGlow: {
-    width: 128, height: 128, borderRadius: 64,
-    alignItems: "center", justifyContent: "center", marginBottom: 20,
+  emotionAura: {
+    position: "absolute",
+    width: 140, height: 140, borderRadius: 70,
   },
-  emotionIconCircle: {
-    width: 96, height: 96, borderRadius: 48,
-    alignItems: "center", justifyContent: "center",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3, shadowRadius: 20, elevation: 16,
+  emotionImage: {
+    width: 100, height: 100,
+    marginBottom: 20,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.2, shadowRadius: 16,
   },
   emotionName: {
     fontFamily: "Inter_800ExtraBold", fontSize: 34,
