@@ -10,7 +10,6 @@ import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../context/AppContext";
 
 const TOTAL_STEPS = 4;
-const CARD_SIZE = 138;
 
 const C = {
   text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
@@ -75,6 +74,82 @@ function ProgressBar({ step, total }) {
           start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={{ flex: 1 }} />
       </Animated.View>
     </View>
+  );
+}
+
+// ─── ClayPetCard ──────────────────────────────────────────────────────────────
+function ClayPetCard({ petKey, label, selected, onPress }) {
+  const isdog = petKey === "dog";
+
+  const IDLE_COLORS  = isdog ? ["#FFF0D9","#FFD9A0","#FFC272"]   : ["#EDD9FF","#D9B8F5","#C699E8"];
+  const ACTV_COLORS  = isdog ? ["#FFB84D","#FF9800","#E57C00"]   : ["#CE7BEE","#A855F7","#861FD5"];
+  const SHADOW_ACTV  = isdog ? "#E57C00" : "#861FD5";
+  const BG_IDLE      = isdog ? "#FFD9A0" : "#D9B8F5";
+
+  const breathScale  = useRef(new Animated.Value(1)).current;
+  const floatY       = useRef(new Animated.Value(0)).current;
+  const charScale    = useRef(new Animated.Value(1)).current;
+  const gradFade     = useRef(new Animated.Value(selected ? 1 : 0)).current;
+
+  useEffect(() => {
+    const loop = Animated.parallel([
+      Animated.loop(Animated.sequence([
+        Animated.timing(breathScale, { toValue: 0.966, duration: 2100, useNativeDriver: true }),
+        Animated.timing(breathScale, { toValue: 1.0,   duration: 2100, useNativeDriver: true }),
+      ])),
+      Animated.loop(Animated.sequence([
+        Animated.timing(floatY, { toValue: -5, duration: 2500, useNativeDriver: true }),
+        Animated.timing(floatY, { toValue: 4,  duration: 2500, useNativeDriver: true }),
+      ])),
+    ]);
+    loop.start();
+    return () => loop.stop();
+  }, []);
+
+  const prevSel = useRef(selected);
+  useEffect(() => {
+    Animated.timing(gradFade, { toValue: selected ? 1 : 0, duration: 380, useNativeDriver: true }).start();
+    if (selected && !prevSel.current) {
+      Animated.sequence([
+        Animated.spring(charScale, { toValue: 1.28, tension: 420, friction: 5, useNativeDriver: true }),
+        Animated.spring(charScale, { toValue: 1.0,  tension: 220, friction: 9, useNativeDriver: true }),
+      ]).start();
+    }
+    prevSel.current = selected;
+  }, [selected]);
+
+  const labelColor = selected ? (isdog ? "#B45309" : "#7C3AED") : C.muted;
+
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.92}>
+      <Animated.View style={{ transform: [{ scale: breathScale }] }}>
+        {/* Shadow wrapper — provides elevation; background needed for iOS shadow engine */}
+        <View style={[s.clayShadow, {
+          backgroundColor: BG_IDLE,
+          shadowColor: selected ? SHADOW_ACTV : "#1E293B",
+          shadowOpacity: selected ? 0.42 : 0.14,
+        }]}>
+          {/* Gradient clipping container */}
+          <View style={s.clayCard}>
+            {/* Idle gradient */}
+            <LinearGradient colors={IDLE_COLORS} style={StyleSheet.absoluteFill} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
+            {/* Active gradient crossfade */}
+            <Animated.View style={[StyleSheet.absoluteFill, { opacity: gradFade }]}>
+              <LinearGradient colors={ACTV_COLORS} style={StyleSheet.absoluteFill} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
+            </Animated.View>
+            {/* Clay top-left shine */}
+            <View style={s.clayShine} />
+            {/* Character */}
+            <Animated.View style={{ transform: [{ translateY: floatY }, { scale: charScale }] }}>
+              <Text style={s.clayEmoji}>{isdog ? "🐶" : "🐱"}</Text>
+            </Animated.View>
+          </View>
+        </View>
+        <Text style={[s.clayLabel, { color: labelColor, fontFamily: selected ? "Inter_700Bold" : "Inter_600SemiBold" }]}>
+          {label}
+        </Text>
+      </Animated.View>
+    </TouchableOpacity>
   );
 }
 
@@ -179,17 +254,8 @@ export default function OnboardingScreen({ navigation }) {
                 <Text style={s.title}>¿Qué tipo de mascota tienes?</Text>
                 <Text style={s.subtitle}>El modelo de análisis se adapta por especie</Text>
                 <View style={s.speciesRow}>
-                  {[{ key: "dog", label: "Perro", icon: "dog" }, { key: "cat", label: "Gato", icon: "cat" }].map(sp => {
-                    const active = species === sp.key;
-                    return (
-                      <TouchableOpacity key={sp.key} onPress={() => setSpecies(sp.key)} activeOpacity={0.8}>
-                        <View style={[s.speciesCard, active && s.speciesCardActive]}>
-                          <MaterialCommunityIcons name={sp.icon} size={56} color={active ? C.indigo : C.muted} />
-                          <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
-                        </View>
-                      </TouchableOpacity>
-                    );
-                  })}
+                  <ClayPetCard petKey="dog" label="Perro" selected={species === "dog"} onPress={() => setSpecies("dog")} />
+                  <ClayPetCard petKey="cat" label="Gato"  selected={species === "cat"} onPress={() => setSpecies("cat")} />
                 </View>
               </View>
             )}
@@ -390,22 +456,34 @@ const s = StyleSheet.create({
   title: { fontFamily: "Inter_700Bold", fontSize: 21, color: C.text, marginBottom: 7, letterSpacing: -0.4 },
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 21 },
 
-  speciesRow: { flexDirection: "row", gap: 16, justifyContent: "center" },
-  // Single flat View — explicit backgroundColor overrides Android elevation white surface
-  speciesCard: {
-    width: CARD_SIZE, height: CARD_SIZE, borderRadius: 22,
-    borderWidth: 1.5, borderColor: "rgba(226,232,240,0.9)",
-    backgroundColor: "#F8FAFF",
+  speciesRow: { flexDirection: "row", justifyContent: "center", gap: 22, marginTop: 4 },
+
+  clayShadow: {
+    borderRadius: 30,
+    shadowOffset: { width: 0, height: 14 },
+    shadowRadius: 22,
+    elevation: 12,
+  },
+  clayCard: {
+    width: 148, height: 178,
+    borderRadius: 30,
+    overflow: "hidden",
     alignItems: "center", justifyContent: "center",
-    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.10, shadowRadius: 16, elevation: 3,
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.55)",
   },
-  speciesCardActive: {
-    borderColor: "#4F46E5", borderWidth: 2,
-    backgroundColor: "#EDEFFF",
-    shadowOpacity: 0.40, elevation: 10,
+  clayShine: {
+    position: "absolute",
+    top: 14, left: 14,
+    width: 50, height: 50, borderRadius: 25,
+    backgroundColor: "rgba(255,255,255,0.32)",
   },
-  speciesLabel: { fontFamily: "Inter_700Bold", fontSize: 15, color: C.muted, marginTop: 12 },
+  clayEmoji: { fontSize: 66, lineHeight: 78 },
+  clayLabel: {
+    fontSize: 17,
+    textAlign: "center",
+    marginTop: 14,
+  },
 
   // Step icon badge (steps 2-4)
   stepIconWrap: { alignItems: "center", marginBottom: 18 },

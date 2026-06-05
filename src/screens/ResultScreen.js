@@ -8,31 +8,33 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 
-// Imágenes PNG de alta calidad — Noto Emoji 128px
-const EMOTION_IMAGES = {
-  Feliz:      require("../../assets/emotions/feliz.png"),
-  Juguetón:   require("../../assets/emotions/jugueton.png"),
-  Alerta:     require("../../assets/emotions/alerta.png"),
-  Curioso:    require("../../assets/emotions/curioso.png"),
-  Estresado:  require("../../assets/emotions/estresado.png"),
-  Asustado:   require("../../assets/emotions/asustado.png"),
-  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
-  Hambriento: require("../../assets/emotions/hambriento.png"),
-};
-
 const EMOTION_MAP = {
-  Feliz:      { color: "#10B981", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"] },
-  Juguetón:   { color: "#3B82F6", iconColors: ["#2563EB","#60A5FA"], barColors: ["#3B82F6","#60A5FA"] },
-  Alerta:     { color: "#8B5CF6", iconColors: ["#7C3AED","#A78BFA"], barColors: ["#7C3AED","#A78BFA"] },
-  Curioso:    { color: "#4F46E5", iconColors: ["#4338CA","#818CF8"], barColors: ["#4F46E5","#818CF8"] },
-  Estresado:  { color: "#EC4899", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"] },
-  Asustado:   { color: "#7C3AED", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"] },
-  Tranquilo:  { color: "#64748B", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"] },
-  Hambriento: { color: "#D97706", iconColors: ["#B45309","#FBBF24"], barColors: ["#D97706","#FBBF24"] },
+  Feliz:      { color: "#10B981", icon: "star",                    doodleBg: "#D1FAE5", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"] },
+  Juguetón:   { color: "#3B82F6", icon: "lightning-bolt",          doodleBg: "#DBEAFE", iconColors: ["#2563EB","#60A5FA"], barColors: ["#3B82F6","#60A5FA"] },
+  Alerta:     { color: "#D97706", icon: "bell-ring",               doodleBg: "#FEF3C7", iconColors: ["#D97706","#FCD34D"], barColors: ["#F59E0B","#FCD34D"] },
+  Curioso:    { color: "#4F46E5", icon: "telescope",               doodleBg: "#EEF2FF", iconColors: ["#4338CA","#818CF8"], barColors: ["#4F46E5","#818CF8"] },
+  Estresado:  { color: "#EC4899", icon: "fire",                    doodleBg: "#FCE7F3", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"] },
+  Asustado:   { color: "#7C3AED", icon: "weather-lightning-rainy", doodleBg: "#F5F3FF", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"] },
+  Tranquilo:  { color: "#64748B", icon: "leaf",                    doodleBg: "#F1F5F9", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"] },
+  Hambriento: { color: "#D97706", icon: "bone",                    doodleBg: "#FEF3C7", iconColors: ["#B45309","#FBBF24"], barColors: ["#D97706","#FBBF24"] },
 };
 
 function getEmo(emocion) {
   return EMOTION_MAP[emocion] || EMOTION_MAP["Tranquilo"];
+}
+
+// Doodle/Notion-style icon: thick border + flat color + hard offset shadow
+function DoodleIcon({ emo, scale }) {
+  return (
+    <Animated.View style={{ width: 104, height: 104, marginBottom: 20, transform: [{ scale }] }}>
+      {/* Hard drop shadow layer */}
+      <View style={[styles.doodleShadow]} />
+      {/* Icon face with thick border */}
+      <View style={[styles.doodleFace, { backgroundColor: emo.doodleBg }]}>
+        <MaterialCommunityIcons name={emo.icon} size={54} color={emo.color} />
+      </View>
+    </Animated.View>
+  );
 }
 
 // ─── PressableScale ───────────────────────────────────────────────────────────
@@ -128,11 +130,13 @@ export default function ResultScreen({ navigation }) {
   const heroOpacity = useRef(new Animated.Value(0)).current;
   const cardSlide   = useRef(new Animated.Value(32)).current;
   const cardOpacity = useRef(new Animated.Value(0)).current;
+  const doodleScale  = useRef(new Animated.Value(0.55)).current;
 
   useEffect(() => {
     Animated.parallel([
       Animated.spring(heroSlide, { toValue: 0, tension: 70, friction: 10, useNativeDriver: true }),
       Animated.timing(heroOpacity, { toValue: 1, duration: 380, useNativeDriver: true }),
+      Animated.spring(doodleScale, { toValue: 1, tension: 90, friction: 7, useNativeDriver: true }),
     ]).start(() => {
       Animated.parallel([
         Animated.spring(cardSlide, { toValue: 0, tension: 70, friction: 10, useNativeDriver: true }),
@@ -157,10 +161,10 @@ export default function ResultScreen({ navigation }) {
     <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
       {/* Emotion-tinted background gradient — changes with each emotion */}
       <LinearGradient
-        colors={[emo.iconColors[0] + "55", emo.iconColors[1] + "22", "#F8FAFC"]}
-        style={[StyleSheet.absoluteFill, { height: 380 }]}
+        colors={[emo.iconColors[0] + "CC", emo.iconColors[1] + "77", "rgba(248,250,252,0)"]}
+        style={[StyleSheet.absoluteFill, { height: 430 }]}
       />
-      <LinearGradient colors={["#F8FAFC", "#EEF2FF", "#F5F3FF"]} style={[StyleSheet.absoluteFill, { top: 280 }]} />
+      <LinearGradient colors={["rgba(248,250,252,0)", "#EEF2FF", "#F5F3FF"]} style={[StyleSheet.absoluteFill, { top: 340 }]} />
 
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
@@ -201,14 +205,7 @@ export default function ResultScreen({ navigation }) {
             style={[styles.heroSection, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}
           >
             <View style={styles.emotionHero}>
-              {/* Color aura behind image */}
-              <View style={[styles.emotionAura, { backgroundColor: emo.iconColors[0] + "35" }]} />
-              {/* PNG emoji image */}
-              <Image
-                source={EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES["Feliz"]}
-                style={styles.emotionImage}
-                resizeMode="contain"
-              />
+              <DoodleIcon emo={emo} scale={doodleScale} />
               <Text style={[styles.emotionName, { color: emo.color }]}>
                 {result.emocion_principal}
               </Text>
@@ -217,9 +214,7 @@ export default function ResultScreen({ navigation }) {
 
             {/* Traducción con fondo semitransparente */}
             <View style={styles.translationCard}>
-              <Text style={styles.translationQuote}>{"“"}</Text>
               <Text style={styles.translationText}>{result.traduccion_humana}</Text>
-              <Text style={styles.translationQuote}>{"”"}</Text>
             </View>
           </Animated.View>
 
@@ -312,15 +307,21 @@ const styles = StyleSheet.create({
 
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
   emotionHero: { alignItems: "center", marginBottom: 24 },
-  emotionAura: {
+  doodleShadow: {
     position: "absolute",
-    width: 140, height: 140, borderRadius: 70,
+    top: 8, left: 8,
+    width: 88, height: 88,
+    borderRadius: 24,
+    backgroundColor: "#1A1A2E",
   },
-  emotionImage: {
-    width: 100, height: 100,
-    marginBottom: 20,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.2, shadowRadius: 16,
+  doodleFace: {
+    position: "absolute",
+    top: 0, left: 0,
+    width: 88, height: 88,
+    borderRadius: 24,
+    borderWidth: 3.5,
+    borderColor: "#1A1A2E",
+    alignItems: "center", justifyContent: "center",
   },
   emotionName: {
     fontFamily: "Inter_800ExtraBold", fontSize: 34,
@@ -331,16 +332,13 @@ const styles = StyleSheet.create({
   },
   // Free-floating translation text — no card box
   translationCard: {
-    backgroundColor: "rgba(255,255,255,0.75)",
-    borderRadius: 20, paddingHorizontal: 22, paddingVertical: 18,
-    borderWidth: 1, borderColor: "rgba(255,255,255,0.9)",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06, shadowRadius: 12, elevation: 4,
+    backgroundColor: "rgba(255,255,255,0.26)",
+    borderRadius: 28,
+    paddingHorizontal: 28, paddingVertical: 28,
+    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.55)",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08, shadowRadius: 24, elevation: 6,
     alignItems: "center",
-  },
-  translationQuote: {
-    fontFamily: "Inter_800ExtraBold", fontSize: 42, color: "#CBD5E1",
-    lineHeight: 38, marginVertical: -4,
   },
   translationText: {
     fontFamily: "Inter_600SemiBold", fontSize: 18,
