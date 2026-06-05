@@ -10,7 +10,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../context/AppContext";
 
 const TOTAL_STEPS = 4;
-const CARD_SIZE = 120;
+const CARD_SIZE = 138;
 
 const C = {
   text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
@@ -184,7 +184,7 @@ export default function OnboardingScreen({ navigation }) {
                     return (
                       <TouchableOpacity key={sp.key} onPress={() => setSpecies(sp.key)} activeOpacity={0.8}>
                         <View style={[s.speciesCard, active && s.speciesCardActive]}>
-                          <MaterialCommunityIcons name={sp.icon} size={42} color={active ? C.indigo : C.muted} />
+                          <MaterialCommunityIcons name={sp.icon} size={56} color={active ? C.indigo : C.muted} />
                           <Text style={[s.speciesLabel, active && { color: C.indigo }]}>{sp.label}</Text>
                         </View>
                       </TouchableOpacity>
@@ -393,19 +393,19 @@ const s = StyleSheet.create({
   speciesRow: { flexDirection: "row", gap: 16, justifyContent: "center" },
   // Single flat View — explicit backgroundColor overrides Android elevation white surface
   speciesCard: {
-    width: CARD_SIZE, height: CARD_SIZE, borderRadius: 16,
-    borderWidth: 1, borderColor: "rgba(226,232,240,0.9)",
+    width: CARD_SIZE, height: CARD_SIZE, borderRadius: 22,
+    borderWidth: 1.5, borderColor: "rgba(226,232,240,0.9)",
     backgroundColor: "#F8FAFF",
     alignItems: "center", justifyContent: "center",
     shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.12, shadowRadius: 14, elevation: 3,
+    shadowOpacity: 0.10, shadowRadius: 16, elevation: 3,
   },
   speciesCardActive: {
-    borderColor: "#4F46E5", borderWidth: 1.5,
-    backgroundColor: "#EEF0FF",
-    shadowOpacity: 0.30, elevation: 7,
+    borderColor: "#4F46E5", borderWidth: 2,
+    backgroundColor: "#EDEFFF",
+    shadowOpacity: 0.40, elevation: 10,
   },
-  speciesLabel: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.muted, marginTop: 10 },
+  speciesLabel: { fontFamily: "Inter_700Bold", fontSize: 15, color: C.muted, marginTop: 12 },
 
   // Step icon badge (steps 2-4)
   stepIconWrap: { alignItems: "center", marginBottom: 18 },

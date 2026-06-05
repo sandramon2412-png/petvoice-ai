@@ -59,7 +59,7 @@ function SpectroBar({ index, total }) {
     return () => loop.stop();
   }, [index]);
 
-  const maxHeight = 80;
+  const maxHeight = 116;
   const barHeight = anim.interpolate({
     inputRange: [0, 1],
     outputRange: [3, maxHeight],
@@ -179,7 +179,7 @@ export default function LoadingScreen({ navigation }) {
             <Animated.View style={{ transform: [{ scale: logoScale }] }}>
               <Animated.View style={[styles.logoGlowRing, { opacity: logoGlow }]} />
               <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={styles.logoCircle}>
-                <MaterialCommunityIcons name="waveform" size={22} color="#fff" />
+                <MaterialCommunityIcons name="waveform" size={28} color="#fff" />
               </LinearGradient>
             </Animated.View>
             <View style={styles.headerText}>
@@ -253,22 +253,22 @@ const styles = StyleSheet.create({
   header: { flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 48 },
   logoGlowRing: {
     position: "absolute",
-    width: 56, height: 56, borderRadius: 28,
+    width: 70, height: 70, borderRadius: 35,
     backgroundColor: "#6366F1",
-    top: -6, left: -6,
+    top: -8, left: -8,
   },
   logoCircle: {
-    width: 44, height: 44, borderRadius: 14,
+    width: 54, height: 54, borderRadius: 17,
     alignItems: "center", justifyContent: "center",
-    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5, shadowRadius: 10, elevation: 6,
+    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.6, shadowRadius: 14, elevation: 8,
   },
-  headerText: { gap: 3 },
+  headerText: { gap: 4 },
   headerTitle: {
-    fontFamily: "Inter_800ExtraBold", fontSize: 24, color: "#F1F5F9", letterSpacing: -0.5,
+    fontFamily: "Inter_800ExtraBold", fontSize: 28, color: "#F1F5F9", letterSpacing: -0.8,
   },
   headerSub: {
-    fontFamily: "Inter_400Regular", fontSize: 12, color: "#475569", letterSpacing: 0.2,
+    fontFamily: "Inter_500Medium", fontSize: 13, color: "#64748B", letterSpacing: 0.1,
   },
 
   // Spectrogram
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   },
   spectroContainer: {
     flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between",
-    height: 92, width: "100%",
+    height: 128, width: "100%",
   },
   spectroAxisLine: {
     position: "absolute", bottom: 0, left: 0, right: 0,
@@ -293,9 +293,9 @@ const styles = StyleSheet.create({
   freqLabel: { fontFamily: "Inter_400Regular", fontSize: 10, color: "#475569" },
 
   // Message
-  msgWrap: { height: 52, alignItems: "center", justifyContent: "center", marginBottom: 24 },
+  msgWrap: { height: 58, alignItems: "center", justifyContent: "center", marginBottom: 24 },
   msgText: {
-    fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#94A3B8",
+    fontFamily: "Inter_600SemiBold", fontSize: 16, color: "#CBD5E1",
     textAlign: "center", letterSpacing: 0,
   },
 
@@ -305,13 +305,13 @@ const styles = StyleSheet.create({
     width: SCREEN_W - 48, marginBottom: 28,
   },
   progressTrack: {
-    flex: 1, height: 6,
-    backgroundColor: "rgba(255,255,255,0.08)",
+    flex: 1, height: 8,
+    backgroundColor: "rgba(255,255,255,0.10)",
     borderRadius: 4, overflow: "hidden",
   },
   progressPct: {
-    fontFamily: "Inter_700Bold", fontSize: 13, color: "#818CF8",
-    minWidth: 36, textAlign: "right",
+    fontFamily: "Inter_800ExtraBold", fontSize: 15, color: "#818CF8",
+    minWidth: 40, textAlign: "right",
   },
 
   scienceBadge: {

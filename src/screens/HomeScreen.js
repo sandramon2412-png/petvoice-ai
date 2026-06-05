@@ -13,7 +13,7 @@ import { useApp } from "../context/AppContext";
 import { analyzeSound } from "../services/aiService";
 
 const { width: SCREEN_W } = Dimensions.get("window");
-const BTN_SIZE = 96;
+const BTN_SIZE = 114;
 
 const C = {
   text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
@@ -71,23 +71,23 @@ function PressableScale({ onPress, onPressIn: extIn, onPressOut: extOut, style, 
   );
 }
 
-// ─── Idle Pulse Ring ─────────────────────────────────────────────────────────
-function IdleRing({ active }) {
+// ─── Idle Pulse Rings ────────────────────────────────────────────────────────
+function IdleRing({ active, delay: ringDelay }) {
   const scale   = useRef(new Animated.Value(1)).current;
   const opacity = useRef(new Animated.Value(0)).current;
   useEffect(() => {
     let anim;
     if (active) {
-      opacity.setValue(0.4);
+      opacity.setValue(0);
       anim = Animated.loop(
         Animated.sequence([
+          Animated.delay(ringDelay),
+          Animated.timing(opacity, { toValue: 0.55, duration: 0, useNativeDriver: true }),
           Animated.parallel([
-            Animated.timing(scale,   { toValue: 2.1, duration: 1400, easing: Easing.out(Easing.ease), useNativeDriver: true }),
-            Animated.timing(opacity, { toValue: 0,   duration: 1400, useNativeDriver: true }),
+            Animated.timing(scale,   { toValue: 2.6, duration: 1600, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+            Animated.timing(opacity, { toValue: 0,   duration: 1600, useNativeDriver: true }),
           ]),
           Animated.timing(scale, { toValue: 1, duration: 0, useNativeDriver: true }),
-          Animated.timing(opacity, { toValue: 0.4, duration: 0, useNativeDriver: true }),
-          Animated.delay(700),
         ])
       );
       anim.start();
@@ -97,11 +97,11 @@ function IdleRing({ active }) {
       opacity.setValue(0);
     }
     return () => anim?.stop();
-  }, [active]);
+  }, [active, ringDelay]);
   return (
     <Animated.View
       pointerEvents="none"
-      style={[s.wave, { opacity, transform: [{ scale }], backgroundColor: C.indigo }]}
+      style={[s.wave, { opacity, transform: [{ scale }], backgroundColor: C.coralDark }]}
     />
   );
 }
@@ -366,7 +366,8 @@ export default function HomeScreen({ navigation }) {
             </Text>
 
             <View style={s.btnOuter}>
-              <IdleRing active={!isRecording && !loading && canRecord} />
+              <IdleRing active={!isRecording && !loading && canRecord} delay={0} />
+              <IdleRing active={!isRecording && !loading && canRecord} delay={700} />
               {[0, 1, 2].map(i => <WaveRing key={i} delay={i * 420} isRecording={isRecording} />)}
 
               {/* Outermost ambient glow layer */}
@@ -391,7 +392,7 @@ export default function HomeScreen({ navigation }) {
                         ? <ActivityIndicator size="large" color="#fff" />
                         : <MaterialCommunityIcons
                             name={isRecording ? "pause" : "microphone"}
-                            size={40}
+                            size={48}
                             color="#fff"
                           />}
                     </LinearGradient>
@@ -503,42 +504,42 @@ const s = StyleSheet.create({
   },
   envText: { fontFamily: "Inter_500Medium", fontSize: 15, color: C.text },
 
-  recordSection: { alignItems: "center", paddingVertical: 20, marginBottom: 8 },
-  recordHint: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 28 },
-  btnOuter: { width: BTN_SIZE * 3, height: BTN_SIZE * 3, alignItems: "center", justifyContent: "center" },
+  recordSection: { alignItems: "center", paddingVertical: 16, marginBottom: 8 },
+  recordHint: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.indigo, marginBottom: 28, letterSpacing: 0.1 },
+  btnOuter: { width: BTN_SIZE * 3.2, height: BTN_SIZE * 3.2, alignItems: "center", justifyContent: "center" },
   wave: {
     position: "absolute", width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
     backgroundColor: C.coral,
   },
   // Outermost ambient glow — large diffuse halo
   btnGlow: {
-    width: BTN_SIZE + 28, height: BTN_SIZE + 28, borderRadius: (BTN_SIZE + 28) / 2,
+    width: BTN_SIZE + 36, height: BTN_SIZE + 36, borderRadius: (BTN_SIZE + 36) / 2,
     alignItems: "center", justifyContent: "center",
-    shadowColor: C.coral,
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.45,
-    shadowRadius: 44,
-    elevation: 22,
+    shadowColor: C.coralDark,
+    shadowOffset: { width: 0, height: 24 },
+    shadowOpacity: 0.55,
+    shadowRadius: 52,
+    elevation: 28,
   },
   // Inner raised base — tighter contact shadow
   btnBase: {
-    width: BTN_SIZE + 8, height: BTN_SIZE + 8, borderRadius: (BTN_SIZE + 8) / 2,
-    backgroundColor: "rgba(244,81,30,0.30)",
+    width: BTN_SIZE + 12, height: BTN_SIZE + 12, borderRadius: (BTN_SIZE + 12) / 2,
+    backgroundColor: "rgba(244,81,30,0.35)",
     alignItems: "center", justifyContent: "center",
     shadowColor: C.coralDark,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.65,
-    shadowRadius: 16,
-    elevation: 14,
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.70,
+    shadowRadius: 20,
+    elevation: 18,
   },
   recordBtn: {
     width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
     alignItems: "center", justifyContent: "center",
-    borderWidth: 3, borderColor: "rgba(255,255,255,0.3)",
+    borderWidth: 4, borderColor: "rgba(255,255,255,0.35)",
   },
-  recIndicator: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 20 },
-  recDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#EF4444" },
-  recText: { fontFamily: "Inter_800ExtraBold", fontSize: 13, color: "#EF4444", letterSpacing: 2 },
+  recIndicator: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 24 },
+  recDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#EF4444" },
+  recText: { fontFamily: "Inter_800ExtraBold", fontSize: 14, color: "#EF4444", letterSpacing: 3 },
 
   tipCard: {
     marginHorizontal: 20, marginBottom: 32, borderRadius: 16, padding: 14,

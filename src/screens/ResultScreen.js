@@ -39,8 +39,8 @@ function PressableScale({ onPress, style, children, disabled }) {
 
 // ─── Circular confidence indicator ───────────────────────────────────────────
 function CircleProgress({ pct, colors }) {
-  const SIZE = 112;
-  const STROKE = 10;
+  const SIZE = 148;
+  const STROKE = 13;
   const R = SIZE / 2;
   const animVal = useRef(new Animated.Value(0)).current;
 
@@ -78,8 +78,8 @@ function CircleProgress({ pct, colors }) {
       </View>
       {/* Center text */}
       <View style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, alignItems: "center", justifyContent: "center" }}>
-        <Text style={{ fontFamily: "Inter_800ExtraBold", fontSize: 22, color: colors[0], letterSpacing: -0.5 }}>{pct}%</Text>
-        <Text style={{ fontFamily: "Inter_400Regular", fontSize: 9, color: "#94A3B8", letterSpacing: 0.8 }}>CONFIANZA</Text>
+        <Text style={{ fontFamily: "Inter_800ExtraBold", fontSize: 30, color: colors[0], letterSpacing: -1 }}>{pct}%</Text>
+        <Text style={{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: "#94A3B8", letterSpacing: 1.2, marginTop: 2 }}>CONFIANZA</Text>
       </View>
     </View>
   );
@@ -189,7 +189,7 @@ export default function ResultScreen({ navigation }) {
                 start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                 style={styles.emotionIconCircle}
               >
-                <MaterialCommunityIcons name={emo.icon} size={36} color="#fff" />
+                <MaterialCommunityIcons name={emo.icon} size={44} color="#fff" />
               </LinearGradient>
               <Text style={[styles.emotionName, { color: emo.color }]}>
                 {result.emocion_principal}
@@ -210,8 +210,16 @@ export default function ResultScreen({ navigation }) {
             {/* Confidence */}
             <View style={styles.confSection}>
               <Text style={styles.confLabel}>Confianza del análisis</Text>
-              <View style={{ alignItems: "center", paddingVertical: 16 }}>
-                <CircleProgress pct={result.porcentaje_confianza} colors={emo.barColors} />
+              <View style={{ alignItems: "center", paddingVertical: 20 }}>
+                <View style={{
+                  shadowColor: emo.barColors[0],
+                  shadowOffset: { width: 0, height: 6 },
+                  shadowOpacity: 0.35,
+                  shadowRadius: 18,
+                  elevation: 12,
+                }}>
+                  <CircleProgress pct={result.porcentaje_confianza} colors={emo.barColors} />
+                </View>
               </View>
               <Text style={styles.confNote}>Basado en audio, postura corporal y entorno</Text>
             </View>
@@ -284,22 +292,22 @@ const styles = StyleSheet.create({
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
   emotionHero: { alignItems: "center", marginBottom: 28 },
   emotionIconCircle: {
-    width: 84, height: 84, borderRadius: 42,
-    alignItems: "center", justifyContent: "center", marginBottom: 16,
-    shadowColor: "#000", shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.18, shadowRadius: 16, elevation: 10,
+    width: 100, height: 100, borderRadius: 50,
+    alignItems: "center", justifyContent: "center", marginBottom: 18,
+    shadowColor: "#000", shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25, shadowRadius: 20, elevation: 14,
   },
   emotionName: {
-    fontFamily: "Inter_800ExtraBold", fontSize: 26,
-    letterSpacing: -0.8, marginBottom: 14,
+    fontFamily: "Inter_800ExtraBold", fontSize: 32,
+    letterSpacing: -1, marginBottom: 14,
   },
   emotionAccent: {
-    width: 36, height: 3, borderRadius: 2, opacity: 0.65,
+    width: 48, height: 4, borderRadius: 2, opacity: 0.7,
   },
   // Free-floating translation text — no card box
   translationText: {
-    fontFamily: "Inter_500Medium", fontSize: 19,
-    color: "#1E293B", lineHeight: 32, letterSpacing: -0.2,
+    fontFamily: "Inter_600SemiBold", fontSize: 20,
+    color: "#0F172A", lineHeight: 34, letterSpacing: -0.3,
     textAlign: "center",
   },
 
