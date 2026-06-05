@@ -8,16 +8,16 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 
-// Filled icons — bolder, more distinctive at large sizes
+// Iconos reconocibles y expresivos — todos verificados en MaterialCommunityIcons
 const EMOTION_MAP = {
-  Feliz:      { color: "#10B981", iconColors: ["#10B981","#34D399"], barColors: ["#10B981","#34D399"], icon: "heart-pulse"           },
-  Juguetón:   { color: "#3B82F6", iconColors: ["#3B82F6","#60A5FA"], barColors: ["#3B82F6","#60A5FA"], icon: "lightning-bolt"        },
-  Alerta:     { color: "#8B5CF6", iconColors: ["#7C3AED","#A78BFA"], barColors: ["#7C3AED","#A78BFA"], icon: "eye"                   },
-  Curioso:    { color: "#4F46E5", iconColors: ["#4F46E5","#818CF8"], barColors: ["#4F46E5","#818CF8"], icon: "magnify-plus"          },
-  Estresado:  { color: "#EC4899", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"], icon: "alert-rhombus"         },
-  Asustado:   { color: "#7C3AED", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"], icon: "shield-alert"          },
-  Tranquilo:  { color: "#64748B", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"], icon: "leaf"                  },
-  Hambriento: { color: "#D97706", iconColors: ["#D97706","#FBBF24"], barColors: ["#D97706","#FBBF24"], icon: "silverware-fork-knife" },
+  Feliz:      { color: "#10B981", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"], icon: "star"                    },
+  Juguetón:   { color: "#3B82F6", iconColors: ["#2563EB","#60A5FA"], barColors: ["#3B82F6","#60A5FA"], icon: "lightning-bolt"          },
+  Alerta:     { color: "#8B5CF6", iconColors: ["#7C3AED","#A78BFA"], barColors: ["#7C3AED","#A78BFA"], icon: "bell-ring"               },
+  Curioso:    { color: "#4F46E5", iconColors: ["#4338CA","#818CF8"], barColors: ["#4F46E5","#818CF8"], icon: "telescope"               },
+  Estresado:  { color: "#EC4899", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"], icon: "fire"                    },
+  Asustado:   { color: "#7C3AED", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"], icon: "weather-lightning-rainy" },
+  Tranquilo:  { color: "#64748B", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"], icon: "leaf"                    },
+  Hambriento: { color: "#D97706", iconColors: ["#B45309","#FBBF24"], barColors: ["#D97706","#FBBF24"], icon: "food"                    },
 };
 
 function getEmo(emocion) {
@@ -143,9 +143,16 @@ export default function ResultScreen({ navigation }) {
   const petInitial = petName[0]?.toUpperCase() || "?";
 
   return (
-    <LinearGradient colors={["#F8FAFC", "#EEF2FF", "#F5F3FF"]} style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
-        <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+    <View style={{ flex: 1, backgroundColor: “#F8FAFC” }}>
+      {/* Emotion-tinted background gradient — changes with each emotion */}
+      <LinearGradient
+        colors={[emo.iconColors[0] + “55”, emo.iconColors[1] + “22”, “#F8FAFC”]}
+        style={[StyleSheet.absoluteFill, { height: 380 }]}
+      />
+      <LinearGradient colors={[“#F8FAFC”, “#EEF2FF”, “#F5F3FF”]} style={[StyleSheet.absoluteFill, { top: 280 }]} />
+
+      <SafeAreaView style={{ flex: 1 }} edges={[“top”, “bottom”]}>
+        <StatusBar barStyle=”dark-content” backgroundColor=”transparent” translucent />
 
         <ScrollView
           style={{ flex: 1 }}
@@ -155,10 +162,10 @@ export default function ResultScreen({ navigation }) {
 
           {/* ── Top bar with back button ── */}
           <View style={styles.topBar}>
-            <TouchableOpacity onPress={() => navigation.navigate("Home")} activeOpacity={0.85}>
-              <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={styles.backBtn}>
-                <MaterialCommunityIcons name="arrow-left" size={20} color="#fff" />
-              </LinearGradient>
+            <TouchableOpacity onPress={() => navigation.navigate(“Home”)} activeOpacity={0.85}>
+              <View style={styles.backBtn}>
+                <MaterialCommunityIcons name=”arrow-left” size={22} color=”#1E293B” />
+              </View>
             </TouchableOpacity>
             <Text style={styles.topBarTitle}>Resultado</Text>
             <View style={{ width: 42 }} />
@@ -166,41 +173,45 @@ export default function ResultScreen({ navigation }) {
 
           {/* ── Pet avatar ── */}
           <View style={styles.avatarSection}>
-            <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={styles.avatarBorder}>
+            <View style={[styles.avatarBorder, { borderColor: emo.color }]}>
               {pet?.photo ? (
                 <Image source={{ uri: pet.photo }} style={styles.petCircle} />
               ) : (
-                <View style={[styles.petCircle, styles.petCircleFallback]}>
+                <LinearGradient colors={emo.iconColors} style={styles.petCircleFallback}>
                   <Text style={styles.petCircleLetter}>{petInitial}</Text>
-                </View>
+                </LinearGradient>
               )}
-            </LinearGradient>
+            </View>
             <Text style={styles.petSaysLabel}>{petName} dice:</Text>
           </View>
 
-          {/* ── Hero: premium icon circle + free-floating translation ── */}
+          {/* ── Hero: icono grande + nombre emoción + traducción ── */}
           <Animated.View
             style={[styles.heroSection, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}
           >
-            {/* Large centered gradient icon + emotion label */}
             <View style={styles.emotionHero}>
-              <LinearGradient
-                colors={emo.iconColors}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                style={styles.emotionIconCircle}
-              >
-                <MaterialCommunityIcons name={emo.icon} size={44} color="#fff" />
-              </LinearGradient>
+              {/* Outer glow ring */}
+              <View style={[styles.emotionIconGlow, { backgroundColor: emo.iconColors[0] + “30” }]}>
+                <LinearGradient
+                  colors={emo.iconColors}
+                  start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                  style={styles.emotionIconCircle}
+                >
+                  <MaterialCommunityIcons name={emo.icon} size={48} color=”#fff” />
+                </LinearGradient>
+              </View>
               <Text style={[styles.emotionName, { color: emo.color }]}>
                 {result.emocion_principal}
               </Text>
               <View style={[styles.emotionAccent, { backgroundColor: emo.color }]} />
             </View>
 
-            {/* Free-floating translation — no card box, both curly quotes */}
-            <Text style={styles.translationText}>
-              {"“"}{result.traduccion_humana}{"”"}
-            </Text>
+            {/* Traducción con fondo semitransparente */}
+            <View style={styles.translationCard}>
+              <Text style={styles.translationQuote}>”</Text>
+              <Text style={styles.translationText}>{result.traduccion_humana}</Text>
+              <Text style={styles.translationQuote}>”</Text>
+            </View>
           </Animated.View>
 
           {/* ── Tarjeta unificada: confianza + consejo ── */}
@@ -255,7 +266,7 @@ export default function ResultScreen({ navigation }) {
 
         </ScrollView>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 
@@ -270,44 +281,61 @@ const styles = StyleSheet.create({
   backBtn: {
     width: 42, height: 42, borderRadius: 21,
     alignItems: "center", justifyContent: "center",
-    shadowColor: "#0F172A", shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.14, shadowRadius: 6, elevation: 3,
+    backgroundColor: "rgba(255,255,255,0.7)",
+    borderWidth: 1, borderColor: "rgba(0,0,0,0.07)",
   },
   topBarTitle: { fontFamily: "Inter_700Bold", fontSize: 18, color: "#1E293B" },
 
-  avatarSection: { alignItems: "center", paddingTop: 8, paddingBottom: 28 },
+  avatarSection: { alignItems: "center", paddingTop: 4, paddingBottom: 24 },
   avatarBorder: {
-    width: 88, height: 88, borderRadius: 44, padding: 3,
-    shadowColor: "#0F172A", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10, shadowRadius: 12, elevation: 5,
+    width: 92, height: 92, borderRadius: 46,
+    borderWidth: 3, overflow: "hidden",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.18, shadowRadius: 14, elevation: 8,
   },
-  petCircle: { width: "100%", height: "100%", borderRadius: 41 },
+  petCircle: { width: "100%", height: "100%", borderRadius: 43 },
   petCircleFallback: {
-    backgroundColor: "#EEF2FF", alignItems: "center",
-    justifyContent: "center", borderRadius: 41,
+    width: "100%", height: "100%", borderRadius: 43,
+    alignItems: "center", justifyContent: "center",
   },
-  petCircleLetter: { fontFamily: "Inter_800ExtraBold", fontSize: 32, color: "#4F46E5" },
-  petSaysLabel: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#64748B", marginTop: 12 },
+  petCircleLetter: { fontFamily: "Inter_800ExtraBold", fontSize: 32, color: "#fff" },
+  petSaysLabel: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#475569", marginTop: 12 },
 
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
-  emotionHero: { alignItems: "center", marginBottom: 28 },
+  emotionHero: { alignItems: "center", marginBottom: 24 },
+  emotionIconGlow: {
+    width: 128, height: 128, borderRadius: 64,
+    alignItems: "center", justifyContent: "center", marginBottom: 20,
+  },
   emotionIconCircle: {
-    width: 100, height: 100, borderRadius: 50,
-    alignItems: "center", justifyContent: "center", marginBottom: 18,
+    width: 96, height: 96, borderRadius: 48,
+    alignItems: "center", justifyContent: "center",
     shadowColor: "#000", shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25, shadowRadius: 20, elevation: 14,
+    shadowOpacity: 0.3, shadowRadius: 20, elevation: 16,
   },
   emotionName: {
-    fontFamily: "Inter_800ExtraBold", fontSize: 32,
-    letterSpacing: -1, marginBottom: 14,
+    fontFamily: "Inter_800ExtraBold", fontSize: 34,
+    letterSpacing: -1.2, marginBottom: 14,
   },
   emotionAccent: {
-    width: 48, height: 4, borderRadius: 2, opacity: 0.7,
+    width: 52, height: 4, borderRadius: 2, opacity: 0.8,
   },
   // Free-floating translation text — no card box
+  translationCard: {
+    backgroundColor: "rgba(255,255,255,0.75)",
+    borderRadius: 20, paddingHorizontal: 22, paddingVertical: 18,
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.9)",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06, shadowRadius: 12, elevation: 4,
+    alignItems: "center",
+  },
+  translationQuote: {
+    fontFamily: "Inter_800ExtraBold", fontSize: 42, color: "#CBD5E1",
+    lineHeight: 38, marginVertical: -4,
+  },
   translationText: {
-    fontFamily: "Inter_600SemiBold", fontSize: 20,
-    color: "#0F172A", lineHeight: 34, letterSpacing: -0.3,
+    fontFamily: "Inter_600SemiBold", fontSize: 18,
+    color: "#1E293B", lineHeight: 30, letterSpacing: -0.2,
     textAlign: "center",
   },
 
