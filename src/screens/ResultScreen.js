@@ -143,16 +143,16 @@ export default function ResultScreen({ navigation }) {
   const petInitial = petName[0]?.toUpperCase() || "?";
 
   return (
-    <View style={{ flex: 1, backgroundColor: “#F8FAFC” }}>
+    <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
       {/* Emotion-tinted background gradient — changes with each emotion */}
       <LinearGradient
-        colors={[emo.iconColors[0] + “55”, emo.iconColors[1] + “22”, “#F8FAFC”]}
+        colors={[emo.iconColors[0] + "55", emo.iconColors[1] + "22", "#F8FAFC"]}
         style={[StyleSheet.absoluteFill, { height: 380 }]}
       />
-      <LinearGradient colors={[“#F8FAFC”, “#EEF2FF”, “#F5F3FF”]} style={[StyleSheet.absoluteFill, { top: 280 }]} />
+      <LinearGradient colors={["#F8FAFC", "#EEF2FF", "#F5F3FF"]} style={[StyleSheet.absoluteFill, { top: 280 }]} />
 
-      <SafeAreaView style={{ flex: 1 }} edges={[“top”, “bottom”]}>
-        <StatusBar barStyle=”dark-content” backgroundColor=”transparent” translucent />
+      <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
         <ScrollView
           style={{ flex: 1 }}
@@ -162,9 +162,9 @@ export default function ResultScreen({ navigation }) {
 
           {/* ── Top bar with back button ── */}
           <View style={styles.topBar}>
-            <TouchableOpacity onPress={() => navigation.navigate(“Home”)} activeOpacity={0.85}>
+            <TouchableOpacity onPress={() => navigation.navigate("Home")} activeOpacity={0.85}>
               <View style={styles.backBtn}>
-                <MaterialCommunityIcons name=”arrow-left” size={22} color=”#1E293B” />
+                <MaterialCommunityIcons name="arrow-left" size={22} color="#1E293B" />
               </View>
             </TouchableOpacity>
             <Text style={styles.topBarTitle}>Resultado</Text>
@@ -191,13 +191,13 @@ export default function ResultScreen({ navigation }) {
           >
             <View style={styles.emotionHero}>
               {/* Outer glow ring */}
-              <View style={[styles.emotionIconGlow, { backgroundColor: emo.iconColors[0] + “30” }]}>
+              <View style={[styles.emotionIconGlow, { backgroundColor: emo.iconColors[0] + "30" }]}>
                 <LinearGradient
                   colors={emo.iconColors}
                   start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
                   style={styles.emotionIconCircle}
                 >
-                  <MaterialCommunityIcons name={emo.icon} size={48} color=”#fff” />
+                  <MaterialCommunityIcons name={emo.icon} size={48} color="#fff" />
                 </LinearGradient>
               </View>
               <Text style={[styles.emotionName, { color: emo.color }]}>
@@ -208,9 +208,9 @@ export default function ResultScreen({ navigation }) {
 
             {/* Traducción con fondo semitransparente */}
             <View style={styles.translationCard}>
-              <Text style={styles.translationQuote}>”</Text>
+              <Text style={styles.translationQuote}>{"“"}</Text>
               <Text style={styles.translationText}>{result.traduccion_humana}</Text>
-              <Text style={styles.translationQuote}>”</Text>
+              <Text style={styles.translationQuote}>{"”"}</Text>
             </View>
           </Animated.View>
 
