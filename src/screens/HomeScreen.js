@@ -11,6 +11,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Audio } from "expo-av";
 import { useApp } from "../context/AppContext";
 import { analyzeSound } from "../services/aiService";
+import SiriWave from "../components/SiriWave";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 const BTN_SIZE = 114;
@@ -405,6 +406,15 @@ export default function HomeScreen({ navigation }) {
               <View style={s.recIndicator}>
                 <View style={s.recDot} />
                 <Text style={s.recText}>REC</Text>
+                <View style={s.recWaveWrap}>
+                  <SiriWave
+                    color="#FF8A65"
+                    width={SCREEN_W * 0.55}
+                    height={36}
+                    intensity={0.88}
+                    speed={1.1}
+                  />
+                </View>
               </View>
             )}
           </View>
@@ -537,9 +547,10 @@ const s = StyleSheet.create({
     alignItems: "center", justifyContent: "center",
     borderWidth: 4, borderColor: "rgba(255,255,255,0.35)",
   },
-  recIndicator: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 24 },
-  recDot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#EF4444" },
-  recText: { fontFamily: "Inter_800ExtraBold", fontSize: 14, color: "#EF4444", letterSpacing: 3 },
+  recIndicator: { alignItems: "center", gap: 6, marginTop: 20 },
+  recDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#EF4444" },
+  recText: { fontFamily: "Inter_700Bold", fontSize: 11, color: "#EF4444", letterSpacing: 3 },
+  recWaveWrap: { marginTop: 8 },
 
   tipCard: {
     marginHorizontal: 20, marginBottom: 32, borderRadius: 16, padding: 14,
