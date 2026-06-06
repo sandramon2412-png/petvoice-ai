@@ -7,6 +7,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
+import { ClayCharacter } from "../components/ClayCharacter";
 
 const EMOTION_MAP = {
   Feliz:      { color: "#10B981", icon: "star",                    doodleBg: "#D1FAE5", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"] },
@@ -23,19 +24,6 @@ function getEmo(emocion) {
   return EMOTION_MAP[emocion] || EMOTION_MAP["Tranquilo"];
 }
 
-// Doodle/Notion-style icon: thick border + flat color + hard offset shadow
-function DoodleIcon({ emo, scale }) {
-  return (
-    <Animated.View style={{ width: 104, height: 104, marginBottom: 20, transform: [{ scale }] }}>
-      {/* Hard drop shadow layer */}
-      <View style={[styles.doodleShadow]} />
-      {/* Icon face with thick border */}
-      <View style={[styles.doodleFace, { backgroundColor: emo.doodleBg }]}>
-        <MaterialCommunityIcons name={emo.icon} size={54} color={emo.color} />
-      </View>
-    </Animated.View>
-  );
-}
 
 // ─── PressableScale ───────────────────────────────────────────────────────────
 function PressableScale({ onPress, style, children, disabled }) {
@@ -153,9 +141,9 @@ export default function ResultScreen({ navigation }) {
     keyword_publicidad: "bienestar_animal",
   };
 
-  const emo = getEmo(result.emocion_principal);
-  const petName    = pet?.name || "Tu mascota";
-  const petInitial = petName[0]?.toUpperCase() || "?";
+  const emo       = getEmo(result.emocion_principal);
+  const petName   = pet?.name    || "Tu mascota";
+  const petSpecies = pet?.species || "dog";
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
@@ -186,33 +174,38 @@ export default function ResultScreen({ navigation }) {
             <View style={{ width: 42 }} />
           </View>
 
-          {/* ── Pet avatar ── */}
+          {/* ── Pet avatar — marco minimalista ── */}
           <View style={styles.avatarSection}>
-            <View style={[styles.avatarBorder, { borderColor: emo.color }]}>
+            <View style={[styles.avatarBorder, { borderColor: emo.color + "99" }]}>
               {pet?.photo ? (
                 <Image source={{ uri: pet.photo }} style={styles.petCircle} />
               ) : (
-                <LinearGradient colors={emo.iconColors} style={styles.petCircleFallback}>
-                  <Text style={styles.petCircleLetter}>{petInitial}</Text>
-                </LinearGradient>
+                <View style={styles.avatarPlaceholder}>
+                  <MaterialCommunityIcons name="paw" size={28} color={emo.color + "AA"} />
+                </View>
               )}
             </View>
             <Text style={styles.petSaysLabel}>{petName} dice:</Text>
           </View>
 
-          {/* ── Hero: icono grande + nombre emoción + traducción ── */}
+          {/* ── Hero: personaje clay + nombre emoción + traducción ── */}
           <Animated.View
             style={[styles.heroSection, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}
           >
             <View style={styles.emotionHero}>
-              <DoodleIcon emo={emo} scale={doodleScale} />
+              {/* Aura de color detrás del personaje */}
+              <View style={[styles.clayAura, { backgroundColor: emo.iconColors[0] + "40" }]} />
+              {/* Personaje clay animado con spring de entrada */}
+              <Animated.View style={{ marginBottom: 18, transform: [{ scale: doodleScale }] }}>
+                <ClayCharacter species={petSpecies} active={true} size={100} />
+              </Animated.View>
               <Text style={[styles.emotionName, { color: emo.color }]}>
                 {result.emocion_principal}
               </Text>
               <View style={[styles.emotionAccent, { backgroundColor: emo.color }]} />
             </View>
 
-            {/* Traducción con fondo semitransparente */}
+            {/* Tarjeta glassmorphism */}
             <View style={styles.translationCard}>
               <Text style={styles.translationText}>{result.traduccion_humana}</Text>
             </View>
@@ -292,36 +285,25 @@ const styles = StyleSheet.create({
 
   avatarSection: { alignItems: "center", paddingTop: 4, paddingBottom: 24 },
   avatarBorder: {
-    width: 92, height: 92, borderRadius: 46,
-    borderWidth: 3, overflow: "hidden",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18, shadowRadius: 14, elevation: 8,
+    width: 88, height: 88, borderRadius: 44,
+    borderWidth: 2, overflow: "hidden",
+    backgroundColor: "rgba(255,255,255,0.55)",
+    shadowColor: "#000", shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.12, shadowRadius: 10, elevation: 5,
   },
-  petCircle: { width: "100%", height: "100%", borderRadius: 43 },
-  petCircleFallback: {
-    width: "100%", height: "100%", borderRadius: 43,
+  petCircle: { width: "100%", height: "100%", borderRadius: 42 },
+  avatarPlaceholder: {
+    width: "100%", height: "100%", borderRadius: 42,
     alignItems: "center", justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.40)",
   },
-  petCircleLetter: { fontFamily: "Inter_800ExtraBold", fontSize: 32, color: "#fff" },
-  petSaysLabel: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "#475569", marginTop: 12 },
+  petSaysLabel: { fontFamily: "Inter_600SemiBold", fontSize: 15, color: "rgba(30,41,59,0.75)", marginTop: 12 },
 
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
   emotionHero: { alignItems: "center", marginBottom: 24 },
-  doodleShadow: {
+  clayAura: {
     position: "absolute",
-    top: 8, left: 8,
-    width: 88, height: 88,
-    borderRadius: 24,
-    backgroundColor: "#1A1A2E",
-  },
-  doodleFace: {
-    position: "absolute",
-    top: 0, left: 0,
-    width: 88, height: 88,
-    borderRadius: 24,
-    borderWidth: 3.5,
-    borderColor: "#1A1A2E",
-    alignItems: "center", justifyContent: "center",
+    width: 150, height: 150, borderRadius: 75,
   },
   emotionName: {
     fontFamily: "Inter_800ExtraBold", fontSize: 34,

@@ -8,6 +8,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../context/AppContext";
+import { ClayCharacter } from "../components/ClayCharacter";
 
 const TOTAL_STEPS = 4;
 
@@ -139,9 +140,9 @@ function ClayPetCard({ petKey, label, selected, onPress }) {
             </Animated.View>
             {/* Clay top-left shine */}
             <View style={s.clayShine} />
-            {/* Character */}
+            {/* Character clay */}
             <Animated.View style={{ transform: [{ translateY: floatY }, { scale: charScale }] }}>
-              <Text style={s.clayEmoji}>{isdog ? "🐶" : "🐱"}</Text>
+              <ClayCharacter species={petKey} active={selected} size={72} />
             </Animated.View>
           </View>
         </View>
@@ -478,7 +479,6 @@ const s = StyleSheet.create({
     width: 50, height: 50, borderRadius: 25,
     backgroundColor: "rgba(255,255,255,0.32)",
   },
-  clayEmoji: { fontSize: 66, lineHeight: 78 },
   clayLabel: {
     fontSize: 17,
     textAlign: "center",
