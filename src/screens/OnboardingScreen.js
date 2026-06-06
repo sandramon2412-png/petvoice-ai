@@ -5,7 +5,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../context/AppContext";
 
@@ -17,9 +19,9 @@ const PET_IMAGES = {
 const TOTAL_STEPS = 4;
 
 const C = {
-  text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
-  indigo: "#4F46E5", violet: "#7C3AED", indigoLight: "#EEF2FF",
-  inputBorder: "#CBD5E1",
+  text: "#F1F5F9", muted: "rgba(255,255,255,0.45)", border: "rgba(255,255,255,0.1)",
+  indigo: "#818CF8", violet: "#A78BFA", indigoLight: "rgba(129,140,248,0.15)",
+  inputBorder: "rgba(255,255,255,0.12)",
 };
 
 const GLASS = {
@@ -123,7 +125,7 @@ function ClayPetCard({ petKey, label, selected, onPress }) {
     prevSel.current = selected;
   }, [selected]);
 
-  const labelColor = selected ? (isdog ? "#B45309" : "#7C3AED") : C.muted;
+  const labelColor = selected ? (isdog ? "#FCD34D" : "#C4B5FD") : "rgba(255,255,255,0.45)";
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.92}>
@@ -214,9 +216,11 @@ export default function OnboardingScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <LinearGradient colors={["#EEF2FF", "#F0EAFF", "#FAF8FF"]} style={StyleSheet.absoluteFill} />
+      <LinearGradient colors={["#080A1A", "#0D1035", "#150D2E"]} style={StyleSheet.absoluteFill} />
+      {/* Ambient top glow */}
+      <View style={{ position:"absolute", top:-60, left:"15%", right:"15%", height:200, borderRadius:100, backgroundColor:"#4F46E5", opacity:0.12 }} />
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="light-content" />
         <ScrollView
           contentContainerStyle={s.scroll}
           keyboardShouldPersistTaps="handled"
@@ -252,8 +256,9 @@ export default function OnboardingScreen({ navigation }) {
             <Text style={s.progressLabel}>Paso {step + 1} de {TOTAL_STEPS + 1}</Text>
           </View>
 
-          {/* Step card */}
-          <Animated.View style={[s.card, GLASS, { opacity: cardOpacity, transform: [{ translateX: slideAnim }] }]}>
+          {/* Step card — BlurView glass */}
+          <Animated.View style={[s.cardOuter, { opacity: cardOpacity, transform: [{ translateX: slideAnim }] }]}>
+          <BlurView intensity={22} tint="dark" style={s.card}>
 
             {/* PASO 1 — Especie */}
             {step === 0 && (
@@ -261,8 +266,8 @@ export default function OnboardingScreen({ navigation }) {
                 <Text style={s.title}>¿Qué tipo de mascota tienes?</Text>
                 <Text style={s.subtitle}>El modelo de análisis se adapta por especie</Text>
                 <View style={s.speciesRow}>
-                  <ClayPetCard petKey="dog" label="Perro" selected={species === "dog"} onPress={() => setSpecies("dog")} />
-                  <ClayPetCard petKey="cat" label="Gato"  selected={species === "cat"} onPress={() => setSpecies("cat")} />
+                  <ClayPetCard petKey="dog" label="Perro" selected={species === "dog"} onPress={() => { setSpecies("dog"); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(()=>{}); }} />
+                  <ClayPetCard petKey="cat" label="Gato"  selected={species === "cat"} onPress={() => { setSpecies("cat"); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(()=>{}); }} />
                 </View>
               </View>
             )}
@@ -397,6 +402,7 @@ export default function OnboardingScreen({ navigation }) {
               </View>
             )}
 
+          </BlurView>
           </Animated.View>
 
           {/* Nav row (bottom) */}
@@ -440,28 +446,32 @@ const s = StyleSheet.create({
     flexDirection: "row", alignItems: "center", gap: 2,
     paddingVertical: 8, paddingHorizontal: 4,
   },
-  topNavBackText: { fontFamily: "Inter_500Medium", fontSize: 15, color: C.muted },
+  topNavBackText: { fontFamily: "Inter_500Medium", fontSize: 15, color: "rgba(255,255,255,0.4)" },
 
   logoSection: { alignItems: "center", paddingTop: 20, paddingBottom: 24 },
   logoCircle: {
-    width: 72, height: 72, borderRadius: 22,
+    width: 68, height: 68, borderRadius: 21,
     alignItems: "center", justifyContent: "center", marginBottom: 14,
-    shadowColor: "#0F172A", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.16, shadowRadius: 12, elevation: 6,
+    shadowColor: "#6366F1", shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.55, shadowRadius: 20, elevation: 8,
   },
-  logoTitle: { fontFamily: "Inter_800ExtraBold", fontSize: 28, color: C.text, marginBottom: 6, letterSpacing: -0.8 },
-  logoTagline: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, textAlign: "center", lineHeight: 21, marginBottom: 14, paddingHorizontal: 16 },
-  badge: { flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 6 },
-  badgeText: { fontFamily: "Inter_500Medium", fontSize: 12, color: C.indigo },
+  logoTitle: { fontFamily: "Inter_800ExtraBold", fontSize: 28, color: "#fff", marginBottom: 6, letterSpacing: -0.8 },
+  logoTagline: { fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 21, marginBottom: 14, paddingHorizontal: 16 },
+  badge: { flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 6,
+    backgroundColor: "rgba(129,140,248,0.12)", borderRadius: 20,
+    borderWidth: 1, borderColor: "rgba(129,140,248,0.2)" },
+  badgeText: { fontFamily: "Inter_500Medium", fontSize: 12, color: "#818CF8" },
 
   progressSection: { marginBottom: 20 },
-  progressTrack: { height: 6, backgroundColor: "rgba(0,0,0,0.07)", borderRadius: 3, overflow: "hidden", marginBottom: 8 },
+  progressTrack: { height: 3, backgroundColor: "rgba(255,255,255,0.08)", borderRadius: 3, overflow: "hidden", marginBottom: 8 },
   progressFillWrap: { height: "100%", borderRadius: 3, overflow: "hidden" },
-  progressLabel: { fontFamily: "Inter_500Medium", fontSize: 12, color: C.muted, textAlign: "right" },
+  progressLabel: { fontFamily: "Inter_400Regular", fontSize: 11, color: "rgba(255,255,255,0.3)", textAlign: "right" },
 
-  card: { borderRadius: 28, padding: 28, paddingBottom: 30, marginBottom: 24 },
-  title: { fontFamily: "Inter_700Bold", fontSize: 21, color: C.text, marginBottom: 7, letterSpacing: -0.4 },
-  subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 21 },
+  cardOuter: { marginBottom: 24 },
+  card: { borderRadius: 28, padding: 28, paddingBottom: 30, overflow: "hidden",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.08)" },
+  title: { fontFamily: "Inter_700Bold", fontSize: 20, color: "#fff", marginBottom: 7, letterSpacing: -0.3 },
+  subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 24, lineHeight: 21 },
 
   speciesRow: { flexDirection: "row", justifyContent: "center", gap: 22, marginTop: 4 },
 
@@ -505,20 +515,20 @@ const s = StyleSheet.create({
   // Name input with icon prefix
   inputRow: {
     flexDirection: "row", alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.92)",
-    borderWidth: 1.5, borderColor: C.inputBorder,
+    backgroundColor: "rgba(255,255,255,0.07)",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.12)",
     borderRadius: 14, overflow: "hidden",
   },
   inputIconBox: {
     width: 46, alignItems: "center", justifyContent: "center",
-    borderRightWidth: 1, borderRightColor: "rgba(203,213,225,0.6)",
+    borderRightWidth: 1, borderRightColor: "rgba(255,255,255,0.08)",
     paddingVertical: 14,
   },
   inputWithIcon: {
     flex: 1, paddingHorizontal: 14, paddingVertical: 14,
-    fontFamily: "Inter_500Medium", fontSize: 16, color: C.text,
+    fontFamily: "Inter_500Medium", fontSize: 16, color: "#fff",
   },
-  charCount: { fontFamily: "Inter_400Regular", fontSize: 11, color: C.muted, marginTop: 8, textAlign: "right" },
+  charCount: { fontFamily: "Inter_400Regular", fontSize: 11, color: "rgba(255,255,255,0.3)", marginTop: 8, textAlign: "right" },
 
   // Age stepper
   ageStepper: {
@@ -527,23 +537,19 @@ const s = StyleSheet.create({
   },
   ageStepBtn: {
     width: 52, height: 52, borderRadius: 16,
-    backgroundColor: C.indigoLight, alignItems: "center", justifyContent: "center",
-    borderWidth: 1, borderColor: "rgba(79,70,229,0.18)",
-    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.12, shadowRadius: 8, elevation: 3,
+    backgroundColor: "rgba(129,140,248,0.15)", alignItems: "center", justifyContent: "center",
+    borderWidth: 1, borderColor: "rgba(129,140,248,0.2)",
   },
   ageDisplayBox: {
     width: 96, height: 80, borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.95)",
-    borderWidth: 1.5, borderColor: "rgba(79,70,229,0.2)",
+    backgroundColor: "rgba(255,255,255,0.07)",
+    borderWidth: 1, borderColor: "rgba(129,140,248,0.25)",
     alignItems: "center", justifyContent: "center",
-    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.10, shadowRadius: 10, elevation: 3,
   },
-  ageNumber: { fontFamily: "Inter_800ExtraBold", fontSize: 36, color: C.indigo, letterSpacing: -1 },
-  ageUnit: { fontFamily: "Inter_400Regular", fontSize: 12, color: C.muted, marginTop: 2 },
+  ageNumber: { fontFamily: "Inter_800ExtraBold", fontSize: 36, color: "#A5B4FC", letterSpacing: -1 },
+  ageUnit: { fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(255,255,255,0.4)", marginTop: 2 },
 
-  skipNote: { fontFamily: "Inter_400Regular", fontSize: 12, color: C.muted, marginTop: 12, textAlign: "center" },
+  skipNote: { fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(255,255,255,0.3)", marginTop: 12, textAlign: "center" },
 
   // Photo step
   photoArea: { alignItems: "center", marginBottom: 24 },
@@ -565,8 +571,8 @@ const s = StyleSheet.create({
     backgroundColor: "rgba(255,255,255,0.9)",
     alignItems: "center", justifyContent: "center", marginBottom: 8,
   },
-  photoHint: { fontFamily: "Inter_700Bold", fontSize: 13, color: C.indigo, textAlign: "center" },
-  photoSubHint: { fontFamily: "Inter_400Regular", fontSize: 11, color: C.muted, marginTop: 3, textAlign: "center" },
+  photoHint: { fontFamily: "Inter_700Bold", fontSize: 13, color: "#A5B4FC", textAlign: "center" },
+  photoSubHint: { fontFamily: "Inter_400Regular", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 3, textAlign: "center" },
   photoRingOuter: {
     width: 168, height: 168, borderRadius: 84,
     borderWidth: 3, borderColor: C.indigo,
@@ -604,25 +610,25 @@ const s = StyleSheet.create({
     shadowOpacity: 0.35, shadowRadius: 14, elevation: 8,
   },
   completionTitle: {
-    fontFamily: "Inter_800ExtraBold", fontSize: 24, color: C.text,
+    fontFamily: "Inter_800ExtraBold", fontSize: 24, color: "#fff",
     letterSpacing: -0.5, marginBottom: 14, textAlign: "center",
   },
   completionBody: {
-    fontFamily: "Inter_400Regular", fontSize: 15, color: C.muted,
+    fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(255,255,255,0.5)",
     textAlign: "center", lineHeight: 24, paddingHorizontal: 8,
   },
 
   navRow: { flexDirection: "row", alignItems: "center", marginBottom: 24 },
   backBtn: { flexDirection: "row", alignItems: "center", paddingVertical: 10, paddingHorizontal: 8 },
-  backBtnText: { fontFamily: "Inter_500Medium", fontSize: 15, color: C.muted },
+  backBtnText: { fontFamily: "Inter_500Medium", fontSize: 15, color: "rgba(255,255,255,0.4)" },
   gradBtn: {
     flexDirection: "row", alignItems: "center", borderRadius: 14,
     paddingHorizontal: 24, paddingVertical: 14,
-    shadowColor: "#4F46E5", shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 12, elevation: 6,
+    shadowColor: "#6366F1", shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.5, shadowRadius: 18, elevation: 8,
   },
   gradBtnText: { fontFamily: "Inter_700Bold", fontSize: 16, color: "#fff" },
 
   dotsRow: { flexDirection: "row", justifyContent: "center", gap: 8 },
-  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "rgba(0,0,0,0.12)" },
-  dotActive: { width: 24, backgroundColor: C.indigo },
+  dot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "rgba(255,255,255,0.12)" },
+  dotActive: { width: 24, backgroundColor: "#818CF8" },
 });

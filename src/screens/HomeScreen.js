@@ -7,7 +7,9 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
+import { BlurView } from "expo-blur";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
 import { useApp } from "../context/AppContext";
 import { analyzeSound } from "../services/aiService";
@@ -17,20 +19,15 @@ const { width: SCREEN_W } = Dimensions.get("window");
 const BTN_SIZE = 114;
 
 const C = {
-  text: "#1E293B", muted: "#64748B", border: "#E2E8F0",
-  card: "rgba(255,255,255,0.88)", indigo: "#4F46E5", violet: "#7C3AED",
-  indigoLight: "#EEF2FF", coral: "#FF8A65", coralDark: "#F4511E",
+  text: "#F1F5F9", muted: "#94A3B8", border: "rgba(255,255,255,0.12)",
+  card: "rgba(255,255,255,0.06)", indigo: "#818CF8", violet: "#A78BFA",
+  indigoLight: "rgba(129,140,248,0.15)", coral: "#FF8A65", coralDark: "#F4511E",
 };
 
 const GLASS = {
-  backgroundColor: "rgba(255,255,255,0.45)",
+  backgroundColor: "rgba(255,255,255,0.06)",
   borderWidth: 1,
-  borderColor: "rgba(255,255,255,0.75)",
-  shadowColor: "rgba(31,38,135,0.05)",
-  shadowOffset: { width: 0, height: 8 },
-  shadowOpacity: 1,
-  shadowRadius: 32,
-  elevation: 4,
+  borderColor: "rgba(255,255,255,0.10)",
 };
 
 const POSTURES_CAT = [
@@ -157,7 +154,7 @@ function EnvDropdown({ visible, onClose, selected, onSelect }) {
             <PressableScale key={env.key} onPress={() => { onSelect(env.key); onClose(); }} activeScale={0.98}>
               <View style={[s.dropItem, selected === env.key && s.dropItemSel]}>
                 <View style={[s.dropIconBox, selected === env.key && s.dropIconBoxActive]}>
-                  <MaterialCommunityIcons name={env.icon} size={18} color={selected === env.key ? "#fff" : C.muted} />
+                  <MaterialCommunityIcons name={env.icon} size={16} color={selected === env.key ? "#A5B4FC" : "rgba(255,255,255,0.4)"} />
                 </View>
                 <Text style={[s.dropItemText, selected === env.key && s.dropItemTextSel]}>{env.label}</Text>
                 {selected === env.key && (
@@ -271,41 +268,44 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <LinearGradient colors={["#F8FAFC", "#EEF2FF", "#F5F3FF"]} style={StyleSheet.absoluteFill} />
+      {/* Deep dark premium background */}
+      <LinearGradient colors={["#080A1A", "#0D1035", "#0A0F2A"]} style={StyleSheet.absoluteFill} />
+      {/* Soft ambient glow top-center */}
+      <View style={s.ambientGlow} />
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000", opacity: dimAnim }]} />
 
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
-        <StatusBar barStyle="dark-content" />
+        <StatusBar barStyle="light-content" />
         <ScrollView style={{ flex: 1 }} contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>
 
-          {/* Header */}
+          {/* ── Header ── */}
           <View style={s.header}>
             <View style={s.headerLeft}>
               <TouchableOpacity onPress={handleGoBack} style={s.navBackBtn} activeOpacity={0.7}>
-                <MaterialCommunityIcons name="chevron-left" size={26} color={C.muted} />
+                <MaterialCommunityIcons name="chevron-left" size={22} color="rgba(255,255,255,0.4)" />
               </TouchableOpacity>
-              <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.logoMark}>
-                <MaterialCommunityIcons name="waveform" size={15} color="#fff" />
-              </LinearGradient>
-              <Text style={s.appLabel}>PetVoice AI</Text>
+              <View>
+                <Text style={s.appLabel}>PetVoice AI</Text>
+                <Text style={s.appSub}>Análisis emocional</Text>
+              </View>
             </View>
             <View style={s.headerRight}>
               {pet?.photo
                 ? <Image source={{ uri: pet.photo }} style={s.petAvatar} />
-                : <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.petAvatar}>
+                : <LinearGradient colors={["#6366F1", "#8B5CF6"]} style={s.petAvatar}>
                     <Text style={s.petAvatarLetter}>{petInitial}</Text>
                   </LinearGradient>}
-              <PressableScale activeScale={0.94}>
-                <LinearGradient colors={["#EEF2FF", "#F5F3FF"]} style={s.upgradeBtn}>
-                  <MaterialCommunityIcons name="crown-outline" size={13} color={C.indigo} />
+              <PressableScale onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})} activeScale={0.94}>
+                <BlurView intensity={20} tint="dark" style={s.upgradeBtn}>
+                  <MaterialCommunityIcons name="crown-outline" size={12} color="#A78BFA" />
                   <Text style={s.upgradeBtnText}>Pro</Text>
-                </LinearGradient>
+                </BlurView>
               </PressableScale>
             </View>
           </View>
 
-          {/* Status card */}
-          <View style={[s.statusCard, GLASS]}>
+          {/* ── Pet + quota ── */}
+          <BlurView intensity={18} tint="dark" style={s.statusCard}>
             <View style={{ flex: 1 }}>
               <Text style={s.petName}>{pet?.name || "Tu Mascota"}</Text>
               <Text style={s.petBreed}>
@@ -314,60 +314,52 @@ export default function HomeScreen({ navigation }) {
               </Text>
             </View>
             <View style={[s.limitBadge, !canRecord && s.limitBadgeWarn]}>
-              <MaterialCommunityIcons name="microphone" size={13} color={canRecord ? C.indigo : "#DC2626"} />
+              <MaterialCommunityIcons name="microphone" size={12} color={canRecord ? "#818CF8" : "#F87171"} />
               <Text style={[s.limitText, !canRecord && s.limitTextWarn]}>
                 {canRecord ? `${remaining} restantes` : "Límite alcanzado"}
               </Text>
             </View>
-          </View>
+          </BlurView>
 
-          {/* Posture chips */}
+          {/* ── Posture chips ── */}
           <View style={s.section}>
             <Text style={s.sectionLabel}>Postura corporal</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={s.chipsRow}>
               {postures.map(p => {
                 const active = posture === p.key;
                 return (
-                  <PressableScale key={p.key} onPress={() => setPosture(p.key)} activeScale={0.95}>
-                    {active ? (
-                      <View style={s.chipActive}>
-                        <MaterialCommunityIcons name={p.icon} size={16} color={C.indigo} style={{ marginRight: 5 }} />
-                        <Text style={s.chipTextActive}>{p.label}</Text>
-                      </View>
-                    ) : (
-                      <View style={[s.chip, GLASS]}>
-                        <MaterialCommunityIcons name={p.icon} size={16} color={C.muted} style={{ marginRight: 5 }} />
-                        <Text style={s.chipText}>{p.label}</Text>
-                      </View>
-                    )}
+                  <PressableScale key={p.key} onPress={() => { setPosture(p.key); Haptics.selectionAsync().catch(()=>{}); }} activeScale={0.95}>
+                    <BlurView intensity={active ? 0 : 16} tint="dark" style={[s.chip, active && s.chipActive]}>
+                      <Text style={[s.chipText, active && s.chipTextActive]}>{p.label}</Text>
+                    </BlurView>
                   </PressableScale>
                 );
               })}
             </ScrollView>
           </View>
 
-          {/* Environment selector */}
+          {/* ── Environment selector ── */}
           <View style={s.section}>
-            <Text style={s.sectionLabel}>Contexto / Estímulo</Text>
-            <PressableScale onPress={() => setEnvDropOpen(true)} activeScale={0.98} style={[s.envSelector, GLASS]}>
-              <View style={s.envSelectorLeft}>
-                <View style={s.envIconBox}>
-                  <MaterialCommunityIcons name={selectedEnv.icon} size={18} color={C.indigo} />
+            <Text style={s.sectionLabel}>Contexto</Text>
+            <PressableScale onPress={() => setEnvDropOpen(true)} activeScale={0.98}>
+              <BlurView intensity={18} tint="dark" style={s.envSelector}>
+                <View style={s.envSelectorLeft}>
+                  <View style={s.envIconBox}>
+                    <MaterialCommunityIcons name={selectedEnv.icon} size={16} color="#818CF8" />
+                  </View>
+                  <Text style={s.envText}>{selectedEnv.label}</Text>
                 </View>
-                <Text style={s.envText}>{selectedEnv.label}</Text>
-              </View>
-              <MaterialCommunityIcons name="chevron-down" size={20} color={C.muted} />
+                <MaterialCommunityIcons name="chevron-down" size={18} color="rgba(255,255,255,0.3)" />
+              </BlurView>
             </PressableScale>
           </View>
 
-          {/* Record section */}
+          {/* ── Record section ── */}
           <View style={s.recordSection}>
             <Text style={s.recordHint}>
-              {isRecording
-                ? "Grabando... toca para analizar"
-                : canRecord
-                ? "Toca para comenzar a grabar"
-                : "Actualiza a Pro para más análisis"}
+              {isRecording ? "Escuchando · toca para analizar"
+               : canRecord ? "Toca para comenzar"
+               : "Actualiza a Pro para más análisis"}
             </Text>
 
             <View style={s.btnOuter}>
@@ -375,20 +367,21 @@ export default function HomeScreen({ navigation }) {
               <IdleRing active={!isRecording && !loading && canRecord} delay={700} />
               {[0, 1, 2].map(i => <WaveRing key={i} delay={i * 420} isRecording={isRecording} />)}
 
-              {/* Outermost ambient glow layer */}
               <View style={s.btnGlow}>
-                {/* Mid raised base layer */}
                 <View style={s.btnBase}>
                   <PressableScale
-                    onPress={handlePress}
+                    onPress={() => {
+                      Haptics.impactAsync(isRecording ? Haptics.ImpactFeedbackStyle.Medium : Haptics.ImpactFeedbackStyle.Heavy).catch(()=>{});
+                      handlePress();
+                    }}
                     disabled={loading || !canRecord}
                     activeScale={0.94}
                   >
                     <LinearGradient
                       colors={
-                        loading ? [C.indigo, C.violet]
-                        : isRecording ? [C.coralDark, "#C63E17"]
-                        : !canRecord ? ["#CBD5E1", "#CBD5E1"]
+                        loading ? ["#6366F1","#8B5CF6"]
+                        : isRecording ? ["#EF4444","#DC2626"]
+                        : !canRecord ? ["#374151","#374151"]
                         : [C.coral, C.coralDark]
                       }
                       style={s.recordBtn}
@@ -396,9 +389,8 @@ export default function HomeScreen({ navigation }) {
                       {loading
                         ? <ActivityIndicator size="large" color="#fff" />
                         : <MaterialCommunityIcons
-                            name={isRecording ? "pause" : "microphone"}
-                            size={48}
-                            color="#fff"
+                            name={isRecording ? "stop" : "microphone"}
+                            size={46} color="#fff"
                           />}
                     </LinearGradient>
                   </PressableScale>
@@ -411,26 +403,16 @@ export default function HomeScreen({ navigation }) {
                 <View style={s.recDot} />
                 <Text style={s.recText}>REC</Text>
                 <View style={s.recWaveWrap}>
-                  <SiriWave
-                    color="#FF8A65"
-                    width={SCREEN_W * 0.55}
-                    height={36}
-                    intensity={0.88}
-                    speed={1.1}
-                  />
+                  <SiriWave color="#FF8A65" width={SCREEN_W * 0.5} height={32} intensity={0.85} speed={1.1} />
                 </View>
               </View>
             )}
           </View>
 
-          {/* Tip card */}
-          <View style={[s.tipCard, GLASS]}>
-            <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.tipAccent} />
-            <MaterialCommunityIcons name="lightbulb-on-outline" size={18} color={C.indigo} style={{ marginRight: 10 }} />
-            <Text style={s.tipText}>
-              Graba 3–10 segundos de forma natural. Más contexto = traducción más precisa.
-            </Text>
-          </View>
+          {/* ── Subtle tip ── */}
+          <Text style={s.tipText}>
+            Graba 3–10 s de forma natural · más contexto = mejor análisis
+          </Text>
 
         </ScrollView>
       </SafeAreaView>
@@ -449,141 +431,143 @@ export default function HomeScreen({ navigation }) {
 const s = StyleSheet.create({
   scrollContent: { paddingBottom: 40 },
 
+  ambientGlow: {
+    position: "absolute", top: -80, left: "20%", right: "20%",
+    height: 240, borderRadius: 120,
+    backgroundColor: "#4F46E5", opacity: 0.14,
+  },
+
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
-    paddingHorizontal: 14, paddingVertical: 14,
+    paddingHorizontal: 20, paddingVertical: 16,
   },
-  headerLeft: { flexDirection: "row", alignItems: "center", gap: 6 },
-  navBackBtn: { padding: 4, marginRight: 0 },
-  logoMark: {
-    width: 32, height: 32, borderRadius: 9,
-    alignItems: "center", justifyContent: "center",
-  },
-  appLabel: { fontFamily: "Inter_700Bold", fontSize: 17, color: C.text },
+  headerLeft: { flexDirection: "row", alignItems: "center", gap: 10 },
+  navBackBtn: { padding: 4 },
+  appLabel: { fontFamily: "Inter_700Bold", fontSize: 16, color: "rgba(255,255,255,0.9)" },
+  appSub: { fontFamily: "Inter_400Regular", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 1 },
   headerRight: { flexDirection: "row", alignItems: "center", gap: 10 },
-  petAvatar: {
-    width: 38, height: 38, borderRadius: 19,
-    alignItems: "center", justifyContent: "center",
-  },
-  petAvatarLetter: { fontFamily: "Inter_700Bold", fontSize: 15, color: "#fff" },
+  petAvatar: { width: 36, height: 36, borderRadius: 18, alignItems: "center", justifyContent: "center" },
+  petAvatarLetter: { fontFamily: "Inter_700Bold", fontSize: 14, color: "#fff" },
   upgradeBtn: {
-    flexDirection: "row", alignItems: "center", gap: 4,
-    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 6,
-    borderWidth: 1, borderColor: "rgba(79,70,229,0.2)",
+    flexDirection: "row", alignItems: "center", gap: 4, overflow: "hidden",
+    borderRadius: 20, paddingHorizontal: 12, paddingVertical: 7,
+    borderWidth: 1, borderColor: "rgba(167,139,250,0.3)",
   },
-  upgradeBtnText: { fontFamily: "Inter_700Bold", fontSize: 12, color: C.indigo },
+  upgradeBtnText: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: "#A78BFA" },
 
   statusCard: {
-    marginHorizontal: 20, marginBottom: 20, borderRadius: 18, padding: 16,
-    flexDirection: "row", alignItems: "center",
+    marginHorizontal: 20, marginBottom: 22, borderRadius: 20, overflow: "hidden",
+    padding: 16, flexDirection: "row", alignItems: "center",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.08)",
   },
-  petName: { fontFamily: "Inter_800ExtraBold", fontSize: 18, color: C.text, marginBottom: 3 },
-  petBreed: { fontFamily: "Inter_400Regular", fontSize: 13, color: C.muted },
+  petName: { fontFamily: "Inter_700Bold", fontSize: 17, color: "rgba(255,255,255,0.92)", marginBottom: 2 },
+  petBreed: { fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(255,255,255,0.4)" },
   limitBadge: {
     flexDirection: "row", alignItems: "center", gap: 5,
-    backgroundColor: C.indigoLight, borderRadius: 20, paddingHorizontal: 10, paddingVertical: 6,
+    backgroundColor: "rgba(129,140,248,0.18)", borderRadius: 20,
+    paddingHorizontal: 10, paddingVertical: 6,
+    borderWidth: 1, borderColor: "rgba(129,140,248,0.2)",
   },
-  limitBadgeWarn: { backgroundColor: "#FEE2E2" },
-  limitText: { fontFamily: "Inter_600SemiBold", fontSize: 12, color: C.indigo },
-  limitTextWarn: { color: "#DC2626" },
+  limitBadgeWarn: { backgroundColor: "rgba(239,68,68,0.15)", borderColor: "rgba(239,68,68,0.2)" },
+  limitText: { fontFamily: "Inter_500Medium", fontSize: 11, color: "#818CF8" },
+  limitTextWarn: { color: "#F87171" },
 
-  section: { marginHorizontal: 20, marginBottom: 20 },
+  section: { marginHorizontal: 20, marginBottom: 18 },
   sectionLabel: {
-    fontFamily: "Inter_600SemiBold", fontSize: 11, color: C.muted,
-    marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.8,
+    fontFamily: "Inter_500Medium", fontSize: 10, color: "rgba(255,255,255,0.3)",
+    marginBottom: 10, textTransform: "uppercase", letterSpacing: 1.2,
   },
 
   chipsRow: { gap: 8, flexDirection: "row", paddingRight: 4 },
   chip: {
-    flexDirection: "row", alignItems: "center",
-    borderRadius: 24, paddingHorizontal: 14, paddingVertical: 9,
+    borderRadius: 24, paddingHorizontal: 14, paddingVertical: 9, overflow: "hidden",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.08)",
   },
   chipActive: {
-    flexDirection: "row", alignItems: "center",
-    borderRadius: 24, paddingHorizontal: 14, paddingVertical: 9,
-    backgroundColor: "rgba(79,70,229,0.10)",
-    borderWidth: 1, borderColor: "rgba(79,70,229,0.25)",
+    backgroundColor: "rgba(129,140,248,0.22)",
+    borderWidth: 1, borderColor: "rgba(129,140,248,0.4)",
   },
-  chipText: { fontFamily: "Inter_500Medium", fontSize: 13, color: C.muted },
-  chipTextActive: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: C.indigo },
+  chipText: { fontFamily: "Inter_400Regular", fontSize: 13, color: "rgba(255,255,255,0.45)" },
+  chipTextActive: { fontFamily: "Inter_600SemiBold", fontSize: 13, color: "#A5B4FC" },
 
   envSelector: {
-    borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14,
+    borderRadius: 16, overflow: "hidden", paddingHorizontal: 16, paddingVertical: 14,
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.08)",
   },
   envSelectorLeft: { flexDirection: "row", alignItems: "center" },
   envIconBox: {
-    width: 34, height: 34, borderRadius: 10,
-    backgroundColor: C.indigoLight, alignItems: "center", justifyContent: "center", marginRight: 10,
+    width: 32, height: 32, borderRadius: 10,
+    backgroundColor: "rgba(129,140,248,0.15)",
+    alignItems: "center", justifyContent: "center", marginRight: 10,
   },
-  envText: { fontFamily: "Inter_500Medium", fontSize: 15, color: C.text },
+  envText: { fontFamily: "Inter_500Medium", fontSize: 14, color: "rgba(255,255,255,0.82)" },
 
   recordSection: { alignItems: "center", paddingVertical: 16, marginBottom: 8 },
-  recordHint: { fontFamily: "Inter_600SemiBold", fontSize: 14, color: C.indigo, marginBottom: 28, letterSpacing: 0.1 },
+  recordHint: {
+    fontFamily: "Inter_400Regular", fontSize: 13,
+    color: "rgba(255,255,255,0.45)", marginBottom: 28, letterSpacing: 0.2,
+  },
   btnOuter: { width: BTN_SIZE * 3.2, height: BTN_SIZE * 3.2, alignItems: "center", justifyContent: "center" },
   wave: {
     position: "absolute", width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
     backgroundColor: C.coral,
   },
-  // Outermost ambient glow — large diffuse halo
   btnGlow: {
     width: BTN_SIZE + 36, height: BTN_SIZE + 36, borderRadius: (BTN_SIZE + 36) / 2,
     alignItems: "center", justifyContent: "center",
     shadowColor: C.coralDark,
-    shadowOffset: { width: 0, height: 24 },
-    shadowOpacity: 0.55,
-    shadowRadius: 52,
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.7,
+    shadowRadius: 48,
     elevation: 28,
   },
-  // Inner raised base — tighter contact shadow
   btnBase: {
     width: BTN_SIZE + 12, height: BTN_SIZE + 12, borderRadius: (BTN_SIZE + 12) / 2,
-    backgroundColor: "rgba(244,81,30,0.35)",
+    backgroundColor: "rgba(244,81,30,0.25)",
     alignItems: "center", justifyContent: "center",
     shadowColor: C.coralDark,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.70,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.8,
+    shadowRadius: 18,
     elevation: 18,
   },
   recordBtn: {
     width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
     alignItems: "center", justifyContent: "center",
-    borderWidth: 4, borderColor: "rgba(255,255,255,0.35)",
+    borderWidth: 2, borderColor: "rgba(255,255,255,0.25)",
   },
-  recIndicator: { alignItems: "center", gap: 6, marginTop: 20 },
-  recDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#EF4444" },
-  recText: { fontFamily: "Inter_700Bold", fontSize: 11, color: "#EF4444", letterSpacing: 3 },
-  recWaveWrap: { marginTop: 8 },
+  recIndicator: { alignItems: "center", gap: 4, marginTop: 20 },
+  recDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: "#EF4444" },
+  recText: { fontFamily: "Inter_600SemiBold", fontSize: 10, color: "rgba(239,68,68,0.8)", letterSpacing: 3 },
+  recWaveWrap: { marginTop: 6 },
 
-  tipCard: {
-    marginHorizontal: 20, marginBottom: 32, borderRadius: 16, padding: 14,
-    flexDirection: "row", alignItems: "flex-start", overflow: "hidden",
+  tipText: {
+    fontFamily: "Inter_400Regular", fontSize: 12,
+    color: "rgba(255,255,255,0.22)", textAlign: "center",
+    marginHorizontal: 32, marginBottom: 32, lineHeight: 18,
   },
-  tipAccent: {
-    position: "absolute", left: 0, top: 0, bottom: 0, width: 4,
-  },
-  tipText: { fontFamily: "Inter_400Regular", fontSize: 13, color: C.indigo, flex: 1, lineHeight: 20 },
 
   // Dropdown
-  dropOverlay: { flex: 1, backgroundColor: "rgba(15,23,42,0.5)", justifyContent: "flex-end" },
+  dropOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "flex-end" },
   dropSheet: {
-    backgroundColor: "#fff", borderTopLeftRadius: 28, borderTopRightRadius: 28,
+    backgroundColor: "#0F1130", borderTopLeftRadius: 28, borderTopRightRadius: 28,
     paddingTop: 12, paddingBottom: Platform.OS === "ios" ? 40 : 28, paddingHorizontal: 20,
-    shadowColor: "#000", shadowOffset: { width: 0, height: -6 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 14,
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.08)",
   },
-  dropHandle: { width: 36, height: 4, borderRadius: 2, alignSelf: "center", marginBottom: 18 },
-  dropTitle: { fontFamily: "Inter_700Bold", fontSize: 17, color: C.text, marginBottom: 12 },
+  dropHandle: { width: 36, height: 4, borderRadius: 2, alignSelf: "center", marginBottom: 18, backgroundColor: "rgba(255,255,255,0.15)" },
+  dropTitle: { fontFamily: "Inter_700Bold", fontSize: 17, color: "rgba(255,255,255,0.9)", marginBottom: 12 },
   dropItem: {
     flexDirection: "row", alignItems: "center",
-    paddingVertical: 12, borderRadius: 12, paddingHorizontal: 8, marginBottom: 4,
+    paddingVertical: 12, borderRadius: 14, paddingHorizontal: 10, marginBottom: 4,
   },
-  dropItemSel: { backgroundColor: C.indigoLight },
+  dropItemSel: { backgroundColor: "rgba(129,140,248,0.15)" },
   dropIconBox: {
-    width: 36, height: 36, borderRadius: 10, backgroundColor: "#F1F5F9",
+    width: 36, height: 36, borderRadius: 10,
+    backgroundColor: "rgba(255,255,255,0.06)",
     alignItems: "center", justifyContent: "center", marginRight: 12,
   },
-  dropIconBoxActive: { backgroundColor: C.indigo },
-  dropItemText: { fontFamily: "Inter_400Regular", fontSize: 15, color: C.text },
-  dropItemTextSel: { fontFamily: "Inter_600SemiBold", color: C.indigo },
+  dropIconBoxActive: { backgroundColor: "rgba(129,140,248,0.25)" },
+  dropItemText: { fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(255,255,255,0.75)" },
+  dropItemTextSel: { fontFamily: "Inter_600SemiBold", color: "#A5B4FC" },
 });
