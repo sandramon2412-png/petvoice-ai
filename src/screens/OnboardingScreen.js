@@ -8,7 +8,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../context/AppContext";
-import { ClayCharacter } from "../components/ClayCharacter";
+
+const PET_IMAGES = {
+  dog: require("../../assets/pets/dog.png"),
+  cat: require("../../assets/pets/cat.png"),
+};
 
 const TOTAL_STEPS = 4;
 
@@ -138,11 +142,13 @@ function ClayPetCard({ petKey, label, selected, onPress }) {
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: gradFade }]}>
               <LinearGradient colors={ACTV_COLORS} style={StyleSheet.absoluteFill} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
             </Animated.View>
-            {/* Clay top-left shine */}
-            <View style={s.clayShine} />
-            {/* Character clay */}
+            {/* Character 3D */}
             <Animated.View style={{ transform: [{ translateY: floatY }, { scale: charScale }] }}>
-              <ClayCharacter species={petKey} active={selected} size={72} />
+              <Image
+                source={PET_IMAGES[petKey]}
+                style={s.petImg}
+                resizeMode="contain"
+              />
             </Animated.View>
           </View>
         </View>
@@ -473,6 +479,8 @@ const s = StyleSheet.create({
     borderWidth: 2,
     borderColor: "rgba(255,255,255,0.55)",
   },
+  petImg: { width: 110, height: 110 },
+
   clayShine: {
     position: "absolute",
     top: 14, left: 14,

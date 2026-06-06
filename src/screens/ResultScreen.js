@@ -7,17 +7,28 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
-import { ClayCharacter } from "../components/ClayCharacter";
+
+// Imágenes 3D — Microsoft Fluent Emoji (MIT licence, 256×256 RGBA)
+const EMOTION_IMAGES = {
+  Feliz:      require("../../assets/emotions/feliz.png"),
+  Juguetón:   require("../../assets/emotions/jugueton.png"),
+  Alerta:     require("../../assets/emotions/alerta.png"),
+  Curioso:    require("../../assets/emotions/curioso.png"),
+  Estresado:  require("../../assets/emotions/estresado.png"),
+  Asustado:   require("../../assets/emotions/asustado.png"),
+  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
+  Hambriento: require("../../assets/emotions/hambriento.png"),
+};
 
 const EMOTION_MAP = {
-  Feliz:      { color: "#10B981", icon: "star",                    doodleBg: "#D1FAE5", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"] },
-  Juguetón:   { color: "#3B82F6", icon: "lightning-bolt",          doodleBg: "#DBEAFE", iconColors: ["#2563EB","#60A5FA"], barColors: ["#3B82F6","#60A5FA"] },
-  Alerta:     { color: "#D97706", icon: "bell-ring",               doodleBg: "#FEF3C7", iconColors: ["#D97706","#FCD34D"], barColors: ["#F59E0B","#FCD34D"] },
-  Curioso:    { color: "#4F46E5", icon: "telescope",               doodleBg: "#EEF2FF", iconColors: ["#4338CA","#818CF8"], barColors: ["#4F46E5","#818CF8"] },
-  Estresado:  { color: "#EC4899", icon: "fire",                    doodleBg: "#FCE7F3", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"] },
-  Asustado:   { color: "#7C3AED", icon: "weather-lightning-rainy", doodleBg: "#F5F3FF", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"] },
-  Tranquilo:  { color: "#64748B", icon: "leaf",                    doodleBg: "#F1F5F9", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"] },
-  Hambriento: { color: "#D97706", icon: "bone",                    doodleBg: "#FEF3C7", iconColors: ["#B45309","#FBBF24"], barColors: ["#D97706","#FBBF24"] },
+  Feliz:      { color: "#10B981", iconColors: ["#059669","#34D399"], barColors: ["#10B981","#34D399"] },
+  Juguetón:   { color: "#3B82F6", iconColors: ["#2563EB","#60A5FA"], barColors: ["#3B82F6","#60A5FA"] },
+  Alerta:     { color: "#D97706", iconColors: ["#D97706","#FCD34D"], barColors: ["#F59E0B","#FCD34D"] },
+  Curioso:    { color: "#4F46E5", iconColors: ["#4338CA","#818CF8"], barColors: ["#4F46E5","#818CF8"] },
+  Estresado:  { color: "#EC4899", iconColors: ["#DB2777","#F472B6"], barColors: ["#DB2777","#F472B6"] },
+  Asustado:   { color: "#7C3AED", iconColors: ["#6D28D9","#8B5CF6"], barColors: ["#6D28D9","#8B5CF6"] },
+  Tranquilo:  { color: "#64748B", iconColors: ["#475569","#94A3B8"], barColors: ["#64748B","#94A3B8"] },
+  Hambriento: { color: "#D97706", iconColors: ["#B45309","#FBBF24"], barColors: ["#D97706","#FBBF24"] },
 };
 
 function getEmo(emocion) {
@@ -141,9 +152,8 @@ export default function ResultScreen({ navigation }) {
     keyword_publicidad: "bienestar_animal",
   };
 
-  const emo       = getEmo(result.emocion_principal);
-  const petName   = pet?.name    || "Tu mascota";
-  const petSpecies = pet?.species || "dog";
+  const emo     = getEmo(result.emocion_principal);
+  const petName = pet?.name || "Tu mascota";
 
   return (
     <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
@@ -193,11 +203,15 @@ export default function ResultScreen({ navigation }) {
             style={[styles.heroSection, { opacity: heroOpacity, transform: [{ translateY: heroSlide }] }]}
           >
             <View style={styles.emotionHero}>
-              {/* Aura de color detrás del personaje */}
-              <View style={[styles.clayAura, { backgroundColor: emo.iconColors[0] + "40" }]} />
-              {/* Personaje clay animado con spring de entrada */}
-              <Animated.View style={{ marginBottom: 18, transform: [{ scale: doodleScale }] }}>
-                <ClayCharacter species={petSpecies} active={true} size={100} />
+              {/* Aura suave de color */}
+              <View style={[styles.emoAura, { backgroundColor: emo.iconColors[0] + "35" }]} />
+              {/* Ícono 3D Fluent Emoji con spring de entrada */}
+              <Animated.View style={[styles.emoImgWrap, { transform: [{ scale: doodleScale }] }]}>
+                <Image
+                  source={EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES["Feliz"]}
+                  style={styles.emoImg}
+                  resizeMode="contain"
+                />
               </Animated.View>
               <Text style={[styles.emotionName, { color: emo.color }]}>
                 {result.emocion_principal}
@@ -205,7 +219,7 @@ export default function ResultScreen({ navigation }) {
               <View style={[styles.emotionAccent, { backgroundColor: emo.color }]} />
             </View>
 
-            {/* Tarjeta glassmorphism */}
+            {/* Burbuja de cristal — sin borde grueso */}
             <View style={styles.translationCard}>
               <Text style={styles.translationText}>{result.traduccion_humana}</Text>
             </View>
@@ -301,10 +315,12 @@ const styles = StyleSheet.create({
 
   heroSection: { paddingHorizontal: 24, marginBottom: 28 },
   emotionHero: { alignItems: "center", marginBottom: 24 },
-  clayAura: {
+  emoAura: {
     position: "absolute",
-    width: 150, height: 150, borderRadius: 75,
+    width: 160, height: 160, borderRadius: 80,
   },
+  emoImgWrap: { marginBottom: 18 },
+  emoImg: { width: 120, height: 120 },
   emotionName: {
     fontFamily: "Inter_800ExtraBold", fontSize: 34,
     letterSpacing: -1.2, marginBottom: 14,
@@ -312,14 +328,13 @@ const styles = StyleSheet.create({
   emotionAccent: {
     width: 52, height: 4, borderRadius: 2, opacity: 0.8,
   },
-  // Free-floating translation text — no card box
+  // Burbuja de cristal — ultra sutil, sin borde visible
   translationCard: {
-    backgroundColor: "rgba(255,255,255,0.26)",
-    borderRadius: 28,
-    paddingHorizontal: 28, paddingVertical: 28,
-    borderWidth: 1.5, borderColor: "rgba(255,255,255,0.55)",
-    shadowColor: "#000", shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08, shadowRadius: 24, elevation: 6,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    borderRadius: 32,
+    paddingHorizontal: 28, paddingVertical: 26,
+    borderWidth: 0.5,
+    borderColor: "rgba(255,255,255,0.50)",
     alignItems: "center",
   },
   translationText: {
