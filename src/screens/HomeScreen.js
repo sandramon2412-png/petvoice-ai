@@ -23,10 +23,14 @@ const C = {
 };
 
 const GLASS = {
-  backgroundColor: "rgba(255,255,255,0.92)",
-  borderWidth: 1, borderColor: "rgba(0,0,0,0.05)",
-  shadowColor: "#0F172A", shadowOffset: { width: 0, height: 2 },
-  shadowOpacity: 0.06, shadowRadius: 12, elevation: 4,
+  backgroundColor: "rgba(255,255,255,0.45)",
+  borderWidth: 1,
+  borderColor: "rgba(255,255,255,0.75)",
+  shadowColor: "rgba(31,38,135,0.05)",
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 1,
+  shadowRadius: 32,
+  elevation: 4,
 };
 
 const POSTURES_CAT = [

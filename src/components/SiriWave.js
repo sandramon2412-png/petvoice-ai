@@ -71,6 +71,12 @@ export default function SiriWave({
               marginHorizontal: GAP / 2,
               borderRadius: barW,
               backgroundColor: color,
+              // Neon glow — soft light emission on each bar
+              shadowColor: color,
+              shadowOffset: { width: 0, height: 0 },
+              shadowOpacity: 0.72,
+              shadowRadius: 7,
+              elevation: 4,
               transform: [{ scaleY: anim }, { translateY }],
             }}
           />

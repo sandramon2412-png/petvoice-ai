@@ -23,14 +23,14 @@ const C = {
 };
 
 const GLASS = {
-  backgroundColor: "rgba(255,255,255,0.92)",
+  backgroundColor: "rgba(255,255,255,0.45)",
   borderWidth: 1,
-  borderColor: "rgba(0,0,0,0.05)",
-  shadowColor: "#0F172A",
-  shadowOffset: { width: 0, height: 3 },
-  shadowOpacity: 0.06,
-  shadowRadius: 14,
-  elevation: 5,
+  borderColor: "rgba(255,255,255,0.75)",
+  shadowColor: "rgba(31,38,135,0.05)",
+  shadowOffset: { width: 0, height: 8 },
+  shadowOpacity: 1,
+  shadowRadius: 32,
+  elevation: 4,
 };
 
 // ─── PressableScale ───────────────────────────────────────────────────────────
@@ -459,7 +459,7 @@ const s = StyleSheet.create({
   progressFillWrap: { height: "100%", borderRadius: 3, overflow: "hidden" },
   progressLabel: { fontFamily: "Inter_500Medium", fontSize: 12, color: C.muted, textAlign: "right" },
 
-  card: { borderRadius: 24, padding: 26, paddingBottom: 28, marginBottom: 24 },
+  card: { borderRadius: 28, padding: 28, paddingBottom: 30, marginBottom: 24 },
   title: { fontFamily: "Inter_700Bold", fontSize: 21, color: C.text, marginBottom: 7, letterSpacing: -0.4 },
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: C.muted, marginBottom: 24, lineHeight: 21 },
 

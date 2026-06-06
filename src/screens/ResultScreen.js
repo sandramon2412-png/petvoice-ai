@@ -358,14 +358,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // Unified card
+  // Unified card — glassmorphism
   unifiedCard: {
     marginHorizontal: 20, marginBottom: 16,
-    backgroundColor: "rgba(255,255,255,0.92)",
-    borderRadius: 22,
-    borderWidth: 1, borderColor: "rgba(0,0,0,0.04)",
-    shadowColor: "#0F172A", shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.05, shadowRadius: 14, elevation: 4,
+    backgroundColor: "rgba(255,255,255,0.45)",
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.75)",
+    shadowColor: "rgba(31,38,135,0.05)",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 1,
+    shadowRadius: 32,
+    elevation: 4,
     overflow: "hidden",
   },
   confSection: { padding: 20, paddingBottom: 14 },
@@ -386,9 +390,9 @@ const styles = StyleSheet.create({
   // Ad
   adBlock: {
     marginHorizontal: 20, marginBottom: 18,
-    borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(226,232,240,0.9)",
-    borderRadius: 16, padding: 14,
-    backgroundColor: "rgba(255,255,255,0.65)",
+    borderWidth: 1, borderColor: "rgba(255,255,255,0.7)",
+    borderRadius: 20, padding: 14,
+    backgroundColor: "rgba(255,255,255,0.38)",
   },
   adLabel: {
     fontFamily: "Inter_400Regular", fontSize: 9, color: "#CBD5E1",
