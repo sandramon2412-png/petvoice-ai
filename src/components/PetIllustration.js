@@ -1,5 +1,5 @@
 import React from "react";
-import Svg, { G, Path, Polygon, Circle, Line, Ellipse } from "react-native-svg";
+import Svg, { G, Path, Polygon, Circle, Line, Ellipse, Rect } from "react-native-svg";
 
 // ── OpenMoji dog (1F436) — color modified: body #C2692A, tongue #F06050 ───────
 export function DogIllustration({ size = 140, selected = false }) {
@@ -79,12 +79,15 @@ export function CatIllustration({ size = 140, selected = false }) {
       </G>
       {selected && (
         <G id="selected-overlay">
-          {/* Blush cheeks */}
-          <Ellipse cx="21" cy="44" rx="5.5" ry="3" fill="#FF9BB0" opacity="0.7"/>
-          <Ellipse cx="51" cy="44" rx="5.5" ry="3" fill="#FF9BB0" opacity="0.7"/>
+          {/* Cover arc eyes with white, then draw hearts on top */}
+          <Ellipse cx="28" cy="30.5" rx="5" ry="4" fill="#F4AA41"/>
+          <Ellipse cx="44" cy="30.5" rx="5" ry="4" fill="#F4AA41"/>
           {/* Heart eyes */}
-          <Path fill="#FF4D6D" d="M25,29 C25,27.2 26.5,26 28,27.5 C29.5,26 31,27.2 31,29 C31,31 28,33.5 28,33.5 C28,33.5 25,31 25,29Z" opacity="0.9"/>
-          <Path fill="#FF4D6D" d="M41,29 C41,27.2 42.5,26 44,27.5 C45.5,26 47,27.2 47,29 C47,31 44,33.5 44,33.5 C44,33.5 41,31 41,29Z" opacity="0.9"/>
+          <Path fill="#FF2D55" d="M24.5,30 C24.5,27.8 26.3,26.5 28,28.2 C29.7,26.5 31.5,27.8 31.5,30 C31.5,32.5 28,35 28,35 C28,35 24.5,32.5 24.5,30Z"/>
+          <Path fill="#FF2D55" d="M40.5,30 C40.5,27.8 42.3,26.5 44,28.2 C45.7,26.5 47.5,27.8 47.5,30 C47.5,32.5 44,35 44,35 C44,35 40.5,32.5 40.5,30Z"/>
+          {/* Round blush circles on cheeks */}
+          <Circle cx="20" cy="46" r="5" fill="#FF9BB0" opacity="0.72"/>
+          <Circle cx="52" cy="46" r="5" fill="#FF9BB0" opacity="0.72"/>
         </G>
       )}
     </Svg>
