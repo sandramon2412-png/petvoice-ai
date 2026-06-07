@@ -45,8 +45,8 @@ export function DogIllustration({ size = 140, selected = false }) {
         </G>
         {selected && (
           <G id="blush">
-            <Circle cx="20" cy="35" r="3.5" fill="#FF9BB0" opacity="0.75"/>
-            <Circle cx="52" cy="35" r="3.5" fill="#FF9BB0" opacity="0.75"/>
+            <Circle cx="16" cy="33" r="3" fill="#FF9BB0" opacity="0.7"/>
+            <Circle cx="56" cy="33" r="3" fill="#FF9BB0" opacity="0.7"/>
           </G>
         )}
       </Svg>
