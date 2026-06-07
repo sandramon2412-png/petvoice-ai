@@ -11,13 +11,29 @@ import * as Haptics from "expo-haptics";
 import { useApp } from "../context/AppContext";
 import SiriWave from "../components/SiriWave";
 
-const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
+const { width: SCREEN_W } = Dimensions.get("window");
+
+const EMOTION_IMAGES = {
+  Feliz:      require("../../assets/emotions/feliz.png"),
+  Juguetón:   require("../../assets/emotions/jugueton.png"),
+  Alerta:     require("../../assets/emotions/alerta.png"),
+  Curioso:    require("../../assets/emotions/curioso.png"),
+  Estresado:  require("../../assets/emotions/estresado.png"),
+  Asustado:   require("../../assets/emotions/asustado.png"),
+  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
+  Hambriento: require("../../assets/emotions/hambriento.png"),
+};
 
 const EMOTION_MAP = {
-  Feliz:      { color: "#10B981", wave: "#34D399", bg: ["#059669","#10B981","#D1FAE5"], label: "FELIZ" },
-  Juguetón:   { color: "#3B82F6", wave: "#93C5FD", bg: ["#1D4ED8","#3B82F6","#DBEAFE"], label: "JUGUETÓN" },
-  Alerta:     { color: "#F59E0B", wave: "#FCD34D", bg: ["#B45309","#F59E0B","#FEF3C7"], label: "ALERTA" },
-  Curioso:    { color: "#6366F1", wave: "#A5B4FC", bg: ["#4338CA","#6366F1","#EEF2FF"], label: "CURIOSO" },
+  Feliz:      { color: "#10B981", wave: "#34D399", bg: ["#064E3B","#065F46","#047857"] },
+  Juguetón:   { color: "#3B82F6", wave: "#93C5FD", bg: ["#1E3A8A","#1D4ED8","#2563EB"] },
+  Alerta:     { color: "#F59E0B", wave: "#FCD34D", bg: ["#78350F","#92400E","#B45309"] },
+  Curioso:    { color: "#6366F1", wave: "#A5B4FC", bg: ["#1E1B4B","#312E81","#3730A3"] },
+  Estresado:  { color: "#818CF8", wave: "#C7D2FE", bg: ["#1E1B4B","#2E1065","#4C1D95"] },
+  Asustado:   { color: "#8B5CF6", wave: "#C4B5FD", bg: ["#2E1065","#3B0764","#4C1D95"] },
+  Tranquilo:  { color: "#94A3B8", wave: "#CBD5E1", bg: ["#0F172A","#1E293B","#334155"] },
+  Hambriento: { color: "#F59E0B", wave: "#FDE68A", bg: ["#78350F","#92400E","#B45309"] },
+};
   Estresado:  { color: "#818CF8", wave: "#C7D2FE", bg: ["#4F46E5","#818CF8","#EEF2FF"], label: "ESTRESADO" },
   Asustado:   { color: "#8B5CF6", wave: "#C4B5FD", bg: ["#6D28D9","#8B5CF6","#F5F3FF"], label: "ASUSTADO" },
   Tranquilo:  { color: "#94A3B8", wave: "#CBD5E1", bg: ["#475569","#64748B","#F1F5F9"], label: "TRANQUILO" },
@@ -219,9 +235,25 @@ export default function ResultScreen({ navigation }) {
           <Animated.View style={[styles.hero, { opacity: heroO, transform: [{ translateY: heroY }] }]}>
             <Text style={styles.petSays}>{petName} dice:</Text>
 
-            {/* Emotion Orb */}
-            <View style={{ alignItems: "center", marginBottom: 20, marginTop: 8 }}>
-              <EmotionOrb color={emo.color} waveColor={emo.wave} size={120} />
+            {/* Emotion icon 3D + orb glow behind it */}
+            <View style={{ alignItems: "center", marginBottom: 12, marginTop: 8 }}>
+              {/* Orb glow behind image */}
+              <View style={{
+                position: "absolute",
+                width: 130, height: 130, borderRadius: 65,
+                backgroundColor: emo.color, opacity: 0.25,
+                shadowColor: emo.color, shadowOffset: { width: 0, height: 0 },
+                shadowOpacity: 1, shadowRadius: 40, elevation: 20,
+              }} />
+              {/* 3D emotion image — large, floating */}
+              <Animated.Image
+                source={EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES["Feliz"]}
+                style={{
+                  width: 140, height: 140,
+                  transform: [{ scale: waveO }],
+                }}
+                resizeMode="contain"
+              />
             </View>
 
             {/* Siri wave — primary + echo */}
