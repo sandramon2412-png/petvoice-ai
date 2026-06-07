@@ -10,20 +10,20 @@ export function DogIllustration({ size = 140, selected = false }) {
     if (selected) {
       const loop = Animated.loop(
         Animated.sequence([
-          Animated.timing(tongueAnim, { toValue: 1.22, duration: 320, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-          Animated.timing(tongueAnim, { toValue: 0.88, duration: 320, easing: Easing.inOut(Easing.ease), useNativeDriver: true }),
-          Animated.timing(tongueAnim, { toValue: 1.0,  duration: 200, easing: Easing.out(Easing.ease),   useNativeDriver: true }),
+          Animated.timing(tongueAnim, { toValue: 1, duration: 300, easing: Easing.out(Easing.ease), useNativeDriver: true }),
+          Animated.timing(tongueAnim, { toValue: 0, duration: 300, easing: Easing.in(Easing.ease), useNativeDriver: true }),
+          Animated.delay(400),
         ])
       );
       loop.start();
       return () => loop.stop();
     } else {
-      tongueAnim.setValue(1);
+      tongueAnim.setValue(0);
     }
   }, [selected]);
-  // tongue scale pivot at top of tongue (y≈47 in SVG coords → ~(size*47/72) px from top)
-  const pivotY = size * 47 / 72;
 
+  // tongue moves down by ~6px (in screen coords) when sticking out
+  const tongueY = tongueAnim.interpolate({ inputRange: [0, 1], outputRange: [0, size * 6 / 72] });
   return (
     <Animated.View style={{ width: size, height: size }}>
       <Svg viewBox="0 0 72 72" width={size} height={size} style={{ position: "absolute" }}>
@@ -51,14 +51,10 @@ export function DogIllustration({ size = 140, selected = false }) {
         )}
       </Svg>
 
-      {/* Tongue — animated separately so it can scale from pivot */}
+      {/* Tongue — slides down to simulate sticking out */}
       <Animated.View style={{
         position: "absolute", width: size, height: size,
-        transform: [
-          { translateY: pivotY },
-          { scaleY: tongueAnim },
-          { translateY: -pivotY },
-        ],
+        transform: [{ translateY: tongueY }],
       }}>
         <Svg viewBox="0 0 72 72" width={size} height={size}>
           <Path fill="#F06050" d="M30.4167,49.1491l-0.4754,3.8895,0.4207,3.0153,0.8047,2.3452,2.8333,1.5,4.5834-0.5833,0.8596-2.2042,0.7012-4.1781,0.7726-3.6177l-1.9999,0.25L36,46.7324l-3.0833,2.4167H30.4167z"/>
