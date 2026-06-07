@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import {
-  View, Text, StyleSheet, TouchableOpacity, Image,
+  View, Text, StyleSheet, TouchableOpacity,
   Animated, ScrollView, StatusBar, Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -9,19 +9,9 @@ import GlassView from "../components/GlassView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useApp } from "../context/AppContext";
+import { EMOTION_ICONS } from "../components/EmotionIllustration";
 
 const { width: W, height: H } = Dimensions.get("window");
-
-const EMOTION_IMAGES = {
-  Feliz:      require("../../assets/emotions/feliz.png"),
-  Juguetón:   require("../../assets/emotions/jugueton.png"),
-  Alerta:     require("../../assets/emotions/alerta.png"),
-  Curioso:    require("../../assets/emotions/curioso.png"),
-  Estresado:  require("../../assets/emotions/estresado.png"),
-  Asustado:   require("../../assets/emotions/asustado.png"),
-  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
-  Hambriento: require("../../assets/emotions/hambriento.png"),
-};
 
 // Each emotion: rich multi-stop gradient + accent colors for glow blobs
 const EMOTION_MAP = {
@@ -183,7 +173,6 @@ export default function ResultScreen({ navigation }) {
 
   const emo     = getEmo(result.emocion_principal);
   const petName = pet?.name || "Tu mascota";
-  const emotImg = EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES["Feliz"];
 
   return (
     <View style={{ flex: 1, backgroundColor: emo.gradient[0] }}>
@@ -257,18 +246,17 @@ export default function ResultScreen({ navigation }) {
               />
             </Animated.View>
 
-            {/* Emotion image — floating, right-aligned with glow */}
+            {/* Emotion icon — floating, right-aligned with glow */}
             <Animated.View style={[
               styles.emotionImgWrapper,
               { opacity: imgO, transform: [{ scale: imgScale }, { translateY: floatY }] }
             ]}>
-              {/* Radial glow behind image */}
+              {/* Radial glow behind icon */}
               <View style={[styles.emotionImgGlow, { backgroundColor: emo.accent1 }]} />
-              <Image
-                source={emotImg}
-                style={styles.emotionImg}
-                resizeMode="contain"
-              />
+              {(() => {
+                const EmoIcon = EMOTION_ICONS[result.emocion_principal] || EMOTION_ICONS["Feliz"];
+                return <EmoIcon size={82} />;
+              })()}
             </Animated.View>
 
             {/* Confidence strip */}
