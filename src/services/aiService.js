@@ -24,9 +24,12 @@ function buildPrompt(species, name, posture, environment) {
 POSTURA: ${POSTURE_LABELS[posture] || posture}
 CONTEXTO: ${ENV_LABELS[environment] || environment}
 Responde UNICAMENTE con este JSON:
-{"emocion_principal":"Feliz|Alerta|Estresado|Curioso|Hambriento|Jugueton|Asustado|Tranquilo","porcentaje_confianza":<60-98>,"color_interfaz":"#10B981|#F59E0B|#EF4444|#6366F1|#F97316|#8B5CF6|#DC2626|#64748B","traduccion_humana":"<frase primera persona 10-20 palabras>","consejo_propietario":"<consejo breve 15-25 palabras>","keyword_publicidad":"comida_mascotas|veterinario|juguetes|bienestar_animal|adiestramiento"}
-COLORES: Feliz/Jugueton=#10B981 | Alerta/Curioso=#F59E0B | Estresado/Asustado=#EF4444 | Tranquilo=#64748B | Hambriento=#F97316`;
+{"emocion_principal":"Feliz|Alerta|Estresado|Curioso|Hambriento|Juguetón|Asustado|Tranquilo","porcentaje_confianza":<60-98>,"color_interfaz":"#10B981|#F59E0B|#EF4444|#6366F1|#F97316|#8B5CF6|#DC2626|#64748B","traduccion_humana":"<frase primera persona 10-20 palabras>","consejo_propietario":"<consejo breve 15-25 palabras>","keyword_publicidad":"comida_mascotas|veterinario|juguetes|bienestar_animal|adiestramiento"}
+COLORES: Feliz/Juguetón=#10B981 | Alerta/Curioso=#F59E0B | Estresado/Asustado=#EF4444 | Tranquilo=#64748B | Hambriento=#F97316`;
 }
+
+// Normalize in case AI returns without accent
+const EMOTION_NORMALIZE = { "Jugueton": "Juguetón" };
 
 function parseAIResponse(text) {
   if (!text) throw new Error("Respuesta vacia del AI");
@@ -34,6 +37,7 @@ function parseAIResponse(text) {
   if (!m) throw new Error("El AI no devolvio JSON valido");
   const result = JSON.parse(m[0]);
   if (!result.emocion_principal) throw new Error("JSON incompleto");
+  result.emocion_principal = EMOTION_NORMALIZE[result.emocion_principal] || result.emocion_principal;
   return result;
 }
 
@@ -65,11 +69,16 @@ export async function analyzeSound(species, name, posture, environment) {
     const data = await res.json();
     return parseAIResponse(data.content?.[0]?.text);
   }
-  // Demo mode â€” sin API key
+  // Demo mode — sin API key, rota las 8 emociones
   const demos = [
-    { emocion_principal: "Feliz", porcentaje_confianza: 91, color_interfaz: "#10B981", traduccion_humana: "Estoy tan contento de verte! Eres mi persona favorita en el mundo.", consejo_propietario: "Tu mascota esta muy feliz. Refuerza con una caricia o juguete.", keyword_publicidad: "bienestar_animal" },
-    { emocion_principal: "Alerta", porcentaje_confianza: 78, color_interfaz: "#F59E0B", traduccion_humana: "Hay algo ahi afuera. No se si es peligroso pero lo estoy vigilando.", consejo_propietario: "Tu mascota detecto algo inusual. Tranquilizala con voz suave.", keyword_publicidad: "adiestramiento" },
-    { emocion_principal: "Estresado", porcentaje_confianza: 85, color_interfaz: "#EF4444", traduccion_humana: "Me siento incomodo y necesito tu ayuda. Por favor quedate cerca.", consejo_propietario: "Aleja de la fuente de estres y ofrece un espacio seguro.", keyword_publicidad: "veterinario" },
+    { emocion_principal: “Feliz”,     porcentaje_confianza: 91, color_interfaz: “#10B981”, traduccion_humana: “Estoy tan contento de verte! Eres mi persona favorita en el mundo.”, consejo_propietario: “Tu mascota esta muy feliz. Refuerza con una caricia o juguete.”, keyword_publicidad: “bienestar_animal” },
+    { emocion_principal: “Alerta”,    porcentaje_confianza: 78, color_interfaz: “#F59E0B”, traduccion_humana: “Hay algo ahi afuera. No se si es peligroso pero lo estoy vigilando.”, consejo_propietario: “Tu mascota detecto algo inusual. Tranquilizala con voz suave.”, keyword_publicidad: “adiestramiento” },
+    { emocion_principal: “Estresado”, porcentaje_confianza: 85, color_interfaz: “#EF4444”, traduccion_humana: “Me siento incomodo y necesito tu ayuda. Por favor quedate cerca.”, consejo_propietario: “Aleja de la fuente de estres y ofrece un espacio seguro.”, keyword_publicidad: “veterinario” },
+    { emocion_principal: “Curioso”,   porcentaje_confianza: 74, color_interfaz: “#6366F1”, traduccion_humana: “Que es eso? Nunca lo habia visto antes. Quiero investigarlo.”, consejo_propietario: “Permite que explore de forma segura, estimula su curiosidad natural.”, keyword_publicidad: “juguetes” },
+    { emocion_principal: “Hambriento”,porcentaje_confianza: 88, color_interfaz: “#F97316”, traduccion_humana: “Ya es hora de comer! Mi estomago lleva un rato protestando.”, consejo_propietario: “Es hora de la comida. Mantén horarios regulares para tu mascota.”, keyword_publicidad: “comida_mascotas” },
+    { emocion_principal: “Juguetón”,  porcentaje_confianza: 93, color_interfaz: “#10B981”, traduccion_humana: “Quiero jugar! Ven, persigueme, sera muy divertido para los dos.”, consejo_propietario: “Tu mascota tiene mucha energia. Dedica 15 min de juego activo.”, keyword_publicidad: “juguetes” },
+    { emocion_principal: “Asustado”,  porcentaje_confianza: 82, color_interfaz: “#8B5CF6”, traduccion_humana: “Tengo miedo. Ese ruido me asusta mucho, necesito que me protejas.”, consejo_propietario: “Habla con voz calmada y ofrece un refugio seguro y tranquilo.”, keyword_publicidad: “veterinario” },
+    { emocion_principal: “Tranquilo”, porcentaje_confianza: 76, color_interfaz: “#64748B”, traduccion_humana: “Estoy muy relajado y a gusto. Este momento es perfecto para mi.”, consejo_propietario: “Tu mascota esta en paz. Es buen momento para el vinculo afectivo.”, keyword_publicidad: “bienestar_animal” },
   ];
   return Promise.resolve(demos[Math.floor(Math.random() * demos.length)]);
 }
