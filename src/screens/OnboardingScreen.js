@@ -506,12 +506,12 @@ const s = StyleSheet.create({
 
   // Premium pet card
   petCard: {
-    width: 148, height: 195,
+    width: 152, height: 200,
     borderRadius: 28,
     overflow: "hidden",
     alignItems: "center",
-    justifyContent: "center",
-    paddingBottom: 16,
+    justifyContent: "flex-start",
+    paddingTop: 14,
   },
   petCardBorder: {
     borderRadius: 28,
@@ -519,8 +519,9 @@ const s = StyleSheet.create({
   },
   petIconGlow: {
     position: "absolute",
-    width: 130, height: 130,
-    borderRadius: 65,
+    width: 150, height: 150,
+    borderRadius: 75,
+    top: 18,
   },
   petCardShine: {
     position: "absolute",
@@ -532,12 +533,14 @@ const s = StyleSheet.create({
   },
   petLabelRow: {
     position: "absolute",
-    bottom: 14,
+    bottom: 12,
     left: 0, right: 0,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
+    backgroundColor: "rgba(0,0,0,0.18)",
+    paddingVertical: 6,
   },
   petCardLabel: {
     fontSize: 17,
