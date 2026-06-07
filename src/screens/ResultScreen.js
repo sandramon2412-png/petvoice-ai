@@ -65,6 +65,87 @@ function ConfidenceRing({ pct, color }) {
   );
 }
 
+function EmotionOrb({ color, waveColor, size = 120 }) {
+  const breathe = useRef(new Animated.Value(1)).current;
+  const ring1Scale = useRef(new Animated.Value(1)).current;
+  const ring1Opacity = useRef(new Animated.Value(0.5)).current;
+  const ring2Scale = useRef(new Animated.Value(1)).current;
+  const ring2Opacity = useRef(new Animated.Value(0.35)).current;
+  const entryScale = useRef(new Animated.Value(0.4)).current;
+
+  useEffect(() => {
+    // Entry spring
+    Animated.spring(entryScale, { toValue: 1, tension: 80, friction: 7, useNativeDriver: true }).start();
+    // Breathe
+    Animated.loop(Animated.sequence([
+      Animated.timing(breathe, { toValue: 1.07, duration: 1800, useNativeDriver: true }),
+      Animated.timing(breathe, { toValue: 1.0, duration: 1800, useNativeDriver: true }),
+    ])).start();
+    // Ring 1 pulse
+    Animated.loop(Animated.sequence([
+      Animated.parallel([
+        Animated.timing(ring1Scale, { toValue: 2.0, duration: 2200, useNativeDriver: true }),
+        Animated.timing(ring1Opacity, { toValue: 0, duration: 2200, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(ring1Scale, { toValue: 1, duration: 0, useNativeDriver: true }),
+        Animated.timing(ring1Opacity, { toValue: 0.45, duration: 0, useNativeDriver: true }),
+      ]),
+    ])).start();
+    // Ring 2 pulse — offset
+    setTimeout(() => {
+      Animated.loop(Animated.sequence([
+        Animated.parallel([
+          Animated.timing(ring2Scale, { toValue: 2.0, duration: 2200, useNativeDriver: true }),
+          Animated.timing(ring2Opacity, { toValue: 0, duration: 2200, useNativeDriver: true }),
+        ]),
+        Animated.parallel([
+          Animated.timing(ring2Scale, { toValue: 1, duration: 0, useNativeDriver: true }),
+          Animated.timing(ring2Opacity, { toValue: 0.3, duration: 0, useNativeDriver: true }),
+        ]),
+      ])).start();
+    }, 1100);
+  }, []);
+
+  return (
+    <Animated.View style={{ width: size, height: size, alignItems: "center", justifyContent: "center", transform: [{ scale: entryScale }] }}>
+      {/* Pulse rings */}
+      <Animated.View style={{
+        position: "absolute", width: size, height: size, borderRadius: size / 2,
+        backgroundColor: color, opacity: ring1Opacity, transform: [{ scale: ring1Scale }],
+      }} />
+      <Animated.View style={{
+        position: "absolute", width: size, height: size, borderRadius: size / 2,
+        backgroundColor: waveColor, opacity: ring2Opacity, transform: [{ scale: ring2Scale }],
+      }} />
+      {/* Glow halo */}
+      <View style={{
+        position: "absolute", width: size + 24, height: size + 24, borderRadius: (size + 24) / 2,
+        backgroundColor: color, opacity: 0.18,
+      }} />
+      {/* Main orb — gradient sphere */}
+      <Animated.View style={{
+        width: size, height: size, borderRadius: size / 2,
+        overflow: "hidden", transform: [{ scale: breathe }],
+        shadowColor: color, shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.9, shadowRadius: 28, elevation: 20,
+      }}>
+        <LinearGradient
+          colors={[waveColor, color, color + "88"]}
+          style={{ width: size, height: size }}
+          start={{ x: 0.2, y: 0 }} end={{ x: 0.8, y: 1 }}
+        />
+        {/* Inner shine */}
+        <View style={{
+          position: "absolute", top: size * 0.12, left: size * 0.2,
+          width: size * 0.35, height: size * 0.22, borderRadius: size * 0.11,
+          backgroundColor: "rgba(255,255,255,0.28)", transform: [{ rotate: "-20deg" }],
+        }} />
+      </Animated.View>
+    </Animated.View>
+  );
+}
+
 export default function ResultScreen({ navigation }) {
   const { pet, analysisResult } = useApp();
 
@@ -104,7 +185,7 @@ export default function ResultScreen({ navigation }) {
     <View style={{ flex:1, backgroundColor: emo.bg[0] }}>
       {/* Full-screen emotion gradient */}
       <LinearGradient
-        colors={[emo.bg[0], emo.bg[1], emo.bg[2]]}
+        colors={[emo.bg[0], emo.bg[1], emo.bg[0]+"DD"]}
         style={StyleSheet.absoluteFill}
         start={{ x:0.1, y:0 }} end={{ x:0.9, y:1 }}
       />
@@ -137,6 +218,11 @@ export default function ResultScreen({ navigation }) {
           {/* ── Hero ── */}
           <Animated.View style={[styles.hero, { opacity: heroO, transform: [{ translateY: heroY }] }]}>
             <Text style={styles.petSays}>{petName} dice:</Text>
+
+            {/* Emotion Orb */}
+            <View style={{ alignItems: "center", marginBottom: 20, marginTop: 8 }}>
+              <EmotionOrb color={emo.color} waveColor={emo.wave} size={120} />
+            </View>
 
             {/* Siri wave — primary + echo */}
             <Animated.View style={{ opacity: waveO, marginBottom: 6 }}>
@@ -227,8 +313,8 @@ const styles = StyleSheet.create({
   waveEcho: { position: "absolute", bottom: -6, left: 16 },
 
   emotionName: {
-    fontFamily: "Inter_800ExtraBold", fontSize: 42,
-    color: "#fff", letterSpacing: -1.5,
+    fontFamily: "Inter_800ExtraBold", fontSize: 48,
+    color: "#fff", letterSpacing: -2,
     marginTop: 16, marginBottom: 10,
   },
   emotionLine: { width: 48, height: 3, borderRadius: 2, marginBottom: 24, opacity: 0.9 },

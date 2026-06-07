@@ -269,9 +269,7 @@ export default function HomeScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       {/* Deep dark premium background */}
-      <LinearGradient colors={["#080A1A", "#0D1035", "#0A0F2A"]} style={StyleSheet.absoluteFill} />
-      {/* Soft ambient glow top-center */}
-      <View style={s.ambientGlow} />
+      <LinearGradient colors={["#04050F", "#080C22", "#0A0E28"]} style={StyleSheet.absoluteFill} />
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000", opacity: dimAnim }]} />
 
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
@@ -431,12 +429,6 @@ export default function HomeScreen({ navigation }) {
 const s = StyleSheet.create({
   scrollContent: { paddingBottom: 40 },
 
-  ambientGlow: {
-    position: "absolute", top: -80, left: "20%", right: "20%",
-    height: 240, borderRadius: 120,
-    backgroundColor: "#4F46E5", opacity: 0.14,
-  },
-
   header: {
     flexDirection: "row", alignItems: "center", justifyContent: "space-between",
     paddingHorizontal: 20, paddingVertical: 16,
@@ -505,21 +497,21 @@ const s = StyleSheet.create({
 
   recordSection: { alignItems: "center", paddingVertical: 16, marginBottom: 8 },
   recordHint: {
-    fontFamily: "Inter_400Regular", fontSize: 13,
-    color: "rgba(255,255,255,0.45)", marginBottom: 28, letterSpacing: 0.2,
+    fontFamily: "Inter_400Regular", fontSize: 14,
+    color: "rgba(255,255,255,0.55)", marginBottom: 28, letterSpacing: 0.2,
   },
   btnOuter: { width: BTN_SIZE * 3.2, height: BTN_SIZE * 3.2, alignItems: "center", justifyContent: "center" },
   wave: {
     position: "absolute", width: BTN_SIZE, height: BTN_SIZE, borderRadius: BTN_SIZE / 2,
-    backgroundColor: C.coral,
+    backgroundColor: "rgba(255,138,101,0.6)",
   },
   btnGlow: {
     width: BTN_SIZE + 36, height: BTN_SIZE + 36, borderRadius: (BTN_SIZE + 36) / 2,
     alignItems: "center", justifyContent: "center",
     shadowColor: C.coralDark,
     shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.7,
-    shadowRadius: 48,
+    shadowOpacity: 0.8,
+    shadowRadius: 60,
     elevation: 28,
   },
   btnBase: {

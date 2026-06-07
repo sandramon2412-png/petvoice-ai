@@ -88,10 +88,9 @@ function ProgressBar({ step, total }) {
 function ClayPetCard({ petKey, label, selected, onPress }) {
   const isdog = petKey === "dog";
 
-  const IDLE_COLORS  = isdog ? ["#FFF0D9","#FFD9A0","#FFC272"]   : ["#EDD9FF","#D9B8F5","#C699E8"];
-  const ACTV_COLORS  = isdog ? ["#FFB84D","#FF9800","#E57C00"]   : ["#CE7BEE","#A855F7","#861FD5"];
-  const SHADOW_ACTV  = isdog ? "#E57C00" : "#861FD5";
-  const BG_IDLE      = isdog ? "#FFD9A0" : "#D9B8F5";
+  const IDLE_COLORS  = isdog ? ["#1A0A00","#3D1500","#7C2D12"] : ["#0D0A1F","#1E1040","#3730A3"];
+  const ACTV_COLORS  = isdog ? ["#7C2D12","#C2410C","#F97316"] : ["#3730A3","#7C3AED","#A855F7"];
+  const SHADOW_ACTV  = isdog ? "#F97316" : "#A855F7";
 
   const breathScale  = useRef(new Animated.Value(1)).current;
   const floatY       = useRef(new Animated.Value(0)).current;
@@ -101,12 +100,12 @@ function ClayPetCard({ petKey, label, selected, onPress }) {
   useEffect(() => {
     const loop = Animated.parallel([
       Animated.loop(Animated.sequence([
-        Animated.timing(breathScale, { toValue: 0.966, duration: 2100, useNativeDriver: true }),
-        Animated.timing(breathScale, { toValue: 1.0,   duration: 2100, useNativeDriver: true }),
+        Animated.timing(breathScale, { toValue: 0.98, duration: 2100, useNativeDriver: true }),
+        Animated.timing(breathScale, { toValue: 1.0,  duration: 2100, useNativeDriver: true }),
       ])),
       Animated.loop(Animated.sequence([
-        Animated.timing(floatY, { toValue: -5, duration: 2500, useNativeDriver: true }),
-        Animated.timing(floatY, { toValue: 4,  duration: 2500, useNativeDriver: true }),
+        Animated.timing(floatY, { toValue: -7, duration: 2500, useNativeDriver: true }),
+        Animated.timing(floatY, { toValue: 7,  duration: 2500, useNativeDriver: true }),
       ])),
     ]);
     loop.start();
@@ -118,23 +117,21 @@ function ClayPetCard({ petKey, label, selected, onPress }) {
     Animated.timing(gradFade, { toValue: selected ? 1 : 0, duration: 380, useNativeDriver: true }).start();
     if (selected && !prevSel.current) {
       Animated.sequence([
-        Animated.spring(charScale, { toValue: 1.28, tension: 420, friction: 5, useNativeDriver: true }),
+        Animated.spring(charScale, { toValue: 1.22, tension: 350, friction: 5, useNativeDriver: true }),
         Animated.spring(charScale, { toValue: 1.0,  tension: 220, friction: 9, useNativeDriver: true }),
       ]).start();
     }
     prevSel.current = selected;
   }, [selected]);
 
-  const labelColor = selected ? (isdog ? "#FCD34D" : "#C4B5FD") : "rgba(255,255,255,0.45)";
-
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.92}>
       <Animated.View style={{ transform: [{ scale: breathScale }] }}>
-        {/* Shadow wrapper — provides elevation; background needed for iOS shadow engine */}
+        {/* Shadow wrapper */}
         <View style={[s.clayShadow, {
-          backgroundColor: BG_IDLE,
-          shadowColor: selected ? SHADOW_ACTV : "#1E293B",
-          shadowOpacity: selected ? 0.42 : 0.14,
+          shadowColor: selected ? SHADOW_ACTV : "#000",
+          shadowOpacity: selected ? 0.7 : 0.22,
+          shadowRadius: selected ? 28 : 14,
         }]}>
           {/* Gradient clipping container */}
           <View style={s.clayCard}>
@@ -152,11 +149,18 @@ function ClayPetCard({ petKey, label, selected, onPress }) {
                 resizeMode="contain"
               />
             </Animated.View>
+            {/* Label inside card */}
+            <Text style={[s.clayLabel, { fontFamily: selected ? "Inter_700Bold" : "Inter_600SemiBold" }]}>
+              {label}
+            </Text>
+            {/* Selected checkmark badge */}
+            {selected && (
+              <View style={s.checkBadge}>
+                <Text style={s.checkBadgeText}>✓</Text>
+              </View>
+            )}
           </View>
         </View>
-        <Text style={[s.clayLabel, { color: labelColor, fontFamily: selected ? "Inter_700Bold" : "Inter_600SemiBold" }]}>
-          {label}
-        </Text>
       </Animated.View>
     </TouchableOpacity>
   );
@@ -216,9 +220,7 @@ export default function OnboardingScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      <LinearGradient colors={["#080A1A", "#0D1035", "#150D2E"]} style={StyleSheet.absoluteFill} />
-      {/* Ambient top glow */}
-      <View style={{ position:"absolute", top:-60, left:"15%", right:"15%", height:200, borderRadius:100, backgroundColor:"#4F46E5", opacity:0.12 }} />
+      <LinearGradient colors={["#06070F", "#0B0C1F", "#0F1030"]} style={StyleSheet.absoluteFill} />
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
         <StatusBar barStyle="light-content" />
         <ScrollView
@@ -239,7 +241,7 @@ export default function OnboardingScreen({ navigation }) {
 
           {/* Logo */}
           <View style={s.logoSection}>
-            <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={s.logoCircle}>
+            <LinearGradient colors={["#6366F1", "#8B5CF6"]} style={s.logoCircle}>
               <MaterialCommunityIcons name="waveform" size={28} color="#fff" />
             </LinearGradient>
             <Text style={s.logoTitle}>PetVoice AI</Text>
@@ -453,7 +455,7 @@ const s = StyleSheet.create({
     width: 68, height: 68, borderRadius: 21,
     alignItems: "center", justifyContent: "center", marginBottom: 14,
     shadowColor: "#6366F1", shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.55, shadowRadius: 20, elevation: 8,
+    shadowOpacity: 0.7, shadowRadius: 24, elevation: 8,
   },
   logoTitle: { fontFamily: "Inter_800ExtraBold", fontSize: 28, color: "#fff", marginBottom: 6, letterSpacing: -0.8 },
   logoTagline: { fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(255,255,255,0.45)", textAlign: "center", lineHeight: 21, marginBottom: 14, paddingHorizontal: 16 },
@@ -476,32 +478,36 @@ const s = StyleSheet.create({
   speciesRow: { flexDirection: "row", justifyContent: "center", gap: 22, marginTop: 4 },
 
   clayShadow: {
-    borderRadius: 30,
+    borderRadius: 32,
     shadowOffset: { width: 0, height: 14 },
-    shadowRadius: 22,
-    elevation: 12,
+    elevation: 16,
   },
   clayCard: {
-    width: 148, height: 178,
-    borderRadius: 30,
+    width: 155, height: 200,
+    borderRadius: 32,
     overflow: "hidden",
     alignItems: "center", justifyContent: "center",
-    borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.55)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.15)",
   },
-  petImg: { width: 110, height: 110 },
+  petImg: { width: 130, height: 130 },
 
-  clayShine: {
-    position: "absolute",
-    top: 14, left: 14,
-    width: 50, height: 50, borderRadius: 25,
-    backgroundColor: "rgba(255,255,255,0.32)",
-  },
   clayLabel: {
-    fontSize: 17,
+    position: "absolute",
+    bottom: 14,
+    left: 0, right: 0,
+    fontSize: 16,
+    color: "#fff",
     textAlign: "center",
-    marginTop: 14,
   },
+  checkBadge: {
+    position: "absolute",
+    top: 10, right: 10,
+    width: 22, height: 22, borderRadius: 11,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    alignItems: "center", justifyContent: "center",
+  },
+  checkBadgeText: { fontSize: 13, color: "#1E293B", fontWeight: "700" },
 
   // Step icon badge (steps 2-4)
   stepIconWrap: { alignItems: "center", marginBottom: 18 },
