@@ -24,9 +24,8 @@ export function DogIllustration({ size = 140, selected = false }) {
       </G>
       {selected && (
         <G id="blush">
-          {/* Round blush circles on cheeks — dog cheeks are around y=43 */}
-          <Circle cx="21" cy="43" r="3.5" fill="#FF9BB0" opacity="0.75"/>
-          <Circle cx="51" cy="43" r="3.5" fill="#FF9BB0" opacity="0.75"/>
+          <Circle cx="22" cy="40" r="3.5" fill="#FF9BB0" opacity="0.75"/>
+          <Circle cx="50" cy="40" r="3.5" fill="#FF9BB0" opacity="0.75"/>
         </G>
       )}
     </Svg>
@@ -117,8 +116,8 @@ export function CatIllustration({ size = 140, selected = false }) {
 
       {selected && (
         <G id="blush">
-          <Circle cx="19" cy="50" r="4" fill="#FF9BB0" opacity="0.72"/>
-          <Circle cx="53" cy="50" r="4" fill="#FF9BB0" opacity="0.72"/>
+          <Circle cx="17" cy="44" r="4" fill="#FF9BB0" opacity="0.72"/>
+          <Circle cx="55" cy="44" r="4" fill="#FF9BB0" opacity="0.72"/>
         </G>
       )}
     </Svg>
