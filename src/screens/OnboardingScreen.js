@@ -6,15 +6,11 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import GlassView from "../components/GlassView";
+import { DogIllustration, CatIllustration } from "../components/PetIllustration";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
 import { useApp } from "../context/AppContext";
-
-const PET_IMAGES = {
-  dog: require("../../assets/pets/dog.png"),
-  cat: require("../../assets/pets/cat.png"),
-};
 
 const TOTAL_STEPS = 4;
 
@@ -141,13 +137,12 @@ function ClayPetCard({ petKey, label, selected, onPress }) {
             <Animated.View style={[StyleSheet.absoluteFill, { opacity: gradFade }]}>
               <LinearGradient colors={ACTV_COLORS} style={StyleSheet.absoluteFill} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
             </Animated.View>
-            {/* Character 3D */}
+            {/* SVG Illustration */}
             <Animated.View style={{ transform: [{ translateY: floatY }, { scale: charScale }] }}>
-              <Image
-                source={PET_IMAGES[petKey]}
-                style={s.petImg}
-                resizeMode="contain"
-              />
+              {petKey === "dog"
+                ? <DogIllustration size={130} selected={selected} />
+                : <CatIllustration size={130} selected={selected} />
+              }
             </Animated.View>
             {/* Label inside card */}
             <Text style={[s.clayLabel, { fontFamily: selected ? "Inter_700Bold" : "Inter_600SemiBold" }]}>
