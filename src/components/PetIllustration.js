@@ -25,8 +25,8 @@ export function DogIllustration({ size = 140, selected = false }) {
       {selected && (
         <G id="blush">
           {/* Round blush circles on cheeks — dog cheeks are around y=43 */}
-          <Circle cx="21" cy="43" r="5.5" fill="#FF9BB0" opacity="0.72"/>
-          <Circle cx="51" cy="43" r="5.5" fill="#FF9BB0" opacity="0.72"/>
+          <Circle cx="21" cy="43" r="3.5" fill="#FF9BB0" opacity="0.75"/>
+          <Circle cx="51" cy="43" r="3.5" fill="#FF9BB0" opacity="0.75"/>
         </G>
       )}
     </Svg>
@@ -39,12 +39,12 @@ export function CatIllustration({ size = 140, selected = false }) {
     <Svg viewBox="0 0 72 72" width={size} height={size}>
       {/* ── Colors ── */}
 
-      {/* Ears */}
-      <Path fill="#E8922A" d="M14,8 L14,26 L24,22 Z"/>
-      <Path fill="#E8922A" d="M58,8 L58,26 L48,22 Z"/>
+      {/* Ears — soft organic curves */}
+      <Path fill="#E8922A" d="M13,26 Q12,14 20,9 Q22,18 24,22 Z"/>
+      <Path fill="#E8922A" d="M59,26 Q60,14 52,9 Q50,18 48,22 Z"/>
       {/* Ear inner pink */}
-      <Path fill="#F9C5A7" d="M16,12 L16,23 L23,20 Z"/>
-      <Path fill="#F9C5A7" d="M56,12 L56,23 L49,20 Z"/>
+      <Path fill="#F9C5A7" d="M15,24 Q15,16 20,12 Q21,18 23,21 Z"/>
+      <Path fill="#F9C5A7" d="M57,24 Q57,16 52,12 Q51,18 49,21 Z"/>
 
       {/* Round face */}
       <Circle cx="36" cy="38" r="24" fill="#F5A623"/>
@@ -99,15 +99,15 @@ export function CatIllustration({ size = 140, selected = false }) {
       {/* Outline */}
       <Circle cx="36" cy="38" r="24" fill="none" stroke="#7B3F00" strokeWidth="1.8"/>
       <Path fill="none" stroke="#7B3F00" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-        d="M14,8 L14,26 L24,22"/>
+        d="M13,26 Q12,14 20,9 Q22,18 24,22 Z"/>
       <Path fill="none" stroke="#7B3F00" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-        d="M58,8 L58,26 L48,22"/>
+        d="M59,26 Q60,14 52,9 Q50,18 48,22 Z"/>
 
       {selected && (
         <G id="blush">
           {/* Round blush circles on cheeks */}
-          <Circle cx="18" cy="46" r="5.5" fill="#FF9BB0" opacity="0.72"/>
-          <Circle cx="54" cy="46" r="5.5" fill="#FF9BB0" opacity="0.72"/>
+          <Circle cx="19" cy="46" r="3.5" fill="#FF9BB0" opacity="0.75"/>
+          <Circle cx="53" cy="46" r="3.5" fill="#FF9BB0" opacity="0.75"/>
         </G>
       )}
     </Svg>
