@@ -10,77 +10,18 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useApp } from "../context/AppContext";
 
-const EMOTION_IMAGES = {
-  Feliz:      require("../../assets/emotions/feliz.png"),
-  Juguetón:   require("../../assets/emotions/jugueton.png"),
-  Alerta:     require("../../assets/emotions/alerta.png"),
-  Curioso:    require("../../assets/emotions/curioso.png"),
-  Estresado:  require("../../assets/emotions/estresado.png"),
-  Asustado:   require("../../assets/emotions/asustado.png"),
-  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
-  Hambriento: require("../../assets/emotions/hambriento.png"),
-};
-
 const { width: W, height: H } = Dimensions.get("window");
 
 // Each emotion: rich multi-stop gradient + accent colors for glow blobs
 const EMOTION_MAP = {
-  Feliz: {
-    gradient: ["#022C22", "#064E3B", "#065F46"],
-    accent1: "#10B981",
-    accent2: "#34D399",
-    light: "#6EE7B7",
-    icon: "emoticon-happy-outline",
-  },
-  Juguetón: {
-    gradient: ["#0D1B3E", "#1E3A8A", "#1D4ED8"],
-    accent1: "#3B82F6",
-    accent2: "#60A5FA",
-    light: "#93C5FD",
-    icon: "lightning-bolt",
-  },
-  Alerta: {
-    gradient: ["#1C0A00", "#78350F", "#92400E"],
-    accent1: "#F59E0B",
-    accent2: "#FBBF24",
-    light: "#FCD34D",
-    icon: "bell-outline",
-  },
-  Curioso: {
-    gradient: ["#0F0D2A", "#1E1B4B", "#312E81"],
-    accent1: "#6366F1",
-    accent2: "#818CF8",
-    light: "#A5B4FC",
-    icon: "magnify",
-  },
-  Estresado: {
-    gradient: ["#1A0520", "#2E1065", "#4C1D95"],
-    accent1: "#A855F7",
-    accent2: "#C084FC",
-    light: "#E9D5FF",
-    icon: "fire",
-  },
-  Asustado: {
-    gradient: ["#130520", "#3B0764", "#5B21B6"],
-    accent1: "#8B5CF6",
-    accent2: "#A78BFA",
-    light: "#C4B5FD",
-    icon: "ghost-outline",
-  },
-  Tranquilo: {
-    gradient: ["#060A14", "#0F172A", "#1E293B"],
-    accent1: "#64748B",
-    accent2: "#94A3B8",
-    light: "#CBD5E1",
-    icon: "leaf",
-  },
-  Hambriento: {
-    gradient: ["#1C0A00", "#78350F", "#92400E"],
-    accent1: "#F59E0B",
-    accent2: "#FBBF24",
-    light: "#FDE68A",
-    icon: "bone",
-  },
+  Feliz:      { gradient:["#022C22","#064E3B","#065F46"], accent1:"#10B981", accent2:"#34D399", light:"#6EE7B7", icon:"emoticon-excited-outline" },
+  "Juguetón": { gradient:["#0C1A4E","#1E3A8A","#2563EB"], accent1:"#60A5FA", accent2:"#93C5FD", light:"#BFDBFE", icon:"tennis-ball" },
+  Alerta:     { gradient:["#1C0A00","#92400E","#B45309"], accent1:"#FBBF24", accent2:"#FCD34D", light:"#FEF08A", icon:"bell-ring-outline" },
+  Curioso:    { gradient:["#0F0D2A","#1E1B4B","#312E81"], accent1:"#818CF8", accent2:"#A5B4FC", light:"#C7D2FE", icon:"eye-outline" },
+  Estresado:  { gradient:["#200A0A","#7F1D1D","#991B1B"], accent1:"#F87171", accent2:"#FCA5A5", light:"#FECACA", icon:"lightning-bolt" },
+  Asustado:   { gradient:["#130520","#3B0764","#5B21B6"], accent1:"#A78BFA", accent2:"#C4B5FD", light:"#DDD6FE", icon:"ghost-outline" },
+  Tranquilo:  { gradient:["#06141A","#0C2E40","#0E3D52"], accent1:"#38BDF8", accent2:"#7DD3FC", light:"#BAE6FD", icon:"weather-night" },
+  Hambriento: { gradient:["#1C0A00","#78350F","#92400E"], accent1:"#FB923C", accent2:"#FDBA74", light:"#FED7AA", icon:"food-drumstick-outline" },
 };
 
 function getEmo(e) { return EMOTION_MAP[e] || EMOTION_MAP["Tranquilo"]; }
@@ -261,13 +202,16 @@ export default function ResultScreen({ navigation }) {
               styles.emotionImgWrapper,
               { opacity: imgO, transform: [{ scale: imgScale }, { translateY: floatY }] }
             ]}>
-              {/* Radial glow behind icon */}
+              {/* Outer glow blob */}
               <View style={[styles.emotionImgGlow, { backgroundColor: emo.accent1 }]} />
-              <Image
-                source={EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES["Feliz"]}
-                style={{ width: 88, height: 88 }}
-                resizeMode="contain"
-              />
+              {/* Premium icon: gradient circle + large icon */}
+              <LinearGradient
+                colors={[emo.accent2, emo.accent1]}
+                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+                style={styles.emotionIconCircle}
+              >
+                <MaterialCommunityIcons name={emo.icon} size={52} color="#fff" />
+              </LinearGradient>
             </Animated.View>
 
             {/* Confidence strip */}
@@ -381,10 +325,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: 110, height: 110,
   },
+  emotionIconCircle: {
+    width: 96, height: 96, borderRadius: 48,
+    alignItems: "center", justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.35, shadowRadius: 16, elevation: 12,
+  },
   emotionImgGlow: {
     position: "absolute",
-    width: 110, height: 110, borderRadius: 55,
-    opacity: 0.4,
+    width: 120, height: 120, borderRadius: 60,
+    opacity: 0.35,
     shadowColor: "#fff",
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.8,
