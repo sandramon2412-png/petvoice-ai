@@ -33,81 +33,92 @@ export function DogIllustration({ size = 140, selected = false }) {
   );
 }
 
-// ── Kawaii cat — big round eyes, tiny nose, sweet smile ──────────────────────
+// ── OpenMoji-style cat face — same artistic language as the dog ───────────────
 export function CatIllustration({ size = 140, selected = false }) {
   return (
     <Svg viewBox="0 0 72 72" width={size} height={size}>
-      {/* ── Colors ── */}
+      <G id="color">
+        {/* Main head — golden orange, same palette family as OpenMoji cats */}
+        <Path fill="#F4AA41"
+          d="M10,38 C10,22 20,10 36,10 C52,10 62,22 62,38 C62,54 52,64 36,64 C20,64 10,54 10,38 Z"/>
+        {/* Left ear */}
+        <Path fill="#F4AA41"
+          d="M14,28 C14,28 10,10 18,6 C22,14 22,24 22,28 Z"/>
+        {/* Right ear */}
+        <Path fill="#F4AA41"
+          d="M58,28 C58,28 62,10 54,6 C50,14 50,24 50,28 Z"/>
+        {/* Ear inner left — pink */}
+        <Path fill="#E0737A"
+          d="M16,26 C16,26 13,13 18,9 C21,15 21,22 21,26 Z"/>
+        {/* Ear inner right — pink */}
+        <Path fill="#E0737A"
+          d="M56,26 C56,26 59,13 54,9 C51,15 51,22 51,26 Z"/>
+        {/* Muzzle / chin area — lighter cream */}
+        <Ellipse fill="#FDEBC8" cx="36" cy="50" rx="12" ry="9"/>
+      </G>
 
-      {/* Ears — soft organic curves */}
-      <Path fill="#E8922A" d="M13,26 Q12,14 20,9 Q22,18 24,22 Z"/>
-      <Path fill="#E8922A" d="M59,26 Q60,14 52,9 Q50,18 48,22 Z"/>
-      {/* Ear inner pink */}
-      <Path fill="#F9C5A7" d="M15,24 Q15,16 20,12 Q21,18 23,21 Z"/>
-      <Path fill="#F9C5A7" d="M57,24 Q57,16 52,12 Q51,18 49,21 Z"/>
+      <G id="markings">
+        {/* Forehead tabby stripes */}
+        <Path fill="#D4880A" opacity="0.45"
+          d="M30,16 Q33,13 36,15 Q39,13 42,16 Q39,19 36,18 Q33,19 30,16 Z"/>
+        <Path fill="#D4880A" opacity="0.3"
+          d="M28,22 Q32,19 36,21 Q40,19 44,22 Q40,24 36,23 Q32,24 28,22 Z"/>
+      </G>
 
-      {/* Round face */}
-      <Circle cx="36" cy="38" r="24" fill="#F5A623"/>
-      {/* Lighter forehead highlight */}
-      <Ellipse cx="36" cy="26" rx="14" ry="8" fill="#F9C87A" opacity="0.55"/>
+      <G id="line">
+        {/* Head outline */}
+        <Path fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          d="M10,38 C10,22 20,10 36,10 C52,10 62,22 62,38 C62,54 52,64 36,64 C20,64 10,54 10,38 Z"/>
+        {/* Left ear outline */}
+        <Path fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          d="M14,28 C14,28 10,10 18,6 C22,14 22,24 22,28"/>
+        {/* Right ear outline */}
+        <Path fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          d="M58,28 C58,28 62,10 54,6 C50,14 50,24 50,28"/>
 
-      {/* White muzzle area */}
-      <Ellipse cx="36" cy="48" rx="11" ry="8" fill="#FFF3DC"/>
+        {/* Eyes — same filled-dot style as OpenMoji dog */}
+        {!selected ? (
+          <G>
+            <Circle cx="26" cy="36" r="4.5" fill="#1A1A2E"/>
+            <Circle cx="46" cy="36" r="4.5" fill="#1A1A2E"/>
+            <Circle cx="27.5" cy="34.5" r="1.6" fill="#fff"/>
+            <Circle cx="47.5" cy="34.5" r="1.6" fill="#fff"/>
+          </G>
+        ) : (
+          <G>
+            {/* Heart eyes */}
+            <Path fill="#FF2D55"
+              d="M22,34 C22,31.5 24,30.2 26,32 C28,30.2 30,31.5 30,34 C30,37 26,40 26,40 C26,40 22,37 22,34Z"/>
+            <Path fill="#FF2D55"
+              d="M42,34 C42,31.5 44,30.2 46,32 C48,30.2 50,31.5 50,34 C50,37 46,40 46,40 C46,40 42,37 42,34Z"/>
+            <Circle cx="24" cy="32.5" r="1.2" fill="#fff" opacity="0.7"/>
+            <Circle cx="44" cy="32.5" r="1.2" fill="#fff" opacity="0.7"/>
+          </G>
+        )}
 
-      {/* ── Face features ── */}
+        {/* Nose — small triangle */}
+        <Path fill="#C0392B" stroke="#000" strokeWidth="0.8" strokeLinejoin="round"
+          d="M34.2,46 L36,48.5 L37.8,46 Z"/>
 
-      {/* Eyes — big cute circles */}
-      {!selected ? (
-        <G>
-          <Circle cx="26" cy="36" r="5.5" fill="#1A1A2E"/>
-          <Circle cx="46" cy="36" r="5.5" fill="#1A1A2E"/>
-          {/* Eye shine */}
-          <Circle cx="27.8" cy="34.2" r="1.8" fill="#fff"/>
-          <Circle cx="47.8" cy="34.2" r="1.8" fill="#fff"/>
-          {/* Small bottom shine */}
-          <Circle cx="25.2" cy="38" r="0.9" fill="#fff" opacity="0.6"/>
-          <Circle cx="45.2" cy="38" r="0.9" fill="#fff" opacity="0.6"/>
-        </G>
-      ) : (
-        <G>
-          {/* Heart eyes when selected */}
-          <Path fill="#FF2D55" d="M21,33.5 C21,31 23,30 25,31.8 C27,30 29,31 29,33.5 C29,36.5 25,39.5 25,39.5 C25,39.5 21,36.5 21,33.5Z"/>
-          <Path fill="#FF2D55" d="M43,33.5 C43,31 45,30 47,31.8 C49,30 51,31 51,33.5 C51,36.5 47,39.5 47,39.5 C47,39.5 43,36.5 43,33.5Z"/>
-          {/* Small heart shine */}
-          <Circle cx="23.5" cy="32" r="1.2" fill="#fff" opacity="0.7"/>
-          <Circle cx="45.5" cy="32" r="1.2" fill="#fff" opacity="0.7"/>
-        </G>
-      )}
+        {/* Mouth — cute cat W shape */}
+        <Path fill="none" stroke="#000" strokeWidth="1.8" strokeLinecap="round"
+          d="M30,50 Q33,54 36,51.5 Q39,54 42,50"/>
 
-      {/* Nose — tiny triangle */}
-      <Path fill="#C0392B" d="M34.5,44 L36,46 L37.5,44 Z"/>
+        {/* Muzzle outline */}
+        <Ellipse cx="36" cy="50" rx="12" ry="9" fill="none" stroke="#000" strokeWidth="1.4"/>
 
-      {/* Mouth — cute W shape */}
-      <Path fill="none" stroke="#7B3F00" strokeWidth="1.6" strokeLinecap="round"
-        d="M31,47 Q33.5,50 36,48 Q38.5,50 41,47"/>
-
-      {/* Whiskers */}
-      <Line x1="10" y1="44" x2="27" y2="46" stroke="#7B3F00" strokeWidth="1.4" strokeLinecap="round" opacity="0.7"/>
-      <Line x1="10" y1="48" x2="27" y2="48" stroke="#7B3F00" strokeWidth="1.4" strokeLinecap="round" opacity="0.7"/>
-      <Line x1="62" y1="44" x2="45" y2="46" stroke="#7B3F00" strokeWidth="1.4" strokeLinecap="round" opacity="0.7"/>
-      <Line x1="62" y1="48" x2="45" y2="48" stroke="#7B3F00" strokeWidth="1.4" strokeLinecap="round" opacity="0.7"/>
-
-      {/* Forehead stripe markings */}
-      <Path fill="none" stroke="#D4820A" strokeWidth="1.2" strokeLinecap="round"
-        d="M31,18 Q33,14 36,13 Q39,14 41,18" opacity="0.6"/>
-
-      {/* Outline */}
-      <Circle cx="36" cy="38" r="24" fill="none" stroke="#7B3F00" strokeWidth="1.8"/>
-      <Path fill="none" stroke="#7B3F00" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-        d="M13,26 Q12,14 20,9 Q22,18 24,22 Z"/>
-      <Path fill="none" stroke="#7B3F00" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
-        d="M59,26 Q60,14 52,9 Q50,18 48,22 Z"/>
+        {/* Whiskers — left */}
+        <Line x1="8"  y1="46" x2="25" y2="48" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+        <Line x1="8"  y1="51" x2="25" y2="51" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+        {/* Whiskers — right */}
+        <Line x1="64" y1="46" x2="47" y2="48" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+        <Line x1="64" y1="51" x2="47" y2="51" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+      </G>
 
       {selected && (
         <G id="blush">
-          {/* Round blush circles on cheeks */}
-          <Circle cx="19" cy="46" r="3.5" fill="#FF9BB0" opacity="0.75"/>
-          <Circle cx="53" cy="46" r="3.5" fill="#FF9BB0" opacity="0.75"/>
+          <Circle cx="19" cy="50" r="4" fill="#FF9BB0" opacity="0.72"/>
+          <Circle cx="53" cy="50" r="4" fill="#FF9BB0" opacity="0.72"/>
         </G>
       )}
     </Svg>
