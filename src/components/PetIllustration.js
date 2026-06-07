@@ -32,35 +32,59 @@ export function DogIllustration({ size = 140, selected = false }) {
   );
 }
 
-// ── OpenMoji cat face (1F431) — CC BY-SA 4.0 · hfg-gmuend.github.io/openmoji ─
+// ── OpenMoji smiling cat face (1F638) — CC BY-SA 4.0 · hfg-gmuend.github.io/openmoji ─
 export function CatIllustration({ size = 140, selected = false }) {
   return (
     <Svg viewBox="0 0 72 72" width={size} height={size}>
       <G id="color">
-        <Path fill="#f4aa41" d="m58.2673,11.3469s-10.4076,2.3754-15.5743,6.7088c0,0-9-2.5-13.8333.1667,0,0-9.6549-6.7318-15.6549-6.7318,0,0-5.0326,3.75.3216,21.0651,0,0-2.6667,10.6667,1.6667,16.3333.7823,1.023,1.6026,1.9862,2.4217,2.8779,3.4268,3.7306,7.5912,6.7046,12.1937,8.8205l1.696.7797c1.5277.7023,3.1777,1.1,4.8576,1.1707h0c.9304.0392,1.8573-.1359,2.7093-.5118l4.5429-2.0042c3.8082-1.6801,7.2734-4.0872,10.0486-7.1894,1.1585-1.295,2.2135-2.71,2.8635-4.11,4.4736-10.6191,1.5314-16.2624,1.5314-16.2624l1.2356-7.1292c.8094-3.1482.8268-6.4477.0506-9.6043l-1.0768-4.3796Z"/>
-        <Path fill="#fff" d="m30.8377,47.3355s-7.3487,2.8338-1.0987,9.3338c0,0-1.6971,4.2984,3.5271,4.6285.6823.0431,2.7339.0635,2.7339.0635l1.5797.0367c.4833.0112.9656-.0228,1.4424-.1026,1.8709-.3132,3.9279-.7821,3.181-4.5878,0,0,7.5513-6.3722-1.3654-9.3722l-4.875,2-5.125-1.9999Z"/>
+        {/* Body / face */}
+        <Path fill="#F4AA41" d="M15.999,14.0019c0,0-6.3985,6.4-5.5985,17.2001 c0.4,5.2,2.7998,9.9995,5.5985,14.1992c2.6992,4.0999,7,8.5,13.3994,10.7998c3.2998,1.2002,6.2998,1.2002,6.2998,1.2002 s3,0,6.2998-1.2002c6.3994-2.2998,10.7002-6.6999,13.3994-10.7998c2.7988-4.1997,5.1987-8.9993,5.5985-14.1992 c0.8-10.8001-5.5985-17.2001-5.5985-17.2001L55.2998,6.2002C55.2998,6.2002,50.2998,9.6,36,9.6 s-19.2998-3.3998-19.2998-3.3998L15.999,14.0019z"/>
+        {/* Ear inner left */}
+        <Path fill="#F17B26" d="M16.7,13.4l-0.7012,0.6019C13.5,16.7,11.5,20.1,11,23.6c1.7-2.7,4.2-5.1,7.8-6.5 C18.1,15.9,17.4,14.5,16.7,13.4z"/>
+        {/* Ear inner right */}
+        <Path fill="#F17B26" d="M55.3,13.4l0.7012,0.6019C58.5,16.7,60.5,20.1,61,23.6c-1.7-2.7-4.2-5.1-7.8-6.5 C53.9,15.9,54.6,14.5,55.3,13.4z"/>
+        {/* Muzzle white area */}
+        <Ellipse fill="#FDEBC8" cx="36" cy="46" rx="9" ry="6"/>
+        {/* Mouth / smile */}
+        <Path fill="#F17B26" d="M30.5,47.5c0,0,2.5,4.5,5.5,4.5s5.5-4.5,5.5-4.5H30.5z"/>
+      </G>
+      <G id="hair">
+        {/* Forehead tufts */}
+        <Path fill="#F17B26" d="M29,14c0,0-3,3-3,7h3C29,21,28,17,29,14z"/>
+        <Path fill="#F17B26" d="M36,12c0,0-1,4-1,9h2C37,21,37,16,36,12z"/>
+        <Path fill="#F17B26" d="M43,14c0,0,3,3,3,7h-3C43,21,44,17,43,14z"/>
       </G>
       <G id="line">
-        <Ellipse cx="45.0854" cy="38.1033" rx="1.6461" ry="2.8119"/>
-        <Ellipse cx="26.8427" cy="38.1033" rx="1.6461" ry="2.8119"/>
-        <Polygon fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" points="31.9328 47.2287 36.037 50.0204 39.8495 47.2287"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m36.037,50.0204v4.2708s-1.1042,3.6875-5.5417,2.875"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m15.8717,48.4759c-4.8928-7.2535-2.0014-15.8722-2.0014-15.8722,0,0-5.25-14.875-.4375-21.25,0,0,9.1875,1.5,15.6875,7.375,4.5946-1.9379,9.1575-2.0128,13.6875-.1437,6.5-5.875,15.6875-7.375,15.6875-7.375,4.8125,6.375-.4375,21.25-.4375,21.25,0,0,2.8914,8.6187-2.0014,15.8722"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m14.7453,15.1037s12.8125,6.1875,10.0625,11.8125"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m24.8491,50.8753s-9.3615-.458-13.6525,7.5243"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m35.8911,49.8767v4.2708s1.1042,3.6875,5.5417,2.875"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m57.1828,14.96s-12.8125,6.1875-10.0625,11.8125"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m47.2048,54.6836s8.2116,2.2454,8.6795,11.2958"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m48.079,50.7316s9.3615-.458,13.6525,7.5243"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m31.3859,60.7598c3.88,1.6845,5.6481,1.8093,9.3021,0"/>
-        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m25.4446,54.6836s-8.2116,2.2454-8.6795,11.2958"/>
+        {/* Outer outline */}
+        <Path fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          d="M15.999,14.0019c0,0-6.3985,6.4-5.5985,17.2001c0.4,5.2,2.7998,9.9995,5.5985,14.1992 c2.6992,4.0999,7,8.5,13.3994,10.7998c3.2998,1.2002,6.2998,1.2002,6.2998,1.2002s3,0,6.2998-1.2002 c6.3994-2.2998,10.7002-6.6999,13.3994-10.7998c2.7988-4.1997,5.1987-8.9993,5.5985-14.1992 c0.8-10.8001-5.5985-17.2001-5.5985-17.2001L55.2998,6.2002C55.2998,6.2002,50.2998,9.6,36,9.6 s-19.2998-3.3998-19.2998-3.3998L15.999,14.0019z"/>
+        {/* Eyes — happy arc shape (smiling) */}
+        <Path fill="none" stroke="#000" strokeWidth="2.2" strokeLinecap="round"
+          d="M26,32 Q28,28 30,32"/>
+        <Path fill="none" stroke="#000" strokeWidth="2.2" strokeLinecap="round"
+          d="M42,32 Q44,28 46,32"/>
+        {/* Nose */}
+        <Path fill="#D2691E" stroke="#000" strokeWidth="1" d="M34.5,39.5 L36,41.5 L37.5,39.5 Z"/>
+        {/* Whiskers left */}
+        <Line x1="20" y1="40" x2="31" y2="41.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/>
+        <Line x1="20" y1="44" x2="31" y2="43" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/>
+        {/* Whiskers right */}
+        <Line x1="52" y1="40" x2="41" y2="41.5" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/>
+        <Line x1="52" y1="44" x2="41" y2="43" stroke="#000" strokeWidth="1.5" strokeLinecap="round"/>
+        {/* Big smile */}
+        <Path fill="none" stroke="#000" strokeWidth="2" strokeLinecap="round"
+          d="M30,44 Q36,52 42,44"/>
+        {/* Muzzle outline */}
+        <Ellipse cx="36" cy="46" rx="9" ry="6" fill="none" stroke="#000" strokeWidth="1.2"/>
       </G>
       {selected && (
         <G id="selected-overlay">
-          <Ellipse cx="22" cy="42" rx="5" ry="3" fill="#FF9BB0" opacity="0.65"/>
-          <Ellipse cx="50" cy="42" rx="5" ry="3" fill="#FF9BB0" opacity="0.65"/>
-          <Path fill="#FF6B8A" d="M26,32 C26,30 28,29 29,31 C30,29 32,30 32,32 C32,34 29,37 29,37 C29,37 26,34 26,32Z" opacity="0.8"/>
-          <Path fill="#FF6B8A" d="M40,32 C40,30 42,29 43,31 C44,29 46,30 46,32 C46,34 43,37 43,37 C43,37 40,34 40,32Z" opacity="0.8"/>
+          {/* Blush cheeks */}
+          <Ellipse cx="21" cy="44" rx="5.5" ry="3" fill="#FF9BB0" opacity="0.7"/>
+          <Ellipse cx="51" cy="44" rx="5.5" ry="3" fill="#FF9BB0" opacity="0.7"/>
+          {/* Heart eyes */}
+          <Path fill="#FF4D6D" d="M25,29 C25,27.2 26.5,26 28,27.5 C29.5,26 31,27.2 31,29 C31,31 28,33.5 28,33.5 C28,33.5 25,31 25,29Z" opacity="0.9"/>
+          <Path fill="#FF4D6D" d="M41,29 C41,27.2 42.5,26 44,27.5 C45.5,26 47,27.2 47,29 C47,31 44,33.5 44,33.5 C44,33.5 41,31 41,29Z" opacity="0.9"/>
         </G>
       )}
     </Svg>

@@ -152,16 +152,16 @@ function PremiumPetCard({ petKey, label, selected, onPress }) {
           borderColor: ACCENT2, opacity: borderOpacity,
         }]} />
 
-        {/* Big radial glow orb behind icon */}
+        {/* Big radial glow orb — centered behind illustration */}
         <Animated.View style={[s.petIconGlow, {
           backgroundColor: ACCENT,
           opacity: glowOpacity,
           transform: [{ scale: glowScale }],
         }]} />
 
-        {/* Illustration — floating */}
-        <Animated.View style={{ transform: [{ translateY: floatY }, { scale: iconScale }], alignItems: "center" }}>
-          {isdog ? <DogIllustration size={118} /> : <CatIllustration size={118} />}
+        {/* Illustration — floating, centered */}
+        <Animated.View style={{ transform: [{ translateY: floatY }, { scale: iconScale }], alignItems: "center", marginBottom: 30 }}>
+          {isdog ? <DogIllustration size={120} selected={selected} /> : <CatIllustration size={120} selected={selected} />}
         </Animated.View>
 
         {/* Shine streak — top-left corner light */}
