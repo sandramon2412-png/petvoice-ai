@@ -34,11 +34,6 @@ const EMOTION_MAP = {
   Tranquilo:  { color: "#94A3B8", wave: "#CBD5E1", bg: ["#0F172A","#1E293B","#334155"] },
   Hambriento: { color: "#F59E0B", wave: "#FDE68A", bg: ["#78350F","#92400E","#B45309"] },
 };
-  Estresado:  { color: "#818CF8", wave: "#C7D2FE", bg: ["#4F46E5","#818CF8","#EEF2FF"], label: "ESTRESADO" },
-  Asustado:   { color: "#8B5CF6", wave: "#C4B5FD", bg: ["#6D28D9","#8B5CF6","#F5F3FF"], label: "ASUSTADO" },
-  Tranquilo:  { color: "#94A3B8", wave: "#CBD5E1", bg: ["#475569","#64748B","#F1F5F9"], label: "TRANQUILO" },
-  Hambriento: { color: "#F59E0B", wave: "#FDE68A", bg: ["#92400E","#D97706","#FEF3C7"], label: "HAMBRIENTO" },
-};
 
 function getEmo(e) { return EMOTION_MAP[e] || EMOTION_MAP["Tranquilo"]; }
 
