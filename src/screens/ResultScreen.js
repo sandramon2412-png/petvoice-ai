@@ -9,7 +9,17 @@ import GlassView from "../components/GlassView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useApp } from "../context/AppContext";
-import { EMOTION_ICONS } from "../components/EmotionIllustration";
+
+const EMOTION_IMAGES = {
+  Feliz:      require("../../assets/emotions/feliz.png"),
+  Juguetón:   require("../../assets/emotions/jugueton.png"),
+  Alerta:     require("../../assets/emotions/alerta.png"),
+  Curioso:    require("../../assets/emotions/curioso.png"),
+  Estresado:  require("../../assets/emotions/estresado.png"),
+  Asustado:   require("../../assets/emotions/asustado.png"),
+  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
+  Hambriento: require("../../assets/emotions/hambriento.png"),
+};
 
 const { width: W, height: H } = Dimensions.get("window");
 
@@ -253,10 +263,11 @@ export default function ResultScreen({ navigation }) {
             ]}>
               {/* Radial glow behind icon */}
               <View style={[styles.emotionImgGlow, { backgroundColor: emo.accent1 }]} />
-              {(() => {
-                const EmoIcon = EMOTION_ICONS[result.emocion_principal] || EMOTION_ICONS["Feliz"];
-                return <EmoIcon size={82} />;
-              })()}
+              <Image
+                source={EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES["Feliz"]}
+                style={{ width: 88, height: 88 }}
+                resizeMode="contain"
+              />
             </Animated.View>
 
             {/* Confidence strip */}
