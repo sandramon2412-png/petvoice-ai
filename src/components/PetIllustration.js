@@ -1,225 +1,48 @@
 import React from "react";
-import Svg, {
-  Circle, Ellipse, Path, G, Defs,
-  RadialGradient, LinearGradient as SvgLinear,
-  Stop,
-} from "react-native-svg";
+import Svg, { G, Path, Polygon, Circle, Line, Ellipse } from "react-native-svg";
 
-// ── Friendly clay dog ─────────────────────────────────────────────────────────
-// Big head, long snout, floppy hanging ears, round happy eyes
-export function DogIllustration({ size = 160, selected = false }) {
-  const fur     = selected ? "#F97316" : "#FB923C";
-  const furDark = selected ? "#C2410C" : "#EA580C";
-  const furLite = selected ? "#FED7AA" : "#FFEDD5";
-  const muzzle  = "#FEF3C7";
-  const nose    = "#1C1917";
-  const eye     = "#1C1917";
-
+// ── OpenMoji dog — CC BY-SA 4.0 · hfg-gmuend.github.io/openmoji ─────────────
+export function DogIllustration({ size = 140 }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 180 180">
-      <Defs>
-        <RadialGradient id="dHead" cx="38%" cy="30%" r="65%">
-          <Stop offset="0%" stopColor={furLite} />
-          <Stop offset="45%" stopColor={fur} />
-          <Stop offset="100%" stopColor={furDark} />
-        </RadialGradient>
-        <RadialGradient id="dBody" cx="40%" cy="25%" r="65%">
-          <Stop offset="0%" stopColor={furLite} />
-          <Stop offset="50%" stopColor={fur} />
-          <Stop offset="100%" stopColor={furDark} />
-        </RadialGradient>
-        <RadialGradient id="dMuzzle" cx="35%" cy="30%" r="65%">
-          <Stop offset="0%" stopColor="#FFFBEB" />
-          <Stop offset="100%" stopColor="#FDE68A" />
-        </RadialGradient>
-      </Defs>
-
-      {/* Ground shadow */}
-      <Ellipse cx="90" cy="168" rx="42" ry="7" fill={furDark} opacity="0.2" />
-
-      {/* Body */}
-      <Ellipse cx="90" cy="130" rx="38" ry="30" fill="url(#dBody)" />
-
-      {/* Legs */}
-      <Ellipse cx="68" cy="152" rx="13" ry="9" fill={fur} />
-      <Ellipse cx="112" cy="152" rx="13" ry="9" fill={fur} />
-      <Ellipse cx="68"  cy="156" rx="8"  ry="4" fill={furLite} opacity="0.45" />
-      <Ellipse cx="112" cy="156" rx="8"  ry="4" fill={furLite} opacity="0.45" />
-
-      {/* Tail */}
-      <Path d="M 125 120 Q 155 108 148 88 Q 142 72 128 78"
-        stroke={fur} strokeWidth="13" strokeLinecap="round" fill="none" />
-      <Path d="M 125 120 Q 155 108 148 88 Q 142 72 128 78"
-        stroke={furLite} strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.4" />
-
-      {/* Floppy ears — hang DOWN beside head */}
-      <Path d="M 52 68 Q 30 72 28 92 Q 27 110 46 112 Q 55 113 58 100 Q 60 88 56 78 Z"
-        fill={furDark} />
-      <Path d="M 52 68 Q 34 72 33 90 Q 32 106 48 108 Q 54 109 55 96 Q 57 84 54 76 Z"
-        fill={fur} />
-      <Path d="M 128 68 Q 150 72 152 92 Q 153 110 134 112 Q 125 113 122 100 Q 120 88 124 78 Z"
-        fill={furDark} />
-      <Path d="M 128 68 Q 146 72 147 90 Q 148 106 132 108 Q 126 109 125 96 Q 123 84 126 76 Z"
-        fill={fur} />
-
-      {/* Head — large and round */}
-      <Circle cx="90" cy="80" r="44" fill="url(#dHead)" />
-
-      {/* Head shine */}
-      <Ellipse cx="74" cy="58" rx="14" ry="9"
-        fill={furLite} opacity="0.4" transform="rotate(-25 74 58)" />
-
-      {/* Muzzle — distinct snout, not monkey-flat */}
-      <Ellipse cx="90" cy="96" rx="26" ry="19" fill="url(#dMuzzle)" />
-      {/* Muzzle shade for depth */}
-      <Ellipse cx="90" cy="100" rx="22" ry="12" fill={fur} opacity="0.12" />
-
-      {/* Nose — wide friendly */}
-      <Ellipse cx="90" cy="88" rx="10" ry="7" fill={nose} />
-      {/* Nose highlight */}
-      <Ellipse cx="86" cy="85" rx="4" ry="2.5" fill="white" opacity="0.55" />
-
-      {/* Mouth — happy open smile */}
-      <Path d="M 78 100 Q 90 112 102 100"
-        stroke={furDark} strokeWidth="2.2" strokeLinecap="round" fill="none" />
-
-      {/* Eyes — big and round, friendly */}
-      <Circle cx="70"  cy="72" r="10" fill={eye} />
-      <Circle cx="110" cy="72" r="10" fill={eye} />
-      {/* Iris colour */}
-      <Circle cx="70"  cy="72" r="6" fill="#78350F" />
-      <Circle cx="110" cy="72" r="6" fill="#78350F" />
-      {/* Pupil */}
-      <Circle cx="70"  cy="72" r="4" fill={eye} />
-      <Circle cx="110" cy="72" r="4" fill={eye} />
-      {/* Big shine — makes eyes look alive */}
-      <Circle cx="73"  cy="68" r="3.5" fill="white" />
-      <Circle cx="113" cy="68" r="3.5" fill="white" />
-      <Circle cx="75"  cy="70" r="1.5" fill="white" opacity="0.7" />
-      <Circle cx="115" cy="70" r="1.5" fill="white" opacity="0.7" />
-
-      {/* Eyebrows — raised = happy/curious */}
-      <Path d="M 61 60 Q 70 56 79 60"
-        stroke={furDark} strokeWidth="2.5" strokeLinecap="round" fill="none" />
-      <Path d="M 101 60 Q 110 56 119 60"
-        stroke={furDark} strokeWidth="2.5" strokeLinecap="round" fill="none" />
-
-      {/* Tongue — optional cute detail */}
-      <Ellipse cx="90" cy="108" rx="8" ry="6" fill="#F9A8D4" />
-      <Path d="M 82 108 Q 90 116 98 108"
-        stroke="#F472B6" strokeWidth="1.5" fill="none" />
+    <Svg viewBox="0 0 72 72" width={size} height={size}>
+      <G id="color">
+        <Path fill="#f4aa41" d="m24.473,15.1583l-5.0799,1.9352-7.2963,7.901-4.1377,10.5005,1.291,5.3405c1.2554,3.7911,3.3357,6.4338,7.0626,9.2506l2.6874-2.5839s3.8218,7.7098,10.7384,8.9598c0,0,10.2616,1.936,15.5949-.8765,1.4899-.7857,2.5141-1.8291,3.2921-2.5939,2.0702-2.0351,3.033-3.5201,4.5413-5.2395h0s1.6701,1.8077,1.6701,1.8077l1.838-.0557,5.0169-7.2292,2.0032-5.0703-.0215-4.255-2.1735-5.6141-4.8333-7.4167s-2.6368-4.2558-8.1667-3.9167c0,0-6.5-4.8333-11.8333-4.0833s-3.6104-.6772-12.1937,3.2395Z"/>
+        <Polygon fill="#ea5a47" points="36 46.7324 32.9167 49.1491 30.4167 49.1491 30.9413 53.0386 31.362 56.0539 32.1667 58.3991 35 59.8991 39.5833 59.3158 40.4429 57.1116 41.1441 52.9335 41.9167 49.3158 39.9167 49.5658 36 46.7324"/>
+        <Polygon fill="#3f3f3f" points="32.5 36.9188 30.9167 40.6688 33.0833 41.9188 34.3333 42.4188 38.6667 42.5855 41.5833 40.3355 39.8333 37.0855 32.5 36.9188"/>
+      </G>
+      <G id="line">
+        <Path d="m29.5059,30.1088s-1.8051,1.2424-2.7484.6679c-.9434-.5745-1.2424-1.8051-.6679-2.7484s1.805-1.2424,2.7484-.6679.6679,2.7484.6679,2.7484Z"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m33.1089,37.006h6.1457c.4011,0,.7634.2397.9203.6089l1.1579,2.7245-2.1792,1.1456c-.6156.3236-1.3654-.0645-1.4567-.754"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m34.7606,40.763c-.1132.6268-.7757.9895-1.3647.7471l-2.3132-.952,1.0899-2.9035c.1465-.3901.5195-.6486.9362-.6486"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m30.4364,50.0268s-.7187,8.7934,3.0072,9.9375c2.6459.8125,5.1497.5324,6.0625-.25.875-.75,2.6323-4.4741,1.8267-9.6875"/>
+        <Path d="m44.2636,30.1088s1.805,1.2424,2.7484.6679,1.2424-1.8051.6679-2.7484c-.5745-.9434-1.805-1.2424-2.7484-.6679s-.6679,2.7484-.6679,2.7484Z"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m25.6245,42.8393c-.475,3.6024,2.2343,5.7505,4.2847,6.8414,1.1968.6367,2.6508.5182,3.7176-.3181l2.581-2.0233,2.581,2.0233c1.0669.8363,2.5209.9548,3.7176.3181,2.0504-1.0909,4.7597-3.239,4.2847-6.8414"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19.9509,28.3572c-2.3166,5.1597-.5084,13.0249.119,15.3759.122.4571.0755.9355-.1271,1.3631l-1.9874,4.1937c-.623,1.3146-2.3934,1.5533-3.331.4409-3.1921-3.7871-8.5584-11.3899-6.5486-16.686,7.0625-18.6104,15.8677-18.1429,15.8677-18.1429,2.8453-1.9336,13.1042-6.9375,24.8125.875,0,0,8.6323-1.7175,14.9375,16.9375,1.8036,5.3362-3.4297,12.8668-6.5506,16.6442-.9312,1.127-2.7162.8939-3.3423-.4272l-1.9741-4.1656c-.2026-.4275-.2491-.906-.1271-1.3631.6275-2.3509,2.4356-10.2161.119-15.3759"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m52.6309,46.4628s-3.0781,6.7216-7.8049,8.2712"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19.437,46.969s3.0781,6.0823,7.8049,7.632"/>
+        <Line x1="36.2078" x2="36.2078" y1="47.3393" y2="44.3093" fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+      </G>
     </Svg>
   );
 }
 
-// ── Friendly clay cat ─────────────────────────────────────────────────────────
-// Big round eyes (NOT slanted), perky ears, sweet expression
-export function CatIllustration({ size = 160, selected = false }) {
-  const fur     = selected ? "#A855F7" : "#C084FC";
-  const furDark = selected ? "#7C3AED" : "#9333EA";
-  const furLite = selected ? "#EDE9FE" : "#F3E8FF";
-  const belly   = "#FAF5FF";
-  const nose    = "#EC4899";
-  const eye     = "#0F172A";
-  const iris    = selected ? "#10B981" : "#34D399";
-
+// ── OpenMoji cat — CC BY-SA 4.0 · hfg-gmuend.github.io/openmoji ─────────────
+export function CatIllustration({ size = 140 }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 180 180">
-      <Defs>
-        <RadialGradient id="cHead" cx="38%" cy="28%" r="65%">
-          <Stop offset="0%" stopColor={furLite} />
-          <Stop offset="48%" stopColor={fur} />
-          <Stop offset="100%" stopColor={furDark} />
-        </RadialGradient>
-        <RadialGradient id="cBody" cx="40%" cy="25%" r="65%">
-          <Stop offset="0%" stopColor={furLite} />
-          <Stop offset="50%" stopColor={fur} />
-          <Stop offset="100%" stopColor={furDark} />
-        </RadialGradient>
-        <RadialGradient id="cEye" cx="30%" cy="28%" r="70%">
-          <Stop offset="0%" stopColor="#6EE7B7" />
-          <Stop offset="100%" stopColor={iris} />
-        </RadialGradient>
-      </Defs>
-
-      {/* Ground shadow */}
-      <Ellipse cx="90" cy="168" rx="38" ry="6" fill={furDark} opacity="0.2" />
-
-      {/* Tail wraps in front */}
-      <Path d="M 52 135 Q 20 118 24 92 Q 28 70 48 78"
-        stroke={furDark} strokeWidth="14" strokeLinecap="round" fill="none" />
-      <Path d="M 52 135 Q 20 118 24 92 Q 28 70 48 78"
-        stroke={fur} strokeWidth="9" strokeLinecap="round" fill="none" />
-      <Path d="M 52 135 Q 20 118 24 92 Q 28 70 48 78"
-        stroke={furLite} strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.5" />
-
-      {/* Body */}
-      <Ellipse cx="92" cy="126" rx="36" ry="28" fill="url(#cBody)" />
-      {/* Belly patch */}
-      <Ellipse cx="92" cy="130" rx="20" ry="16" fill={belly} opacity="0.55" />
-
-      {/* Legs */}
-      <Ellipse cx="72"  cy="149" rx="12" ry="8" fill={fur} />
-      <Ellipse cx="112" cy="149" rx="12" ry="8" fill={fur} />
-      <Ellipse cx="72"  cy="153" rx="7"  ry="3.5" fill={furLite} opacity="0.5" />
-      <Ellipse cx="112" cy="153" rx="7"  ry="3.5" fill={furLite} opacity="0.5" />
-
-      {/* Pointed ears — behind head */}
-      <Path d="M 54 54 L 42 24 L 72 50 Z" fill={furDark} />
-      <Path d="M 58 54 L 48 28 L 70 50 Z" fill={fur} />
-      {/* Inner ear pink */}
-      <Path d="M 57 52 L 50 34 L 67 50 Z" fill="#F9A8D4" opacity="0.7" />
-
-      <Path d="M 126 54 L 138 24 L 108 50 Z" fill={furDark} />
-      <Path d="M 122 54 L 132 28 L 110 50 Z" fill={fur} />
-      <Path d="M 123 52 L 130 34 L 113 50 Z" fill="#F9A8D4" opacity="0.7" />
-
-      {/* Head — round, not angular */}
-      <Circle cx="90" cy="82" r="42" fill="url(#cHead)" />
-
-      {/* Head shine */}
-      <Ellipse cx="73" cy="60" rx="13" ry="8"
-        fill={furLite} opacity="0.45" transform="rotate(-22 73 60)" />
-
-      {/* Cheek fluff — makes cat look chubby/cute */}
-      <Ellipse cx="60"  cy="92" rx="13" ry="9" fill={furLite} opacity="0.4" />
-      <Ellipse cx="120" cy="92" rx="13" ry="9" fill={furLite} opacity="0.4" />
-
-      {/* Muzzle */}
-      <Ellipse cx="90" cy="97" rx="20" ry="13" fill={belly} opacity="0.8" />
-
-      {/* Nose */}
-      <Path d="M 86 91 L 90 87 L 94 91 L 90 95 Z" fill={nose} />
-      <Ellipse cx="88" cy="90" rx="2.5" ry="1.8" fill="white" opacity="0.6" />
-
-      {/* Mouth — W shape = happy cat */}
-      <Path d="M 90 95 Q 85 102 80 99"
-        stroke={furDark} strokeWidth="1.8" strokeLinecap="round" fill="none" />
-      <Path d="M 90 95 Q 95 102 100 99"
-        stroke={furDark} strokeWidth="1.8" strokeLinecap="round" fill="none" />
-
-      {/* Whiskers */}
-      <Path d="M 56 90 L 74 93" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
-      <Path d="M 53 95 L 72 96" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
-      <Path d="M 56 100 L 73 99" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
-      <Path d="M 124 90 L 106 93" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
-      <Path d="M 127 95 L 108 96" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
-      <Path d="M 124 100 L 107 99" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
-
-      {/* Eyes — BIG and ROUND, not slanted = friendly not evil */}
-      <Circle cx="70"  cy="78" r="13" fill={eye} />
-      <Circle cx="110" cy="78" r="13" fill={eye} />
-      {/* Iris */}
-      <Circle cx="70"  cy="78" r="9" fill="url(#cEye)" />
-      <Circle cx="110" cy="78" r="9" fill="url(#cEye)" />
-      {/* Pupil — vertical slit for cat realism */}
-      <Ellipse cx="70"  cy="78" rx="3.5" ry="6" fill={eye} />
-      <Ellipse cx="110" cy="78" rx="3.5" ry="6" fill={eye} />
-      {/* Big eye shine */}
-      <Circle cx="74"  cy="73" r="4" fill="white" />
-      <Circle cx="114" cy="73" r="4" fill="white" />
-      <Circle cx="76"  cy="75" r="1.8" fill="white" opacity="0.7" />
-      <Circle cx="116" cy="75" r="1.8" fill="white" opacity="0.7" />
+    <Svg viewBox="0 0 72 72" width={size} height={size}>
+      <G id="color">
+        <Path fill="#e27022" d="m48.5444,45.6928l.1799.1825c.7727.7838,1.7552,1.3279,2.8295,1.5672l1.7307.3854c1.1899.265,1.8963,1.4935,1.5267,2.6551l-.3471,1.0911c-.1676.5268-.1898,1.0891-.0643,1.6275l.2578,1.1061c.1617.6939.8822,1.1013,1.5602.8822h0c.608-.1965,1.1151-.6228,1.4131-1.188l1.511-2.8661c.4319-.8192.789-1.6758,1.067-2.5592l.2734-.8688c.5611-1.7832.1134-3.7211-1.1447-5.1039-1.8425-2.025-2.8178-4.375-3.7999-6.8312-.1932-.4831-.8347-.5802-1.1625-.1761l-5.9635,7.3517c-.6613.8152-.604,1.9972.1329,2.7446Z"/>
+        <Path fill="#e27022" d="m30.2921,43.5997l-1.1611,3.0323-1.4041,6.6825c-.1171.5575-.3815,1.0734-.7657,1.494h0c-.6137.672-1.5735.9049-2.427.5891h0c-.9292-.3439-1.5687-1.2029-1.6314-2.1918l-.2301-3.6238s.5-4.511,1-6.547c.304-1.238,2.21-1.8452,3.6574-2.131.9821-.1939,1.979.2522,2.5083,1.1019l.4537,1.5939h0Z"/>
+        <Path fill="#f4aa41" d="m67.14,16.53l-1.8874-.5852c-1.1342-.1412-1.7245-.1411-2.7989.2488l-.9428.3995c-1.1559.4195-1.682,2.0188-1.8682,3.2344-.1511.9865.0784,1.931-.0586,2.8527-.3021,2.0332-1.2806,3.899-2.7781,5.307l-.1654.1555c-1.0288.9673-2.3334,1.5902-3.7325,1.782l-2.3026.3157c-1.3985.1918-2.8229-.0016-4.1197-.5593l-.9645-.4148c-1.7964-.7725-3.7089-1.2403-5.659-1.3842l-10.0541-.7419c-1.6796-.1239-3.3681-.0257-5.022.2921l-.654.1257c-2.1473.4127-4.3692.1663-6.374-.7067l-1.6898-.7359c-1.0357-.451-2.0298-.9922-2.9709-1.6171l-2.4522-.7735c-.3224-.2141-2.2812-.1697-2.2812-.1697-.9437.1925-1.3004.6414-.8614,1.4986l.4919.9605c.2377.4641.2089,1.0199-.0754,1.457l-1.8326,2.8169c-.656,1.0083-.8786,2.2381-.6178,3.4124h0c.3088,1.3902,1.5093,2.3997,2.932,2.4638,1.0657.048,2.3166.1327,3.379.2819.8271.1162,1.6683.0163,2.4561-.2614l.043-.0152c.8804-.3103,1.8337.2625,1.9306,1.1835.1366,1.2982.6328,2.5938,1.1383,3.8151.2843.6869-.0048,1.4701-.6559,1.8288-2.1275,1.1723-3.3371,2.3017-4.0527,4.0364-.1604.3892-.2959,1.0226-.4112,1.7291-.2876,1.7615-1.0399,3.0134.397,4.0723l.8801.4484c.372.2741,1.4684.436,1.9074.292.9599-.315,2.4133-1.1994,1.822-3.6287-.1222-.502.0196-1.0361.3893-1.3971l1.1039-1.0779c.734-.7167,1.5769-1.3111,2.4969-1.7648,1.0385-.5121,2.1523-1.0409,2.6894-1.2945.2167-.1023.4509-.1475.6902-.1355l13.5132.6778c.398.02.7705.2023,1.0304.5045l1.8851,2.1916c.2853.3317.4062.7741.3293,1.2048l-.8669,4.8546c-.1704.9541.6219,1.805,1.5857,1.703h0c.4017-.0425.7676-.25,1.0103-.5729l4.2126-5.6053c.1895-.2521.2919-.5589.2919-.8743v-2.4575c0-.3496.1246-.6849.3527-.9497,1.1492-1.3342,4.7636-5.6731,5.6683-8.4829l.0119.0164s5.806-3.004,8.03-7.525c3.597-5.054-.6774-9.975,4.438-8.312,1.289.4189,2.883-2.184,1.32-3.809-.2826-.3119-.1871-.2065-.2826-.3119l.0059.0013Z"/>
+      </G>
+      <G id="line">
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m12.46,35.74c-2.333,1-4.917.8333-4.917.8333-1.677.1458-3.115-4.01-2.485-4.733l3.318-5.1-1.75-3.417s5.008-1.415,7.883,2.09c.3444.42.7943.7429,1.279.9871.0298.015.0602.0302.0912.0456,2.593,1.289,5.546,1.571,8.385.9981,7.222-1.458,14.07-1.37,21.7,2.212,7.625,3.583,14.53-2.25,13.64-7.5-.793-4.647,3.562-7.583,6.75-5"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m16.05,48.82c.6006-2.206,8.491-3.648,8.491-3.648,0,0,3.228-1.201,1.426-4.504"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18.3,33.24c-1.543,1.834-3.893,4.803-.44,9.158,0,0-6.756,2.853-6.006,8.033,0,0,.3624,2.476,2.402,2.402"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m23.5,50.03c-1.156,7.254,2.386,6.055,3.017,5.661,1.148-.7173,1.848-9.854,3.952-11.31,1.592-1.104,8.167-.3021,8.167-.3021"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m38.44,41.33c.0911,1.742.7529,3.402,1.734,4.845.6616.9727,1.803,2.32,1.453,2.985-4.479,8.5.6224,7.022,1.083,6.167,3.188-5.917,6.125-4.104,4.647-10.52,0,0,5.27-1.81,5.52-7.977"/>
+        <Path fill="none" stroke="#000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m48.15,45.59s2.367,3.204,7.758,2.693c0,0-3.326,6.762,0,7.62,1.917.4941,4.722-11.16,4.722-11.16,0,0-1.839-.7937-3.951-4.182"/>
+      </G>
     </Svg>
   );
 }

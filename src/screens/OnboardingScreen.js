@@ -6,6 +6,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import GlassView from "../components/GlassView";
+import { DogIllustration, CatIllustration } from "../components/PetIllustration";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
@@ -158,9 +159,9 @@ function PremiumPetCard({ petKey, label, selected, onPress }) {
           transform: [{ scale: glowScale }],
         }]} />
 
-        {/* Icon — large, floating */}
+        {/* Illustration — floating */}
         <Animated.View style={{ transform: [{ translateY: floatY }, { scale: iconScale }], alignItems: "center" }}>
-          <MaterialCommunityIcons name={ICON_NAME} size={90} color="#fff" />
+          {isdog ? <DogIllustration size={118} /> : <CatIllustration size={118} />}
         </Animated.View>
 
         {/* Shine streak — top-left corner light */}
