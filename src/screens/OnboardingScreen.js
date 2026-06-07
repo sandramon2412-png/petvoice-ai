@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
+import GlassView from "../components/GlassView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
@@ -258,7 +258,7 @@ export default function OnboardingScreen({ navigation }) {
 
           {/* Step card — BlurView glass */}
           <Animated.View style={[s.cardOuter, { opacity: cardOpacity, transform: [{ translateX: slideAnim }] }]}>
-          <BlurView intensity={22} tint="dark" style={s.card}>
+          <GlassView intensity={22} tint="dark" style={s.card}>
 
             {/* PASO 1 — Especie */}
             {step === 0 && (
@@ -402,7 +402,7 @@ export default function OnboardingScreen({ navigation }) {
               </View>
             )}
 
-          </BlurView>
+          </GlassView>
           </Animated.View>
 
           {/* Nav row (bottom) */}

@@ -5,7 +5,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
+import GlassView from "../components/GlassView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useApp } from "../context/AppContext";
@@ -120,17 +120,17 @@ export default function ResultScreen({ navigation }) {
           {/* Top bar */}
           <View style={styles.topBar}>
             <TouchableOpacity onPress={() => navigation.navigate("Home")} activeOpacity={0.8}>
-              <BlurView intensity={20} tint="dark" style={styles.backBtn}>
+              <GlassView intensity={20} tint="dark" style={styles.backBtn}>
                 <MaterialCommunityIcons name="arrow-left" size={18} color="#fff" />
-              </BlurView>
+              </GlassView>
             </TouchableOpacity>
             <Text style={styles.topBarTitle}>Resultado</Text>
             {/* Pet avatar */}
             {pet?.photo
               ? <Image source={{ uri: pet.photo }} style={styles.petAvatar} />
-              : <BlurView intensity={20} tint="dark" style={styles.petAvatarBlur}>
+              : <GlassView intensity={20} tint="dark" style={styles.petAvatarBlur}>
                   <Text style={styles.petAvatarLetter}>{petName[0]?.toUpperCase()}</Text>
-                </BlurView>
+                </GlassView>
             }
           </View>
 
@@ -153,18 +153,18 @@ export default function ResultScreen({ navigation }) {
             <View style={[styles.emotionLine, { backgroundColor: emo.wave }]} />
 
             {/* Translation — real BlurView glass */}
-            <BlurView intensity={28} tint="light" style={styles.translationCard}>
+            <GlassView intensity={28} tint="light" style={styles.translationCard}>
               <Text style={styles.translationText}>
                 "{result.traduccion_humana}"
               </Text>
-            </BlurView>
+            </GlassView>
           </Animated.View>
 
           {/* ── Data cards ── */}
           <Animated.View style={{ opacity: cardO, transform: [{ translateY: cardY }] }}>
 
             {/* Confidence + advice row */}
-            <BlurView intensity={22} tint="dark" style={styles.dataCard}>
+            <GlassView intensity={22} tint="dark" style={styles.dataCard}>
               <View style={styles.dataRow}>
                 {/* Confidence */}
                 <View style={styles.confCol}>
@@ -180,14 +180,14 @@ export default function ResultScreen({ navigation }) {
                   <Text style={styles.adviceText}>{result.consejo_propietario}</Text>
                 </View>
               </View>
-            </BlurView>
+            </GlassView>
 
             {/* CTA */}
             <PressableScale onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{}); navigation.navigate("Home"); }} style={{ marginHorizontal: 20, marginBottom: 32 }}>
-              <BlurView intensity={30} tint="light" style={styles.ctaBtn}>
+              <GlassView intensity={30} tint="light" style={styles.ctaBtn}>
                 <MaterialCommunityIcons name="microphone" size={17} color={emo.bg[0]} style={{ marginRight: 8 }} />
                 <Text style={[styles.ctaBtnText, { color: emo.bg[0] }]}>Analizar otro sonido</Text>
-              </BlurView>
+              </GlassView>
             </PressableScale>
 
           </Animated.View>

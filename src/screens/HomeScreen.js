@@ -7,7 +7,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useFocusEffect } from "@react-navigation/native";
 import { LinearGradient } from "expo-linear-gradient";
-import { BlurView } from "expo-blur";
+import GlassView from "../components/GlassView";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { Audio } from "expo-av";
@@ -296,16 +296,16 @@ export default function HomeScreen({ navigation }) {
                     <Text style={s.petAvatarLetter}>{petInitial}</Text>
                   </LinearGradient>}
               <PressableScale onPress={() => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(()=>{})} activeScale={0.94}>
-                <BlurView intensity={20} tint="dark" style={s.upgradeBtn}>
+                <GlassView intensity={20} tint="dark" style={s.upgradeBtn}>
                   <MaterialCommunityIcons name="crown-outline" size={12} color="#A78BFA" />
                   <Text style={s.upgradeBtnText}>Pro</Text>
-                </BlurView>
+                </GlassView>
               </PressableScale>
             </View>
           </View>
 
           {/* ── Pet + quota ── */}
-          <BlurView intensity={18} tint="dark" style={s.statusCard}>
+          <GlassView intensity={18} tint="dark" style={s.statusCard}>
             <View style={{ flex: 1 }}>
               <Text style={s.petName}>{pet?.name || "Tu Mascota"}</Text>
               <Text style={s.petBreed}>
@@ -319,7 +319,7 @@ export default function HomeScreen({ navigation }) {
                 {canRecord ? `${remaining} restantes` : "Límite alcanzado"}
               </Text>
             </View>
-          </BlurView>
+          </GlassView>
 
           {/* ── Posture chips ── */}
           <View style={s.section}>
@@ -329,9 +329,9 @@ export default function HomeScreen({ navigation }) {
                 const active = posture === p.key;
                 return (
                   <PressableScale key={p.key} onPress={() => { setPosture(p.key); Haptics.selectionAsync().catch(()=>{}); }} activeScale={0.95}>
-                    <BlurView intensity={active ? 0 : 16} tint="dark" style={[s.chip, active && s.chipActive]}>
+                    <GlassView intensity={active ? 0 : 16} tint="dark" style={[s.chip, active && s.chipActive]}>
                       <Text style={[s.chipText, active && s.chipTextActive]}>{p.label}</Text>
-                    </BlurView>
+                    </GlassView>
                   </PressableScale>
                 );
               })}
@@ -342,7 +342,7 @@ export default function HomeScreen({ navigation }) {
           <View style={s.section}>
             <Text style={s.sectionLabel}>Contexto</Text>
             <PressableScale onPress={() => setEnvDropOpen(true)} activeScale={0.98}>
-              <BlurView intensity={18} tint="dark" style={s.envSelector}>
+              <GlassView intensity={18} tint="dark" style={s.envSelector}>
                 <View style={s.envSelectorLeft}>
                   <View style={s.envIconBox}>
                     <MaterialCommunityIcons name={selectedEnv.icon} size={16} color="#818CF8" />
@@ -350,7 +350,7 @@ export default function HomeScreen({ navigation }) {
                   <Text style={s.envText}>{selectedEnv.label}</Text>
                 </View>
                 <MaterialCommunityIcons name="chevron-down" size={18} color="rgba(255,255,255,0.3)" />
-              </BlurView>
+              </GlassView>
             </PressableScale>
           </View>
 
