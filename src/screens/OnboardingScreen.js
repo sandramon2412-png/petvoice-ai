@@ -238,6 +238,15 @@ export default function OnboardingScreen({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       <LinearGradient colors={["#06070F", "#0B0C1F", "#0F1030"]} style={StyleSheet.absoluteFill} />
+      <LinearGradient
+        colors={["#6366F130", "transparent", "#7C3AED18"]}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
+      />
+      <View style={{ position:"absolute", width:260, height:260, borderRadius:130,
+        backgroundColor:"#6366F1", opacity:0.20, top:-80, right:-80 }} />
+      <View style={{ position:"absolute", width:200, height:200, borderRadius:100,
+        backgroundColor:"#8B5CF6", opacity:0.16, bottom:80, left:-60 }} />
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
         <StatusBar barStyle="light-content" />
         <ScrollView

@@ -113,10 +113,12 @@ export default function LoadingScreen({ navigation }) {
         start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }}
       />
       {/* Depth blobs */}
-      <View style={{ position:"absolute", width:250, height:250, borderRadius:125,
-        backgroundColor:"#6366F1", opacity:0.09, top:-80, right:-60 }} />
-      <View style={{ position:"absolute", width:180, height:180, borderRadius:90,
-        backgroundColor:"#8B5CF6", opacity:0.08, bottom:60, left:-50 }} />
+      <View style={{ position:"absolute", width:280, height:280, borderRadius:140,
+        backgroundColor:"#6366F1", opacity:0.22, top:-100, right:-80 }} />
+      <View style={{ position:"absolute", width:220, height:220, borderRadius:110,
+        backgroundColor:"#8B5CF6", opacity:0.18, bottom:40, left:-70 }} />
+      <View style={{ position:"absolute", width:160, height:160, borderRadius:80,
+        backgroundColor:"#4F46E5", opacity:0.14, top:"40%", left:-40 }} />
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
         <StatusBar barStyle="light-content" backgroundColor="#06071A" />
 

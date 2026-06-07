@@ -277,12 +277,12 @@ export default function HomeScreen({ navigation }) {
         start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }}
       />
       {/* Light blobs for depth */}
-      <View style={{ position:"absolute", width:220, height:220, borderRadius:110,
-        backgroundColor:"#6366F1", opacity:0.10, top:-60, left:-60 }} />
-      <View style={{ position:"absolute", width:160, height:160, borderRadius:80,
-        backgroundColor:"#8B5CF6", opacity:0.08, top:"40%", right:-60 }} />
-      <View style={{ position:"absolute", width:130, height:130, borderRadius:65,
-        backgroundColor:"#4F46E5", opacity:0.07, bottom:80, left:-30 }} />
+      <View style={{ position:"absolute", width:280, height:280, borderRadius:140,
+        backgroundColor:"#6366F1", opacity:0.22, top:-100, left:-80 }} />
+      <View style={{ position:"absolute", width:200, height:200, borderRadius:100,
+        backgroundColor:"#8B5CF6", opacity:0.18, top:"35%", right:-80 }} />
+      <View style={{ position:"absolute", width:180, height:180, borderRadius:90,
+        backgroundColor:"#4F46E5", opacity:0.15, bottom:60, left:-50 }} />
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000", opacity: dimAnim }]} />
 
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
