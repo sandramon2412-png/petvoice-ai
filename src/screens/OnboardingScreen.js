@@ -511,7 +511,7 @@ const s = StyleSheet.create({
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "flex-start",
-    paddingTop: 30,
+    paddingTop: 20,
   },
   petCardBorder: {
     borderRadius: 28,
@@ -519,9 +519,9 @@ const s = StyleSheet.create({
   },
   petIconGlow: {
     position: "absolute",
-    width: 150, height: 150,
-    borderRadius: 75,
-    top: 6,
+    width: 140, height: 140,
+    borderRadius: 70,
+    top: 10,
   },
   petCardShine: {
     position: "absolute",
