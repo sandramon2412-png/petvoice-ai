@@ -6,7 +6,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import GlassView from "../components/GlassView";
-import { DogIllustration, CatIllustration } from "../components/PetIllustration";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
@@ -80,81 +79,104 @@ function ProgressBar({ step, total }) {
   );
 }
 
-// ─── ClayPetCard ──────────────────────────────────────────────────────────────
-function ClayPetCard({ petKey, label, selected, onPress }) {
+// ─── PremiumPetCard ───────────────────────────────────────────────────────────
+// Premium icon-based card — large icon + radial glow + gradient bg
+function PremiumPetCard({ petKey, label, selected, onPress }) {
   const isdog = petKey === "dog";
 
-  const IDLE_COLORS  = isdog ? ["#1A0A00","#3D1500","#7C2D12"] : ["#0D0A1F","#1E1040","#3730A3"];
-  const ACTV_COLORS  = isdog ? ["#7C2D12","#C2410C","#F97316"] : ["#3730A3","#7C3AED","#A855F7"];
-  const SHADOW_ACTV  = isdog ? "#F97316" : "#A855F7";
+  const ACCENT    = isdog ? "#F97316" : "#A855F7";
+  const ACCENT2   = isdog ? "#FBBF24" : "#C084FC";
+  const IDLE_BG   = isdog ? ["#1C0D00","#3B1500","#5C2000"] : ["#0E0B20","#1A1545","#2D2080"];
+  const ACTV_BG   = isdog ? ["#7C2D12","#C2410C","#EA580C"] : ["#3730A3","#6D28D9","#9333EA"];
+  const ICON_NAME = isdog ? "dog" : "cat";
 
-  const breathScale  = useRef(new Animated.Value(1)).current;
-  const floatY       = useRef(new Animated.Value(0)).current;
-  const charScale    = useRef(new Animated.Value(1)).current;
-  const gradFade     = useRef(new Animated.Value(selected ? 1 : 0)).current;
+  const cardScale  = useRef(new Animated.Value(1)).current;
+  const gradFade   = useRef(new Animated.Value(selected ? 1 : 0)).current;
+  const glowScale  = useRef(new Animated.Value(selected ? 1.15 : 0.8)).current;
+  const glowOpacity= useRef(new Animated.Value(selected ? 0.55 : 0.2)).current;
+  const iconScale  = useRef(new Animated.Value(1)).current;
+  const floatY     = useRef(new Animated.Value(0)).current;
+  const borderOpacity = useRef(new Animated.Value(selected ? 1 : 0)).current;
 
   useEffect(() => {
-    const loop = Animated.parallel([
-      Animated.loop(Animated.sequence([
-        Animated.timing(breathScale, { toValue: 0.98, duration: 2100, useNativeDriver: true }),
-        Animated.timing(breathScale, { toValue: 1.0,  duration: 2100, useNativeDriver: true }),
-      ])),
-      Animated.loop(Animated.sequence([
-        Animated.timing(floatY, { toValue: -7, duration: 2500, useNativeDriver: true }),
-        Animated.timing(floatY, { toValue: 7,  duration: 2500, useNativeDriver: true }),
-      ])),
-    ]);
-    loop.start();
-    return () => loop.stop();
+    Animated.loop(Animated.sequence([
+      Animated.timing(floatY, { toValue: -6, duration: 2200, useNativeDriver: true }),
+      Animated.timing(floatY, { toValue:  6, duration: 2200, useNativeDriver: true }),
+    ])).start();
   }, []);
 
   const prevSel = useRef(selected);
   useEffect(() => {
-    Animated.timing(gradFade, { toValue: selected ? 1 : 0, duration: 380, useNativeDriver: true }).start();
+    const cfg = { useNativeDriver: true };
+    const cfgLayout = { useNativeDriver: false };
+    Animated.timing(gradFade,      { toValue: selected ? 1 : 0, duration: 350, ...cfg }).start();
+    Animated.spring(glowScale,     { toValue: selected ? 1.3 : 0.8, tension: 60, friction: 8, ...cfg }).start();
+    Animated.timing(glowOpacity,   { toValue: selected ? 0.65 : 0.18, duration: 350, ...cfg }).start();
+    Animated.timing(borderOpacity, { toValue: selected ? 1 : 0, duration: 350, ...cfgLayout }).start();
+
     if (selected && !prevSel.current) {
       Animated.sequence([
-        Animated.spring(charScale, { toValue: 1.22, tension: 350, friction: 5, useNativeDriver: true }),
-        Animated.spring(charScale, { toValue: 1.0,  tension: 220, friction: 9, useNativeDriver: true }),
+        Animated.spring(iconScale, { toValue: 1.3, tension: 400, friction: 5, ...cfg }),
+        Animated.spring(iconScale, { toValue: 1.0, tension: 220, friction: 9, ...cfg }),
+      ]).start();
+      Animated.sequence([
+        Animated.spring(cardScale, { toValue: 0.96, tension: 400, friction: 8, ...cfg }),
+        Animated.spring(cardScale, { toValue: 1.0,  tension: 200, friction: 9, ...cfg }),
       ]).start();
     }
     prevSel.current = selected;
   }, [selected]);
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.92}>
-      <Animated.View style={{ transform: [{ scale: breathScale }] }}>
-        {/* Shadow wrapper */}
-        <View style={[s.clayShadow, {
-          shadowColor: selected ? SHADOW_ACTV : "#000",
-          shadowOpacity: selected ? 0.7 : 0.22,
-          shadowRadius: selected ? 28 : 14,
-        }]}>
-          {/* Gradient clipping container */}
-          <View style={s.clayCard}>
-            {/* Idle gradient */}
-            <LinearGradient colors={IDLE_COLORS} style={StyleSheet.absoluteFill} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
-            {/* Active gradient crossfade */}
-            <Animated.View style={[StyleSheet.absoluteFill, { opacity: gradFade }]}>
-              <LinearGradient colors={ACTV_COLORS} style={StyleSheet.absoluteFill} start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
-            </Animated.View>
-            {/* SVG Illustration */}
-            <Animated.View style={{ transform: [{ translateY: floatY }, { scale: charScale }] }}>
-              {petKey === "dog"
-                ? <DogIllustration size={130} selected={selected} />
-                : <CatIllustration size={130} selected={selected} />
-              }
-            </Animated.View>
-            {/* Label inside card */}
-            <Text style={[s.clayLabel, { fontFamily: selected ? "Inter_700Bold" : "Inter_600SemiBold" }]}>
-              {label}
-            </Text>
-            {/* Selected checkmark badge */}
-            {selected && (
-              <View style={s.checkBadge}>
-                <Text style={s.checkBadgeText}>✓</Text>
-              </View>
-            )}
-          </View>
+    <TouchableOpacity onPress={onPress} activeOpacity={1}>
+      <Animated.View style={[s.petCard, {
+        transform: [{ scale: cardScale }],
+        shadowColor: ACCENT,
+        shadowOpacity: selected ? 0.75 : 0.15,
+        shadowRadius: selected ? 28 : 10,
+        shadowOffset: { width: 0, height: selected ? 8 : 4 },
+        elevation: selected ? 18 : 6,
+      }]}>
+        {/* Base gradient */}
+        <LinearGradient colors={IDLE_BG} style={StyleSheet.absoluteFill}
+          start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
+        {/* Active gradient crossfade */}
+        <Animated.View style={[StyleSheet.absoluteFill, { opacity: gradFade }]}>
+          <LinearGradient colors={ACTV_BG} style={StyleSheet.absoluteFill}
+            start={{ x: 0.1, y: 0 }} end={{ x: 0.9, y: 1 }} />
+        </Animated.View>
+
+        {/* Selected border glow */}
+        <Animated.View style={[StyleSheet.absoluteFill, s.petCardBorder, {
+          borderColor: ACCENT2, opacity: borderOpacity,
+        }]} />
+
+        {/* Big radial glow orb behind icon */}
+        <Animated.View style={[s.petIconGlow, {
+          backgroundColor: ACCENT,
+          opacity: glowOpacity,
+          transform: [{ scale: glowScale }],
+        }]} />
+
+        {/* Icon — large, floating */}
+        <Animated.View style={{ transform: [{ translateY: floatY }, { scale: iconScale }], alignItems: "center" }}>
+          <MaterialCommunityIcons name={ICON_NAME} size={90} color="#fff" />
+        </Animated.View>
+
+        {/* Shine streak — top-left corner light */}
+        <View style={s.petCardShine} />
+
+        {/* Label row */}
+        <View style={s.petLabelRow}>
+          <Text style={[s.petCardLabel, {
+            fontFamily: selected ? "Inter_700Bold" : "Inter_500Medium",
+            color: selected ? "#fff" : "rgba(255,255,255,0.75)",
+          }]}>{label}</Text>
+          {selected && (
+            <View style={[s.petCheckDot, { backgroundColor: ACCENT2 }]}>
+              <MaterialCommunityIcons name="check" size={11} color="#fff" />
+            </View>
+          )}
         </View>
       </Animated.View>
     </TouchableOpacity>
@@ -263,8 +285,8 @@ export default function OnboardingScreen({ navigation }) {
                 <Text style={s.title}>¿Qué tipo de mascota tienes?</Text>
                 <Text style={s.subtitle}>El modelo de análisis se adapta por especie</Text>
                 <View style={s.speciesRow}>
-                  <ClayPetCard petKey="dog" label="Perro" selected={species === "dog"} onPress={() => { setSpecies("dog"); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(()=>{}); }} />
-                  <ClayPetCard petKey="cat" label="Gato"  selected={species === "cat"} onPress={() => { setSpecies("cat"); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(()=>{}); }} />
+                  <PremiumPetCard petKey="dog" label="Perro" selected={species === "dog"} onPress={() => { setSpecies("dog"); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(()=>{}); }} />
+                  <PremiumPetCard petKey="cat" label="Gato"  selected={species === "cat"} onPress={() => { setSpecies("cat"); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(()=>{}); }} />
                 </View>
               </View>
             )}
@@ -470,39 +492,53 @@ const s = StyleSheet.create({
   title: { fontFamily: "Inter_700Bold", fontSize: 20, color: "#fff", marginBottom: 7, letterSpacing: -0.3 },
   subtitle: { fontFamily: "Inter_400Regular", fontSize: 14, color: "rgba(255,255,255,0.45)", marginBottom: 24, lineHeight: 21 },
 
-  speciesRow: { flexDirection: "row", justifyContent: "center", gap: 22, marginTop: 4 },
+  speciesRow: { flexDirection: "row", justifyContent: "center", gap: 16, marginTop: 8 },
 
-  clayShadow: {
-    borderRadius: 32,
-    shadowOffset: { width: 0, height: 14 },
-    elevation: 16,
-  },
-  clayCard: {
-    width: 155, height: 200,
-    borderRadius: 32,
+  // Premium pet card
+  petCard: {
+    width: 148, height: 195,
+    borderRadius: 28,
     overflow: "hidden",
-    alignItems: "center", justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingBottom: 16,
   },
-  petImg: { width: 130, height: 130 },
-
-  clayLabel: {
+  petCardBorder: {
+    borderRadius: 28,
+    borderWidth: 1.5,
+  },
+  petIconGlow: {
+    position: "absolute",
+    width: 130, height: 130,
+    borderRadius: 65,
+  },
+  petCardShine: {
+    position: "absolute",
+    top: 0, left: 0,
+    width: 80, height: 60,
+    borderRadius: 40,
+    backgroundColor: "rgba(255,255,255,0.07)",
+    transform: [{ rotate: "-30deg" }, { translateX: -20 }, { translateY: -20 }],
+  },
+  petLabelRow: {
     position: "absolute",
     bottom: 14,
     left: 0, right: 0,
-    fontSize: 16,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+  },
+  petCardLabel: {
+    fontSize: 17,
     color: "#fff",
     textAlign: "center",
+    letterSpacing: 0.2,
   },
-  checkBadge: {
-    position: "absolute",
-    top: 10, right: 10,
-    width: 22, height: 22, borderRadius: 11,
-    backgroundColor: "rgba(255,255,255,0.9)",
+  petCheckDot: {
+    width: 20, height: 20, borderRadius: 10,
     alignItems: "center", justifyContent: "center",
   },
-  checkBadgeText: { fontSize: 13, color: "#1E293B", fontWeight: "700" },
 
   // Step icon badge (steps 2-4)
   stepIconWrap: { alignItems: "center", marginBottom: 18 },
