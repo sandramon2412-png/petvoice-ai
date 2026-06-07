@@ -45,8 +45,8 @@ export function DogIllustration({ size = 140, selected = false }) {
         </G>
         {selected && (
           <G id="blush">
-            <Circle cx="24" cy="34" r="3.5" fill="#FF9BB0" opacity="0.72"/>
-            <Circle cx="48" cy="34" r="3.5" fill="#FF9BB0" opacity="0.72"/>
+            <Circle cx="24" cy="36" r="3.5" fill="#FF9BB0" opacity="0.72"/>
+            <Circle cx="48" cy="36" r="3.5" fill="#FF9BB0" opacity="0.72"/>
           </G>
         )}
       </Svg>
@@ -139,6 +139,14 @@ export function CatIllustration({ size = 140, selected = false }) {
         {/* Muzzle outline */}
         <Ellipse cx="36" cy="50" rx="12" ry="9" fill="none" stroke="#000" strokeWidth="1.4"/>
 
+        {/* Blush — rendered BEFORE whiskers so whiskers draw on top */}
+        {selected && (
+          <G id="blush">
+            <Circle cx="17" cy="44" r="4" fill="#FF9BB0" opacity="0.72"/>
+            <Circle cx="55" cy="44" r="4" fill="#FF9BB0" opacity="0.72"/>
+          </G>
+        )}
+
         {/* Whiskers — left */}
         <Line x1="8"  y1="46" x2="25" y2="48" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
         <Line x1="8"  y1="51" x2="25" y2="51" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
@@ -146,13 +154,6 @@ export function CatIllustration({ size = 140, selected = false }) {
         <Line x1="64" y1="46" x2="47" y2="48" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
         <Line x1="64" y1="51" x2="47" y2="51" stroke="#000" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
       </G>
-
-      {selected && (
-        <G id="blush">
-          <Circle cx="17" cy="44" r="4" fill="#FF9BB0" opacity="0.72"/>
-          <Circle cx="55" cy="44" r="4" fill="#FF9BB0" opacity="0.72"/>
-        </G>
-      )}
     </Svg>
   );
 }
