@@ -268,8 +268,21 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={{ flex: 1 }}>
-      {/* Deep dark premium background */}
+      {/* Deep dark premium background — multi-layer like ResultScreen */}
       <LinearGradient colors={["#04050F", "#080C22", "#0A0E28"]} style={StyleSheet.absoluteFill} />
+      {/* Diagonal colour accent layer */}
+      <LinearGradient
+        colors={["#4F46E520", "transparent", "#7C3AED14"]}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }}
+      />
+      {/* Light blobs for depth */}
+      <View style={{ position:"absolute", width:220, height:220, borderRadius:110,
+        backgroundColor:"#6366F1", opacity:0.10, top:-60, left:-60 }} />
+      <View style={{ position:"absolute", width:160, height:160, borderRadius:80,
+        backgroundColor:"#8B5CF6", opacity:0.08, top:"40%", right:-60 }} />
+      <View style={{ position:"absolute", width:130, height:130, borderRadius:65,
+        backgroundColor:"#4F46E5", opacity:0.07, bottom:80, left:-30 }} />
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000", opacity: dimAnim }]} />
 
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>

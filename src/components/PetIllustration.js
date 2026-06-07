@@ -2,212 +2,224 @@ import React from "react";
 import Svg, {
   Circle, Ellipse, Path, G, Defs,
   RadialGradient, LinearGradient as SvgLinear,
-  Stop, ClipPath, Rect,
+  Stop,
 } from "react-native-svg";
 
-// ── Premium clay-style dog illustration ──────────────────────────────────────
+// ── Friendly clay dog ─────────────────────────────────────────────────────────
+// Big head, long snout, floppy hanging ears, round happy eyes
 export function DogIllustration({ size = 160, selected = false }) {
-  const s = size / 160;
-  const bodyColor   = selected ? "#F97316" : "#FB923C";
-  const bodyDark    = selected ? "#C2410C" : "#EA580C";
-  const bodyLight   = selected ? "#FED7AA" : "#FFEDD5";
-  const earColor    = selected ? "#C2410C" : "#EA580C";
-  const noseColor   = "#1C0A00";
-  const eyeColor    = "#1C0A00";
+  const fur     = selected ? "#F97316" : "#FB923C";
+  const furDark = selected ? "#C2410C" : "#EA580C";
+  const furLite = selected ? "#FED7AA" : "#FFEDD5";
+  const muzzle  = "#FEF3C7";
+  const nose    = "#1C1917";
+  const eye     = "#1C1917";
 
   return (
-    <Svg width={size} height={size} viewBox="0 0 160 160">
+    <Svg width={size} height={size} viewBox="0 0 180 180">
       <Defs>
-        {/* Body radial gradient — gives clay sphere feel */}
-        <RadialGradient id="bodyGrad" cx="42%" cy="32%" r="58%">
-          <Stop offset="0%" stopColor={bodyLight} stopOpacity="1" />
-          <Stop offset="55%" stopColor={bodyColor} stopOpacity="1" />
-          <Stop offset="100%" stopColor={bodyDark} stopOpacity="1" />
+        <RadialGradient id="dHead" cx="38%" cy="30%" r="65%">
+          <Stop offset="0%" stopColor={furLite} />
+          <Stop offset="45%" stopColor={fur} />
+          <Stop offset="100%" stopColor={furDark} />
         </RadialGradient>
-        <RadialGradient id="headGrad" cx="40%" cy="30%" r="60%">
-          <Stop offset="0%" stopColor={bodyLight} stopOpacity="1" />
-          <Stop offset="50%" stopColor={bodyColor} stopOpacity="1" />
-          <Stop offset="100%" stopColor={bodyDark} stopOpacity="1" />
+        <RadialGradient id="dBody" cx="40%" cy="25%" r="65%">
+          <Stop offset="0%" stopColor={furLite} />
+          <Stop offset="50%" stopColor={fur} />
+          <Stop offset="100%" stopColor={furDark} />
         </RadialGradient>
-        <RadialGradient id="earGrad" cx="35%" cy="25%" r="65%">
-          <Stop offset="0%" stopColor={bodyColor} stopOpacity="1" />
-          <Stop offset="100%" stopColor={earColor} stopOpacity="1" />
+        <RadialGradient id="dMuzzle" cx="35%" cy="30%" r="65%">
+          <Stop offset="0%" stopColor="#FFFBEB" />
+          <Stop offset="100%" stopColor="#FDE68A" />
         </RadialGradient>
       </Defs>
 
-      {/* Drop shadow under body */}
-      <Ellipse cx="80" cy="148" rx="38" ry="7" fill={bodyDark} opacity="0.25" />
+      {/* Ground shadow */}
+      <Ellipse cx="90" cy="168" rx="42" ry="7" fill={furDark} opacity="0.2" />
 
       {/* Body */}
-      <Ellipse cx="80" cy="112" rx="38" ry="32" fill="url(#bodyGrad)" />
+      <Ellipse cx="90" cy="130" rx="38" ry="30" fill="url(#dBody)" />
 
-      {/* Front legs */}
-      <Ellipse cx="58" cy="138" rx="12" ry="8" fill={bodyColor} />
-      <Ellipse cx="102" cy="138" rx="12" ry="8" fill={bodyColor} />
-      {/* Paw highlight */}
-      <Ellipse cx="58" cy="141" rx="7" ry="4" fill={bodyLight} opacity="0.4" />
-      <Ellipse cx="102" cy="141" rx="7" ry="4" fill={bodyLight} opacity="0.4" />
+      {/* Legs */}
+      <Ellipse cx="68" cy="152" rx="13" ry="9" fill={fur} />
+      <Ellipse cx="112" cy="152" rx="13" ry="9" fill={fur} />
+      <Ellipse cx="68"  cy="156" rx="8"  ry="4" fill={furLite} opacity="0.45" />
+      <Ellipse cx="112" cy="156" rx="8"  ry="4" fill={furLite} opacity="0.45" />
 
-      {/* Tail — curved path */}
-      <Path
-        d="M 116 118 Q 145 105 138 88 Q 132 74 120 80"
-        stroke={bodyColor} strokeWidth="11" strokeLinecap="round" fill="none"
-      />
-      <Path
-        d="M 116 118 Q 145 105 138 88 Q 132 74 120 80"
-        stroke={bodyLight} strokeWidth="4" strokeLinecap="round" fill="none" opacity="0.35"
-      />
+      {/* Tail */}
+      <Path d="M 125 120 Q 155 108 148 88 Q 142 72 128 78"
+        stroke={fur} strokeWidth="13" strokeLinecap="round" fill="none" />
+      <Path d="M 125 120 Q 155 108 148 88 Q 142 72 128 78"
+        stroke={furLite} strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.4" />
 
-      {/* Floppy ears — behind head */}
-      <Path
-        d="M 50 72 Q 34 60 36 82 Q 38 96 54 92"
-        fill="url(#earGrad)" />
-      <Path
-        d="M 110 72 Q 126 60 124 82 Q 122 96 106 92"
-        fill="url(#earGrad)" />
+      {/* Floppy ears — hang DOWN beside head */}
+      <Path d="M 52 68 Q 30 72 28 92 Q 27 110 46 112 Q 55 113 58 100 Q 60 88 56 78 Z"
+        fill={furDark} />
+      <Path d="M 52 68 Q 34 72 33 90 Q 32 106 48 108 Q 54 109 55 96 Q 57 84 54 76 Z"
+        fill={fur} />
+      <Path d="M 128 68 Q 150 72 152 92 Q 153 110 134 112 Q 125 113 122 100 Q 120 88 124 78 Z"
+        fill={furDark} />
+      <Path d="M 128 68 Q 146 72 147 90 Q 148 106 132 108 Q 126 109 125 96 Q 123 84 126 76 Z"
+        fill={fur} />
 
-      {/* Head */}
-      <Circle cx="80" cy="76" r="36" fill="url(#headGrad)" />
+      {/* Head — large and round */}
+      <Circle cx="90" cy="80" r="44" fill="url(#dHead)" />
 
-      {/* Forehead shine — clay highlight */}
-      <Ellipse cx="68" cy="60" rx="12" ry="8" fill={bodyLight} opacity="0.38" transform="rotate(-20 68 60)" />
+      {/* Head shine */}
+      <Ellipse cx="74" cy="58" rx="14" ry="9"
+        fill={furLite} opacity="0.4" transform="rotate(-25 74 58)" />
 
-      {/* Snout */}
-      <Ellipse cx="80" cy="88" rx="18" ry="13" fill={bodyLight} opacity="0.7" />
-      <Ellipse cx="80" cy="88" rx="15" ry="10" fill={bodyColor} opacity="0.2" />
+      {/* Muzzle — distinct snout, not monkey-flat */}
+      <Ellipse cx="90" cy="96" rx="26" ry="19" fill="url(#dMuzzle)" />
+      {/* Muzzle shade for depth */}
+      <Ellipse cx="90" cy="100" rx="22" ry="12" fill={fur} opacity="0.12" />
 
-      {/* Nose */}
-      <Path d="M 74 84 Q 80 80 86 84 Q 83 90 80 90 Q 77 90 74 84 Z" fill={noseColor} />
-      {/* Nose shine */}
-      <Ellipse cx="76" cy="83" rx="3" ry="2" fill="white" opacity="0.5" />
+      {/* Nose — wide friendly */}
+      <Ellipse cx="90" cy="88" rx="10" ry="7" fill={nose} />
+      {/* Nose highlight */}
+      <Ellipse cx="86" cy="85" rx="4" ry="2.5" fill="white" opacity="0.55" />
 
-      {/* Mouth */}
-      <Path d="M 75 91 Q 80 97 85 91" stroke={bodyDark} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      {/* Mouth — happy open smile */}
+      <Path d="M 78 100 Q 90 112 102 100"
+        stroke={furDark} strokeWidth="2.2" strokeLinecap="round" fill="none" />
 
-      {/* Eyes */}
-      <Circle cx="65" cy="74" r="7" fill={eyeColor} />
-      <Circle cx="95" cy="74" r="7" fill={eyeColor} />
-      {/* Eye shine */}
-      <Circle cx="67" cy="72" r="2.5" fill="white" />
-      <Circle cx="97" cy="72" r="2.5" fill="white" />
-      <Circle cx="68.5" cy="73.5" r="1" fill="white" opacity="0.6" />
-      <Circle cx="98.5" cy="73.5" r="1" fill="white" opacity="0.6" />
+      {/* Eyes — big and round, friendly */}
+      <Circle cx="70"  cy="72" r="10" fill={eye} />
+      <Circle cx="110" cy="72" r="10" fill={eye} />
+      {/* Iris colour */}
+      <Circle cx="70"  cy="72" r="6" fill="#78350F" />
+      <Circle cx="110" cy="72" r="6" fill="#78350F" />
+      {/* Pupil */}
+      <Circle cx="70"  cy="72" r="4" fill={eye} />
+      <Circle cx="110" cy="72" r="4" fill={eye} />
+      {/* Big shine — makes eyes look alive */}
+      <Circle cx="73"  cy="68" r="3.5" fill="white" />
+      <Circle cx="113" cy="68" r="3.5" fill="white" />
+      <Circle cx="75"  cy="70" r="1.5" fill="white" opacity="0.7" />
+      <Circle cx="115" cy="70" r="1.5" fill="white" opacity="0.7" />
 
-      {/* Eyebrows — give personality */}
-      <Path d="M 59 66 Q 65 63 71 66" stroke={bodyDark} strokeWidth="2" strokeLinecap="round" fill="none" />
-      <Path d="M 89 66 Q 95 63 101 66" stroke={bodyDark} strokeWidth="2" strokeLinecap="round" fill="none" />
+      {/* Eyebrows — raised = happy/curious */}
+      <Path d="M 61 60 Q 70 56 79 60"
+        stroke={furDark} strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      <Path d="M 101 60 Q 110 56 119 60"
+        stroke={furDark} strokeWidth="2.5" strokeLinecap="round" fill="none" />
 
-      {/* Inner ear detail */}
-      <Path
-        d="M 44 76 Q 38 66 42 82 Q 44 90 50 88"
-        fill={noseColor} opacity="0.15" />
-      <Path
-        d="M 116 76 Q 122 66 118 82 Q 116 90 110 88"
-        fill={noseColor} opacity="0.15" />
+      {/* Tongue — optional cute detail */}
+      <Ellipse cx="90" cy="108" rx="8" ry="6" fill="#F9A8D4" />
+      <Path d="M 82 108 Q 90 116 98 108"
+        stroke="#F472B6" strokeWidth="1.5" fill="none" />
     </Svg>
   );
 }
 
-// ── Premium clay-style cat illustration ──────────────────────────────────────
+// ── Friendly clay cat ─────────────────────────────────────────────────────────
+// Big round eyes (NOT slanted), perky ears, sweet expression
 export function CatIllustration({ size = 160, selected = false }) {
-  const bodyColor   = selected ? "#A855F7" : "#C084FC";
-  const bodyDark    = selected ? "#7C3AED" : "#9333EA";
-  const bodyLight   = selected ? "#EDE9FE" : "#F3E8FF";
-  const eyeIris     = selected ? "#10B981" : "#34D399";
-  const eyeDark     = "#0F172A";
-  const noseColor   = "#BE185D";
+  const fur     = selected ? "#A855F7" : "#C084FC";
+  const furDark = selected ? "#7C3AED" : "#9333EA";
+  const furLite = selected ? "#EDE9FE" : "#F3E8FF";
+  const belly   = "#FAF5FF";
+  const nose    = "#EC4899";
+  const eye     = "#0F172A";
+  const iris    = selected ? "#10B981" : "#34D399";
 
   return (
-    <Svg width={size} height={size} viewBox="0 0 160 160">
+    <Svg width={size} height={size} viewBox="0 0 180 180">
       <Defs>
-        <RadialGradient id="catBodyGrad" cx="42%" cy="30%" r="60%">
-          <Stop offset="0%" stopColor={bodyLight} stopOpacity="1" />
-          <Stop offset="50%" stopColor={bodyColor} stopOpacity="1" />
-          <Stop offset="100%" stopColor={bodyDark} stopOpacity="1" />
+        <RadialGradient id="cHead" cx="38%" cy="28%" r="65%">
+          <Stop offset="0%" stopColor={furLite} />
+          <Stop offset="48%" stopColor={fur} />
+          <Stop offset="100%" stopColor={furDark} />
         </RadialGradient>
-        <RadialGradient id="catHeadGrad" cx="38%" cy="28%" r="62%">
-          <Stop offset="0%" stopColor={bodyLight} stopOpacity="1" />
-          <Stop offset="48%" stopColor={bodyColor} stopOpacity="1" />
-          <Stop offset="100%" stopColor={bodyDark} stopOpacity="1" />
+        <RadialGradient id="cBody" cx="40%" cy="25%" r="65%">
+          <Stop offset="0%" stopColor={furLite} />
+          <Stop offset="50%" stopColor={fur} />
+          <Stop offset="100%" stopColor={furDark} />
         </RadialGradient>
-        <RadialGradient id="eyeGrad" cx="30%" cy="30%" r="70%">
-          <Stop offset="0%" stopColor="#6EE7B7" stopOpacity="1" />
-          <Stop offset="100%" stopColor={eyeIris} stopOpacity="1" />
+        <RadialGradient id="cEye" cx="30%" cy="28%" r="70%">
+          <Stop offset="0%" stopColor="#6EE7B7" />
+          <Stop offset="100%" stopColor={iris} />
         </RadialGradient>
       </Defs>
 
-      {/* Drop shadow */}
-      <Ellipse cx="80" cy="149" rx="34" ry="6" fill={bodyDark} opacity="0.22" />
+      {/* Ground shadow */}
+      <Ellipse cx="90" cy="168" rx="38" ry="6" fill={furDark} opacity="0.2" />
 
-      {/* Tail — sweeping around the side */}
-      <Path
-        d="M 46 128 Q 18 115 22 90 Q 26 70 42 78"
-        stroke={bodyColor} strokeWidth="12" strokeLinecap="round" fill="none"
-      />
-      <Path
-        d="M 46 128 Q 18 115 22 90 Q 26 70 42 78"
-        stroke={bodyLight} strokeWidth="5" strokeLinecap="round" fill="none" opacity="0.3"
-      />
+      {/* Tail wraps in front */}
+      <Path d="M 52 135 Q 20 118 24 92 Q 28 70 48 78"
+        stroke={furDark} strokeWidth="14" strokeLinecap="round" fill="none" />
+      <Path d="M 52 135 Q 20 118 24 92 Q 28 70 48 78"
+        stroke={fur} strokeWidth="9" strokeLinecap="round" fill="none" />
+      <Path d="M 52 135 Q 20 118 24 92 Q 28 70 48 78"
+        stroke={furLite} strokeWidth="3" strokeLinecap="round" fill="none" opacity="0.5" />
 
       {/* Body */}
-      <Ellipse cx="82" cy="114" rx="34" ry="28" fill="url(#catBodyGrad)" />
+      <Ellipse cx="92" cy="126" rx="36" ry="28" fill="url(#cBody)" />
+      {/* Belly patch */}
+      <Ellipse cx="92" cy="130" rx="20" ry="16" fill={belly} opacity="0.55" />
 
-      {/* Front legs — slim */}
-      <Ellipse cx="62" cy="137" rx="10" ry="7" fill={bodyColor} />
-      <Ellipse cx="102" cy="137" rx="10" ry="7" fill={bodyColor} />
-      <Ellipse cx="62" cy="140" rx="6" ry="3.5" fill={bodyLight} opacity="0.45" />
-      <Ellipse cx="102" cy="140" rx="6" ry="3.5" fill={bodyLight} opacity="0.45" />
+      {/* Legs */}
+      <Ellipse cx="72"  cy="149" rx="12" ry="8" fill={fur} />
+      <Ellipse cx="112" cy="149" rx="12" ry="8" fill={fur} />
+      <Ellipse cx="72"  cy="153" rx="7"  ry="3.5" fill={furLite} opacity="0.5" />
+      <Ellipse cx="112" cy="153" rx="7"  ry="3.5" fill={furLite} opacity="0.5" />
 
       {/* Pointed ears — behind head */}
-      <Path d="M 52 60 L 42 36 L 66 54 Z" fill={bodyColor} />
-      <Path d="M 108 60 L 118 36 L 94 54 Z" fill={bodyColor} />
-      {/* Inner ear */}
-      <Path d="M 54 58 L 47 42 L 63 55 Z" fill={noseColor} opacity="0.35" />
-      <Path d="M 106 58 L 113 42 L 97 55 Z" fill={noseColor} opacity="0.35" />
+      <Path d="M 54 54 L 42 24 L 72 50 Z" fill={furDark} />
+      <Path d="M 58 54 L 48 28 L 70 50 Z" fill={fur} />
+      {/* Inner ear pink */}
+      <Path d="M 57 52 L 50 34 L 67 50 Z" fill="#F9A8D4" opacity="0.7" />
 
-      {/* Head */}
-      <Circle cx="80" cy="74" r="32" fill="url(#catHeadGrad)" />
+      <Path d="M 126 54 L 138 24 L 108 50 Z" fill={furDark} />
+      <Path d="M 122 54 L 132 28 L 110 50 Z" fill={fur} />
+      <Path d="M 123 52 L 130 34 L 113 50 Z" fill="#F9A8D4" opacity="0.7" />
+
+      {/* Head — round, not angular */}
+      <Circle cx="90" cy="82" r="42" fill="url(#cHead)" />
 
       {/* Head shine */}
-      <Ellipse cx="67" cy="59" rx="11" ry="7" fill={bodyLight} opacity="0.42" transform="rotate(-20 67 59)" />
+      <Ellipse cx="73" cy="60" rx="13" ry="8"
+        fill={furLite} opacity="0.45" transform="rotate(-22 73 60)" />
 
-      {/* Cheek fluff — cat specific */}
-      <Ellipse cx="55" cy="82" rx="10" ry="7" fill={bodyLight} opacity="0.35" />
-      <Ellipse cx="105" cy="82" rx="10" ry="7" fill={bodyLight} opacity="0.35" />
+      {/* Cheek fluff — makes cat look chubby/cute */}
+      <Ellipse cx="60"  cy="92" rx="13" ry="9" fill={furLite} opacity="0.4" />
+      <Ellipse cx="120" cy="92" rx="13" ry="9" fill={furLite} opacity="0.4" />
 
-      {/* Snout / muzzle */}
-      <Ellipse cx="80" cy="86" rx="15" ry="10" fill={bodyLight} opacity="0.65" />
+      {/* Muzzle */}
+      <Ellipse cx="90" cy="97" rx="20" ry="13" fill={belly} opacity="0.8" />
 
-      {/* Nose — small triangle */}
-      <Path d="M 77 82 L 80 79 L 83 82 L 80 85 Z" fill={noseColor} />
-      {/* Nose shine */}
-      <Ellipse cx="78" cy="81" rx="2" ry="1.5" fill="white" opacity="0.55" />
+      {/* Nose */}
+      <Path d="M 86 91 L 90 87 L 94 91 L 90 95 Z" fill={nose} />
+      <Ellipse cx="88" cy="90" rx="2.5" ry="1.8" fill="white" opacity="0.6" />
 
-      {/* Mouth */}
-      <Path d="M 80 85 Q 76 90 73 88" stroke={bodyDark} strokeWidth="1.5" strokeLinecap="round" fill="none" />
-      <Path d="M 80 85 Q 84 90 87 88" stroke={bodyDark} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+      {/* Mouth — W shape = happy cat */}
+      <Path d="M 90 95 Q 85 102 80 99"
+        stroke={furDark} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+      <Path d="M 90 95 Q 95 102 100 99"
+        stroke={furDark} strokeWidth="1.8" strokeLinecap="round" fill="none" />
 
       {/* Whiskers */}
-      <Path d="M 60 83 L 72 85" stroke={bodyDark} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
-      <Path d="M 58 87 L 71 87" stroke={bodyDark} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
-      <Path d="M 100 83 L 88 85" stroke={bodyDark} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
-      <Path d="M 102 87 L 89 87" stroke={bodyDark} strokeWidth="1.2" strokeLinecap="round" opacity="0.5" />
+      <Path d="M 56 90 L 74 93" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
+      <Path d="M 53 95 L 72 96" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
+      <Path d="M 56 100 L 73 99" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
+      <Path d="M 124 90 L 106 93" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
+      <Path d="M 127 95 L 108 96" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
+      <Path d="M 124 100 L 107 99" stroke="white" strokeWidth="1.3" strokeLinecap="round" opacity="0.6" />
 
-      {/* Eyes — cat almond shape */}
-      <Path d="M 60 72 Q 67 65 74 72 Q 67 79 60 72 Z" fill={eyeDark} />
-      <Path d="M 86 72 Q 93 65 100 72 Q 93 79 86 72 Z" fill={eyeDark} />
+      {/* Eyes — BIG and ROUND, not slanted = friendly not evil */}
+      <Circle cx="70"  cy="78" r="13" fill={eye} />
+      <Circle cx="110" cy="78" r="13" fill={eye} />
       {/* Iris */}
-      <Path d="M 62 72 Q 67 67 72 72 Q 67 77 62 72 Z" fill="url(#eyeGrad)" />
-      <Path d="M 88 72 Q 93 67 98 72 Q 93 77 88 72 Z" fill="url(#eyeGrad)" />
-      {/* Pupil */}
-      <Path d="M 65 72 Q 67 69 69 72 Q 67 75 65 72 Z" fill={eyeDark} />
-      <Path d="M 91 72 Q 93 69 95 72 Q 93 75 91 72 Z" fill={eyeDark} />
-      {/* Eye shine */}
-      <Circle cx="65" cy="70" r="2" fill="white" />
-      <Circle cx="91" cy="70" r="2" fill="white" />
-
-      {/* Body tummy lighter patch */}
-      <Ellipse cx="82" cy="116" rx="18" ry="14" fill={bodyLight} opacity="0.3" />
+      <Circle cx="70"  cy="78" r="9" fill="url(#cEye)" />
+      <Circle cx="110" cy="78" r="9" fill="url(#cEye)" />
+      {/* Pupil — vertical slit for cat realism */}
+      <Ellipse cx="70"  cy="78" rx="3.5" ry="6" fill={eye} />
+      <Ellipse cx="110" cy="78" rx="3.5" ry="6" fill={eye} />
+      {/* Big eye shine */}
+      <Circle cx="74"  cy="73" r="4" fill="white" />
+      <Circle cx="114" cy="73" r="4" fill="white" />
+      <Circle cx="76"  cy="75" r="1.8" fill="white" opacity="0.7" />
+      <Circle cx="116" cy="75" r="1.8" fill="white" opacity="0.7" />
     </Svg>
   );
 }

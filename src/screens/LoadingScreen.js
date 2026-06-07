@@ -105,7 +105,18 @@ export default function LoadingScreen({ navigation }) {
   const progressWidth = progressAnim.interpolate({ inputRange: [0, 1], outputRange: ["0%", "100%"] });
 
   return (
-    <LinearGradient colors={["#06071A", "#0C0E2E", "#080C24"]} style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#06071A" }}>
+      <LinearGradient colors={["#06071A", "#0C0E2E", "#080C24"]} style={StyleSheet.absoluteFill} />
+      <LinearGradient
+        colors={["#4F46E518", "transparent", "#7C3AED12"]}
+        style={StyleSheet.absoluteFill}
+        start={{ x: 1, y: 0 }} end={{ x: 0, y: 1 }}
+      />
+      {/* Depth blobs */}
+      <View style={{ position:"absolute", width:250, height:250, borderRadius:125,
+        backgroundColor:"#6366F1", opacity:0.09, top:-80, right:-60 }} />
+      <View style={{ position:"absolute", width:180, height:180, borderRadius:90,
+        backgroundColor:"#8B5CF6", opacity:0.08, bottom:60, left:-50 }} />
       <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
         <StatusBar barStyle="light-content" backgroundColor="#06071A" />
 
@@ -178,7 +189,7 @@ export default function LoadingScreen({ navigation }) {
 
         </View>
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 }
 

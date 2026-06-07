@@ -375,24 +375,25 @@ const styles = StyleSheet.create({
   // Emotion image — floating in hero space, positioned to right
   emotionImgWrapper: {
     alignSelf: "flex-end",
-    marginRight: 8,
-    marginTop: -30,
+    marginRight: 12,
+    marginTop: -24,
     marginBottom: 24,
     alignItems: "center",
     justifyContent: "center",
+    width: 110, height: 110,
   },
   emotionImgGlow: {
     position: "absolute",
-    width: 90, height: 90, borderRadius: 45,
-    opacity: 0.35,
+    width: 110, height: 110, borderRadius: 55,
+    opacity: 0.4,
     shadowColor: "#fff",
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 30,
-    elevation: 10,
+    shadowOpacity: 0.8,
+    shadowRadius: 36,
+    elevation: 12,
   },
   emotionImg: {
-    width: 100, height: 100,
+    width: 82, height: 82,
   },
 
   // Section labels
