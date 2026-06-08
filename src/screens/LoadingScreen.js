@@ -10,19 +10,31 @@ import SiriWave from "../components/SiriWave";
 
 const { width: SCREEN_W } = Dimensions.get("window");
 
-const MESSAGES = [
-  "Escuchando la voz única de tu mascota…",
-  "Detectando patrones emocionales…",
-  "Analizando parámetros de bioacústica…",
-  "Correlacionando postura y contexto…",
-  "¡Casi listo! Generando tu traducción…",
+const MESSAGES_DOG = [
+  "Iniciando captura... Acogiendo espectrograma de audio en tiempo real.",
+  "Aislando ruido ambiental... Extrayendo frecuencia fundamental (F0).",
+  "Analizando tasa de repetición y ráfagas de presión acústica...",
+  "Cruzando bioacústica con el chip de postura corporal seleccionado...",
+  "Validando vectores con el modelo etológico canino...",
+  "Decodificando intención... Generando traducción humana.",
 ];
-const MSG_INTERVAL = 840;
-const TOTAL_DURATION = 4200;
+
+const MESSAGES_CAT = [
+  "Iniciando captura... Capturando oscilación del maullido/ronroneo.",
+  "Filtrando audio... Calculando modulación de frecuencia fundamental (F0).",
+  "Analizando micro-patrones de onda y duración del pulso bioacústico...",
+  "Cruzando datos con el selector de contexto y posición de orejas/cola...",
+  "Validando patrones con la base de datos etológica felina...",
+  "Decodificando intención... Generando traducción humana.",
+];
+
+const MSG_INTERVAL = 800;
+const TOTAL_DURATION = 4800;
 
 // ─── LoadingScreen ────────────────────────────────────────────────────────────
 export default function LoadingScreen({ navigation }) {
-  const { analysisResult } = useApp();
+  const { analysisResult, pet } = useApp();
+  const MESSAGES = pet?.species === "cat" ? MESSAGES_CAT : MESSAGES_DOG;
   const [msgIndex, setMsgIndex]     = useState(0);
   const [progressPct, setProgressPct] = useState(0);
 
@@ -162,13 +174,6 @@ export default function LoadingScreen({ navigation }) {
             </View>
           </View>
 
-          {/* Message */}
-          <View style={styles.msgWrap}>
-            <Animated.Text style={[styles.msgText, { opacity: fadeMsg }]}>
-              {MESSAGES[msgIndex]}
-            </Animated.Text>
-          </View>
-
           {/* Progress */}
           <View style={styles.progressRow}>
             <View style={styles.progressTrack}>
@@ -183,11 +188,21 @@ export default function LoadingScreen({ navigation }) {
             <Text style={styles.progressPct}>{progressPct}%</Text>
           </View>
 
-          {/* Science tag */}
-          <View style={styles.scienceBadge}>
-            <MaterialCommunityIcons name="flask-outline" size={11} color="#818CF8" style={{ marginRight: 5 }} />
-            <Text style={styles.scienceText}>Etología computacional · Análisis multimodal</Text>
-          </View>
+          {/* Glassmorphism scientific log pill */}
+          <Animated.View style={[styles.logPill, { opacity: fadeMsg }]}>
+            <View style={styles.logPillInner}>
+              {/* Spinner */}
+              <Animated.View style={{
+                transform: [{ rotate: progressAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "1080deg"] }) }],
+                marginRight: 10,
+              }}>
+                <MaterialCommunityIcons name="loading" size={14} color="#818CF8" />
+              </Animated.View>
+              <Text style={styles.logText} numberOfLines={2}>
+                {MESSAGES[msgIndex]}
+              </Text>
+            </View>
+          </Animated.View>
 
         </View>
       </SafeAreaView>
@@ -241,17 +256,10 @@ const styles = StyleSheet.create({
     opacity: 0.45,
   },
 
-  // Message
-  msgWrap: { height: 56, alignItems: "center", justifyContent: "center", marginBottom: 28, marginTop: 18 },
-  msgText: {
-    fontFamily: "Inter_400Regular", fontSize: 15, color: "#94A3B8",
-    textAlign: "center", letterSpacing: 0, lineHeight: 22,
-  },
-
   // Progress
   progressRow: {
     flexDirection: "row", alignItems: "center", gap: 10,
-    width: SCREEN_W - 48, marginBottom: 28,
+    width: SCREEN_W - 48, marginBottom: 20,
   },
   progressTrack: {
     flex: 1, height: 3,
@@ -269,7 +277,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 7,
     backgroundColor: "rgba(79,70,229,0.08)",
   },
-  scienceText: {
-    fontFamily: "Inter_400Regular", fontSize: 11, color: "#64748B", letterSpacing: 0.2,
+
+  // Scientific log pill
+  logPill: {
+    width: SCREEN_W - 48,
+    borderRadius: 16,
+    overflow: "hidden",
+    borderWidth: 0.5,
+    borderColor: "rgba(129,140,248,0.3)",
+    backgroundColor: "rgba(15,18,50,0.55)",
+    marginTop: 4,
+  },
+  logPillInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  logText: {
+    flex: 1,
+    fontFamily: "Inter_400Regular",
+    fontSize: 12,
+    color: "#94A3B8",
+    letterSpacing: 0.1,
+    lineHeight: 18,
   },
 });
