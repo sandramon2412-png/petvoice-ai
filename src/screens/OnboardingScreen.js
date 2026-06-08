@@ -5,8 +5,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
+import LottieView from "lottie-react-native";
 import GlassView from "../components/GlassView";
-import { DogIllustration, CatIllustration } from "../components/PetIllustration";
+import { DogIllustration } from "../components/PetIllustration";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import * as ImagePicker from "expo-image-picker";
@@ -161,7 +162,14 @@ function PremiumPetCard({ petKey, label, selected, onPress }) {
 
         {/* Illustration — floating, centered */}
         <Animated.View style={{ transform: [{ translateY: floatY }, { scale: iconScale }], alignItems: "center", marginBottom: 30 }}>
-          {isdog ? <DogIllustration size={120} selected={selected} /> : <CatIllustration size={120} selected={selected} />}
+          {isdog
+            ? <DogIllustration size={120} selected={selected} />
+            : <LottieView
+                source={require("../../assets/lottie/cat.json")}
+                autoPlay loop
+                style={{ width: 130, height: 130 }}
+              />
+          }
         </Animated.View>
 
         {/* Shine streak — top-left corner light */}
