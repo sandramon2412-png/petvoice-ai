@@ -107,12 +107,12 @@ export default function LoadingScreen({ navigation }) {
     return () => clearTimeout(timer);
   }, []);
 
-  // If AI responds early, still wait until all messages shown (TOTAL_DURATION)
+  // If AI responds early, still wait until TOTAL_DURATION before navigating
   useEffect(() => {
     if (analysisResult && !navigatedRef.current) {
-      const remaining = TOTAL_DURATION - (MSG_INTERVAL * MESSAGES.length);
-      const wait = Math.max(remaining, 1000);
-      const t = setTimeout(() => { navigatedRef.current = true; navigation.replace("Result"); }, wait);
+      const t = setTimeout(() => {
+        if (!navigatedRef.current) { navigatedRef.current = true; navigation.replace("Result"); }
+      }, TOTAL_DURATION);
       return () => clearTimeout(t);
     }
   }, [analysisResult]);
