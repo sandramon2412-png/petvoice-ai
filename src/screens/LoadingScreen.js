@@ -99,7 +99,7 @@ export default function LoadingScreen({ navigation }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Navigate when done
+  // Navigate when done — always wait full duration so all messages are readable
   useEffect(() => {
     const timer = setTimeout(() => {
       if (!navigatedRef.current) { navigatedRef.current = true; navigation.replace("Result"); }
@@ -107,9 +107,12 @@ export default function LoadingScreen({ navigation }) {
     return () => clearTimeout(timer);
   }, []);
 
+  // If AI responds early, still wait until all messages shown (TOTAL_DURATION)
   useEffect(() => {
     if (analysisResult && !navigatedRef.current) {
-      const t = setTimeout(() => { navigatedRef.current = true; navigation.replace("Result"); }, 1800);
+      const remaining = TOTAL_DURATION - (MSG_INTERVAL * MESSAGES.length);
+      const wait = Math.max(remaining, 1000);
+      const t = setTimeout(() => { navigatedRef.current = true; navigation.replace("Result"); }, wait);
       return () => clearTimeout(t);
     }
   }, [analysisResult]);
@@ -146,7 +149,9 @@ export default function LoadingScreen({ navigation }) {
             </Animated.View>
             <View style={styles.headerText}>
               <Text style={styles.headerTitle}>Analizando…</Text>
-              <Text style={styles.headerSub}>PetVoice AI · Procesando audio</Text>
+              <Text style={styles.headerSub}>
+                {pet?.name ? `${pet.name} · ` : ""}PetVoice AI · Procesando audio
+              </Text>
             </View>
           </View>
 
@@ -190,17 +195,22 @@ export default function LoadingScreen({ navigation }) {
 
           {/* Glassmorphism scientific log pill */}
           <Animated.View style={[styles.logPill, { opacity: fadeMsg }]}>
+            <View style={styles.logStepBar}>
+              {MESSAGES.map((_, i) => (
+                <View key={i} style={[styles.logStep, { backgroundColor: i <= msgIndex ? "#818CF8" : "rgba(129,140,248,0.2)" }]} />
+              ))}
+            </View>
             <View style={styles.logPillInner}>
-              {/* Spinner */}
               <Animated.View style={{
                 transform: [{ rotate: progressAnim.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "1080deg"] }) }],
                 marginRight: 10,
               }}>
-                <MaterialCommunityIcons name="loading" size={14} color="#818CF8" />
+                <MaterialCommunityIcons name="loading" size={15} color="#818CF8" />
               </Animated.View>
-              <Text style={styles.logText} numberOfLines={2}>
-                {MESSAGES[msgIndex]}
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.logStep_label}>Paso {msgIndex + 1} de {MESSAGES.length}</Text>
+                <Text style={styles.logText}>{MESSAGES[msgIndex]}</Text>
+              </View>
             </View>
           </Animated.View>
 
@@ -281,25 +291,43 @@ const styles = StyleSheet.create({
   // Scientific log pill
   logPill: {
     width: SCREEN_W - 48,
-    borderRadius: 16,
+    borderRadius: 20,
     overflow: "hidden",
     borderWidth: 0.5,
-    borderColor: "rgba(129,140,248,0.3)",
-    backgroundColor: "rgba(15,18,50,0.55)",
-    marginTop: 4,
+    borderColor: "rgba(129,140,248,0.35)",
+    backgroundColor: "rgba(10,12,40,0.72)",
+    marginTop: 8,
+  },
+  logStepBar: {
+    flexDirection: "row",
+    gap: 4,
+    paddingHorizontal: 14,
+    paddingTop: 12,
+    paddingBottom: 4,
+  },
+  logStep: {
+    flex: 1, height: 2, borderRadius: 2,
   },
   logPillInner: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: 10,
+    paddingBottom: 14,
+  },
+  logStep_label: {
+    fontFamily: "Inter_600SemiBold",
+    fontSize: 10,
+    color: "#6366F1",
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+    marginBottom: 4,
   },
   logText: {
-    flex: 1,
     fontFamily: "Inter_400Regular",
-    fontSize: 12,
-    color: "#94A3B8",
+    fontSize: 13,
+    color: "#CBD5E1",
     letterSpacing: 0.1,
-    lineHeight: 18,
+    lineHeight: 20,
   },
 });
