@@ -28,8 +28,8 @@ const MESSAGES_CAT = [
   "Decodificando intención... Generando traducción humana.",
 ];
 
-const MSG_INTERVAL = 800;
-const TOTAL_DURATION = 4800;
+const MSG_INTERVAL = 1400;
+const TOTAL_DURATION = 8400;
 
 // ─── LoadingScreen ────────────────────────────────────────────────────────────
 export default function LoadingScreen({ navigation }) {
