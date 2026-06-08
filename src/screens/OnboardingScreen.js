@@ -167,14 +167,14 @@ function PremiumPetCard({ petKey, label, selected, onPress }) {
                 <LottieView
                   source={require("../../assets/lottie/dog.json")}
                   autoPlay loop
-                  style={{ width: 160, height: 160 }}
+                  style={{ width: 140, height: 140 }}
                 />
               </View>
-            : <View style={{ width: 118, height: 118, overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
+            : <View style={{ width: 108, height: 108, overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
                 <LottieView
                   source={require("../../assets/lottie/cat.json")}
                   autoPlay loop
-                  style={{ width: 160, height: 160, marginTop: -10 }}
+                  style={{ width: 148, height: 148, marginTop: -10 }}
                 />
               </View>
           }
