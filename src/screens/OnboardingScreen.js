@@ -163,18 +163,18 @@ function PremiumPetCard({ petKey, label, selected, onPress }) {
         {/* Illustration — floating, centered */}
         <Animated.View style={{ transform: [{ translateY: floatY }, { scale: iconScale }], alignItems: "center", marginBottom: 30 }}>
           {isdog
-            ? <View style={{ width: 116, height: 106, overflow: "hidden", alignItems: "center", justifyContent: "flex-start" }}>
+            ? <View style={{ width: 110, height: 100, overflow: "hidden", alignItems: "center", justifyContent: "flex-start" }}>
                 <LottieView
                   source={require("../../assets/lottie/dog.json")}
                   autoPlay loop
-                  style={{ width: 152, height: 152, marginTop: -10 }}
+                  style={{ width: 144, height: 144, marginTop: -10 }}
                 />
               </View>
-            : <View style={{ width: 108, height: 96, overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
+            : <View style={{ width: 114, height: 104, overflow: "hidden", alignItems: "center", justifyContent: "center" }}>
                 <LottieView
                   source={require("../../assets/lottie/cat.json")}
                   autoPlay loop
-                  style={{ width: 128, height: 128, marginTop: 4 }}
+                  style={{ width: 124, height: 124, marginTop: 8 }}
                 />
               </View>
           }
