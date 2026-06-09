@@ -285,7 +285,7 @@ export default function HomeScreen({ navigation }) {
         backgroundColor:"#4F46E5", opacity:0.15, bottom:60, left:-50 }} />
       <Animated.View pointerEvents="none" style={[StyleSheet.absoluteFill, { backgroundColor: "#000", opacity: dimAnim }]} />
 
-      <SafeAreaView style={{ flex: 1 }} edges={["top", "bottom"]}>
+      <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
         <StatusBar barStyle="light-content" />
         <ScrollView style={{ flex: 1 }} contentContainerStyle={s.scrollContent} showsVerticalScrollIndicator={false}>
 
@@ -434,6 +434,32 @@ export default function HomeScreen({ navigation }) {
         selected={environment}
         onSelect={setEnvironment}
       />
+
+      {/* ── Bottom navigation bar ── */}
+      <SafeAreaView edges={["bottom"]} style={{ backgroundColor: "rgba(6,7,26,0.96)" }}>
+        <View style={s.bottomNav}>
+          {[
+            { label: "Inicio",    icon: "home",    screen: "Home"    },
+            { label: "Historial", icon: "history", screen: "History" },
+            { label: "Ajustes",   icon: "cog-outline", screen: "Settings" },
+          ].map((t) => {
+            const active = t.screen === "Home";
+            return (
+              <TouchableOpacity
+                key={t.screen}
+                style={s.bottomNavItem}
+                onPress={() => !active && navigation.navigate(t.screen)}
+                activeOpacity={0.7}
+              >
+                <View style={[s.bottomNavIcon, active && s.bottomNavIconActive]}>
+                  <MaterialCommunityIcons name={t.icon} size={22} color={active ? "#818CF8" : "rgba(255,255,255,0.35)"} />
+                </View>
+                <Text style={[s.bottomNavLabel, active && s.bottomNavLabelActive]}>{t.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </SafeAreaView>
     </View>
   );
 }
@@ -575,4 +601,15 @@ const s = StyleSheet.create({
   dropIconBoxActive: { backgroundColor: "rgba(129,140,248,0.25)" },
   dropItemText: { fontFamily: "Inter_400Regular", fontSize: 15, color: "rgba(255,255,255,0.75)" },
   dropItemTextSel: { fontFamily: "Inter_600SemiBold", color: "#A5B4FC" },
+
+  // Bottom nav
+  bottomNav: {
+    flexDirection: "row", paddingTop: 8, paddingBottom: 4, paddingHorizontal: 12,
+    borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.07)",
+  },
+  bottomNavItem:       { flex: 1, alignItems: "center", gap: 3 },
+  bottomNavIcon:       { width: 40, height: 34, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  bottomNavIconActive: { backgroundColor: "rgba(129,140,248,0.15)" },
+  bottomNavLabel:      { fontFamily: "Inter_400Regular", fontSize: 10, color: "rgba(255,255,255,0.3)" },
+  bottomNavLabelActive:{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: "#818CF8" },
 });
