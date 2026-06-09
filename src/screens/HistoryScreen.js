@@ -68,13 +68,13 @@ const METRICS = [
 function Tabs({ active, onChange }) {
   return (
     <View style={tb.wrap}>
-      {["Conversaciones", "Diario de Ánimo"].map((label, i) => (
+      {[
+        { label:"Conversaciones",  icon: active===0 ? "chat-processing" : "chat-processing-outline" },
+        { label:"Diario de Ánimo", icon: active===1 ? "chart-bell-curve" : "chart-bell-curve-cumulative" },
+      ].map((tab, i) => (
         <TouchableOpacity key={i} style={[tb.tab, active===i && tb.tabOn]} onPress={() => onChange(i)} activeOpacity={0.8}>
-          <MaterialCommunityIcons
-            name={i===0 ? "chat-outline" : "chart-areaspline"}
-            size={14} color={active===i ? "#818CF8" : C.muted}
-          />
-          <Text style={[tb.label, active===i && tb.labelOn]}>{label}</Text>
+          <MaterialCommunityIcons name={tab.icon} size={15} color={active===i ? "#818CF8" : C.muted}/>
+          <Text style={[tb.label, active===i && tb.labelOn]}>{tab.label}</Text>
         </TouchableOpacity>
       ))}
     </View>
@@ -110,7 +110,10 @@ function Bubble({ item }) {
 
   if (item.owner) return (
     <View style={b.right}>
-      <View style={b.ownerBubble}>
+      <View style={b.ownerOuter}>
+        <LinearGradient colors={["#6366F1","#4F46E5"]} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFill}/>
+        {/* glass shine */}
+        <LinearGradient colors={["rgba(255,255,255,0.22)","transparent"]} style={b.shine}/>
         <Text style={b.ownerText}>{item.text}</Text>
         <Text style={b.ownerTime}>{item.ts}</Text>
       </View>
@@ -123,7 +126,14 @@ function Bubble({ item }) {
         <MaterialCommunityIcons name={m.icon} size={16} color={m.color} />
       </View>
       <View style={{ maxWidth: W * 0.67 }}>
-        <View style={[b.petBubble, { backgroundColor: m.bg, borderColor: m.color + "30" }]}>
+        {/* glass pet bubble */}
+        <View style={[b.petOuter, { borderColor: m.color + "40" }]}>
+          <LinearGradient
+            colors={[m.color + "28", m.color + "0A"]}
+            start={{x:0,y:0}} end={{x:1,y:1}}
+            style={StyleSheet.absoluteFill}
+          />
+          <LinearGradient colors={["rgba(255,255,255,0.10)","transparent"]} style={b.shine}/>
           <Text style={[b.tag, { color: m.color }]}>{item.emotion}</Text>
           <Text style={b.petText}>{item.text}</Text>
           <Text style={b.petTime}>{item.ts}</Text>
@@ -133,16 +143,24 @@ function Bubble({ item }) {
   );
 }
 const b = StyleSheet.create({
-  left:       { flexDirection:"row", alignItems:"flex-end", gap:10, marginBottom:14, paddingHorizontal:20 },
-  right:      { alignItems:"flex-end", marginBottom:14, paddingHorizontal:20 },
-  avatar:     { width:34, height:34, borderRadius:17, alignItems:"center", justifyContent:"center", flexShrink:0, marginBottom:4 },
-  petBubble:  { borderRadius:20, borderTopLeftRadius:5, borderWidth:1, paddingHorizontal:14, paddingVertical:11, gap:5 },
-  ownerBubble:{ backgroundColor:"#4F46E5", borderRadius:20, borderTopRightRadius:5, paddingHorizontal:14, paddingVertical:11, gap:4, maxWidth:W*0.67 },
-  tag:        { fontFamily:"Inter_700Bold", fontSize:11, letterSpacing:0.2 },
-  petText:    { fontFamily:"Inter_400Regular", fontSize:14, color:C.text, lineHeight:20 },
-  ownerText:  { fontFamily:"Inter_400Regular", fontSize:14, color:"#fff", lineHeight:20 },
-  petTime:    { fontFamily:"Inter_400Regular", fontSize:10, color:C.muted, alignSelf:"flex-end" },
-  ownerTime:  { fontFamily:"Inter_400Regular", fontSize:10, color:"rgba(255,255,255,0.4)", alignSelf:"flex-end" },
+  left:  { flexDirection:"row", alignItems:"flex-end", gap:10, marginBottom:14, paddingHorizontal:20 },
+  right: { alignItems:"flex-end", marginBottom:14, paddingHorizontal:20 },
+  avatar:{ width:34, height:34, borderRadius:17, alignItems:"center", justifyContent:"center", flexShrink:0, marginBottom:4 },
+  petOuter: {
+    borderRadius:20, borderTopLeftRadius:5, borderWidth:1,
+    paddingHorizontal:14, paddingVertical:11, gap:5, overflow:"hidden",
+  },
+  ownerOuter:{
+    borderRadius:20, borderTopRightRadius:5, overflow:"hidden",
+    paddingHorizontal:14, paddingVertical:11, gap:4, maxWidth:W*0.67,
+    borderWidth:1, borderColor:"rgba(255,255,255,0.18)",
+  },
+  shine: { position:"absolute", top:0, left:0, right:0, height:"55%", borderRadius:20 },
+  tag:      { fontFamily:"Inter_700Bold", fontSize:11, letterSpacing:0.2 },
+  petText:  { fontFamily:"Inter_400Regular", fontSize:14, color:C.text, lineHeight:20 },
+  ownerText:{ fontFamily:"Inter_400Regular", fontSize:14, color:"#fff", lineHeight:20 },
+  petTime:  { fontFamily:"Inter_400Regular", fontSize:10, color:C.muted, alignSelf:"flex-end" },
+  ownerTime:{ fontFamily:"Inter_400Regular", fontSize:10, color:"rgba(255,255,255,0.4)", alignSelf:"flex-end" },
 });
 
 // ── Chat tab ──────────────────────────────────────────────────────────────────
@@ -295,9 +313,9 @@ const dr = StyleSheet.create({
 // ── Bottom nav ────────────────────────────────────────────────────────────────
 function BottomNav({ navigation, active }) {
   const TABS = [
-    { label:"Inicio",    icon:"home-variant-outline", screen:"Home"     },
-    { label:"Historial", icon:"history",               screen:"History"  },
-    { label:"Ajustes",   icon:"tune-variant",          screen:"Settings" },
+    { label:"Inicio",    icon:"home-outline",          screen:"Home"     },
+    { label:"Historial", icon:"clock-time-four-outline",screen:"History"  },
+    { label:"Ajustes",   icon:"cog-outline",           screen:"Settings" },
   ];
   return (
     <View style={nav.bar}>

@@ -439,9 +439,9 @@ export default function HomeScreen({ navigation }) {
       <SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#0A0C22" }}>
         <View style={s.bottomNav}>
           {[
-            { label: "Inicio",    icon: "home-variant",  screen: "Home"     },
-            { label: "Historial", icon: "history",        screen: "History"  },
-            { label: "Ajustes",   icon: "tune-variant",   screen: "Settings" },
+            { label: "Inicio",    icon: "home-outline",          screen: "Home"     },
+            { label: "Historial", icon: "clock-time-four-outline", screen: "History"  },
+            { label: "Ajustes",   icon: "cog-outline",           screen: "Settings" },
           ].map((t) => {
             const active = t.screen === "Home";
             return (

@@ -56,9 +56,9 @@ const card = StyleSheet.create({
 
 function BottomNav({ navigation }) {
   const TABS = [
-    { label:"Inicio",    icon:"home-variant-outline", screen:"Home"     },
-    { label:"Historial", icon:"history",               screen:"History"  },
-    { label:"Ajustes",   icon:"tune-variant",          screen:"Settings" },
+    { label:"Inicio",    icon:"home-outline",          screen:"Home"     },
+    { label:"Historial", icon:"clock-time-four-outline",screen:"History"  },
+    { label:"Ajustes",   icon:"cog-outline",           screen:"Settings" },
   ];
   return (
     <View style={nav.bar}>
