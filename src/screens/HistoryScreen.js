@@ -10,15 +10,27 @@ import { useApp } from "../context/AppContext";
 
 const { width: W } = Dimensions.get("window");
 
+// Colores oscuros del sistema
+const C = {
+  bg:      "#06071A",
+  card:    "rgba(255,255,255,0.06)",
+  border:  "rgba(255,255,255,0.09)",
+  text:    "#F1F5F9",
+  muted:   "#64748B",
+  sub:     "#94A3B8",
+  indigo:  "#818CF8",
+  violet:  "#A78BFA",
+};
+
 const EMO = {
-  Feliz:      { color: "#10B981", light: "#ECFDF5", icon: "emoticon-excited-outline" },
-  "Juguetón": { color: "#3B82F6", light: "#EFF6FF", icon: "tennis-ball"              },
-  Alerta:     { color: "#D97706", light: "#FFFBEB", icon: "bell-ring-outline"        },
-  Curioso:    { color: "#6366F1", light: "#EEF2FF", icon: "eye-outline"              },
-  Estresado:  { color: "#EF4444", light: "#FEF2F2", icon: "lightning-bolt"           },
-  Asustado:   { color: "#7C3AED", light: "#F5F3FF", icon: "ghost-outline"            },
-  Tranquilo:  { color: "#64748B", light: "#F8FAFC", icon: "weather-night"            },
-  Hambriento: { color: "#F97316", light: "#FFF7ED", icon: "food-drumstick-outline"   },
+  Feliz:      { color: "#10B981", bg: "rgba(16,185,129,0.15)",  icon: "emoticon-excited-outline" },
+  "Juguetón": { color: "#60A5FA", bg: "rgba(96,165,250,0.15)",  icon: "tennis-ball"              },
+  Alerta:     { color: "#FBBF24", bg: "rgba(251,191,36,0.15)",  icon: "bell-ring-outline"        },
+  Curioso:    { color: "#818CF8", bg: "rgba(129,140,248,0.15)", icon: "eye-outline"              },
+  Estresado:  { color: "#F87171", bg: "rgba(248,113,113,0.15)", icon: "lightning-bolt"           },
+  Asustado:   { color: "#C084FC", bg: "rgba(192,132,252,0.15)", icon: "ghost-outline"            },
+  Tranquilo:  { color: "#94A3B8", bg: "rgba(148,163,184,0.12)", icon: "weather-night"            },
+  Hambriento: { color: "#FB923C", bg: "rgba(251,146,60,0.15)",  icon: "food-drumstick-outline"   },
 };
 
 const CHAT = [
@@ -46,33 +58,37 @@ const WEEK = [
 ];
 
 const METRICS = [
-  { icon:"emoticon-happy-outline",   color:"#10B981", label:"Emoción predominante",       value:"Feliz · 72% de los análisis" },
-  { icon:"lightning-bolt-outline",   color:"#EF4444", label:"Picos de estrés",             value:"Martes y Jueves por la tarde" },
-  { icon:"chart-line-variant",       color:"#6366F1", label:"Análisis esta semana",        value:"18 análisis en 4 días" },
-  { icon:"weather-sunny",            color:"#F59E0B", label:"Día más feliz",               value:"Miércoles · 100% bienestar" },
+  { icon:"emoticon-happy-outline", color:"#10B981", label:"Emoción predominante",   value:"Feliz · 72% de los análisis" },
+  { icon:"lightning-bolt-outline", color:"#F87171", label:"Picos de estrés",         value:"Martes y Jueves por la tarde" },
+  { icon:"chart-line-variant",     color:"#818CF8", label:"Análisis esta semana",    value:"18 análisis en 4 días" },
+  { icon:"weather-sunny",          color:"#FBBF24", label:"Día más feliz",           value:"Miércoles · 100% bienestar" },
 ];
 
 // ── Tabs ──────────────────────────────────────────────────────────────────────
 function Tabs({ active, onChange }) {
   return (
-    <View style={t.wrap}>
-      {["Conversaciones","Diario de Ánimo"].map((label, i) => (
-        <TouchableOpacity key={i} style={[t.tab, active===i && t.tabOn]} onPress={()=>onChange(i)} activeOpacity={0.8}>
-          <Text style={[t.label, active===i && t.labelOn]}>{label}</Text>
+    <View style={tb.wrap}>
+      {["Conversaciones", "Diario de Ánimo"].map((label, i) => (
+        <TouchableOpacity key={i} style={[tb.tab, active===i && tb.tabOn]} onPress={() => onChange(i)} activeOpacity={0.8}>
+          <MaterialCommunityIcons
+            name={i===0 ? "chat-outline" : "chart-areaspline"}
+            size={14} color={active===i ? "#818CF8" : C.muted}
+          />
+          <Text style={[tb.label, active===i && tb.labelOn]}>{label}</Text>
         </TouchableOpacity>
       ))}
     </View>
   );
 }
-const t = StyleSheet.create({
-  wrap:    { flexDirection:"row", backgroundColor:"#EEF2FF", borderRadius:16, padding:4, marginHorizontal:20, marginBottom:16 },
-  tab:     { flex:1, paddingVertical:10, borderRadius:13, alignItems:"center" },
-  tabOn:   { backgroundColor:"#fff", shadowColor:"#6366F1", shadowOpacity:0.12, shadowRadius:8, shadowOffset:{width:0,height:2}, elevation:3 },
-  label:   { fontFamily:"Inter_600SemiBold", fontSize:13, color:"#94A3B8" },
-  labelOn: { color:"#4F46E5" },
+const tb = StyleSheet.create({
+  wrap:    { flexDirection:"row", backgroundColor:"rgba(255,255,255,0.05)", borderRadius:16, padding:4, marginHorizontal:20, marginBottom:16, borderWidth:1, borderColor:C.border },
+  tab:     { flex:1, flexDirection:"row", alignItems:"center", justifyContent:"center", gap:6, paddingVertical:10, borderRadius:13 },
+  tabOn:   { backgroundColor:"rgba(129,140,248,0.18)" },
+  label:   { fontFamily:"Inter_600SemiBold", fontSize:13, color:C.muted },
+  labelOn: { color:"#818CF8" },
 });
 
-// ── Day label ─────────────────────────────────────────────────────────────────
+// ── Day separator ─────────────────────────────────────────────────────────────
 function Day({ label }) {
   return (
     <View style={dy.row}>
@@ -84,11 +100,11 @@ function Day({ label }) {
 }
 const dy = StyleSheet.create({
   row:  { flexDirection:"row", alignItems:"center", marginVertical:20, paddingHorizontal:24 },
-  line: { flex:1, height:1, backgroundColor:"#E2E8F0" },
-  text: { fontFamily:"Inter_600SemiBold", fontSize:11, color:"#94A3B8", marginHorizontal:14, letterSpacing:0.8 },
+  line: { flex:1, height:1, backgroundColor:"rgba(255,255,255,0.07)" },
+  text: { fontFamily:"Inter_600SemiBold", fontSize:11, color:C.muted, marginHorizontal:14, letterSpacing:0.8 },
 });
 
-// ── Bubble ────────────────────────────────────────────────────────────────────
+// ── Chat bubble ───────────────────────────────────────────────────────────────
 function Bubble({ item }) {
   const m = EMO[item.emotion] || EMO.Tranquilo;
 
@@ -103,11 +119,11 @@ function Bubble({ item }) {
 
   return (
     <View style={b.left}>
-      <View style={[b.dot, { backgroundColor: m.color }]}>
-        <MaterialCommunityIcons name={m.icon} size={15} color="#fff" />
+      <View style={[b.avatar, { backgroundColor: m.bg }]}>
+        <MaterialCommunityIcons name={m.icon} size={16} color={m.color} />
       </View>
       <View style={{ maxWidth: W * 0.67 }}>
-        <View style={[b.petBubble, { backgroundColor: m.light }]}>
+        <View style={[b.petBubble, { backgroundColor: m.bg, borderColor: m.color + "30" }]}>
           <Text style={[b.tag, { color: m.color }]}>{item.emotion}</Text>
           <Text style={b.petText}>{item.text}</Text>
           <Text style={b.petTime}>{item.ts}</Text>
@@ -117,16 +133,16 @@ function Bubble({ item }) {
   );
 }
 const b = StyleSheet.create({
-  left:  { flexDirection:"row", alignItems:"flex-end", gap:10, marginBottom:14, paddingHorizontal:20 },
-  right: { alignItems:"flex-end", marginBottom:14, paddingHorizontal:20 },
-  dot:   { width:34, height:34, borderRadius:17, alignItems:"center", justifyContent:"center", flexShrink:0, marginBottom:4 },
-  petBubble:  { borderRadius:20, borderTopLeftRadius:6, paddingHorizontal:14, paddingTop:10, paddingBottom:10, gap:4 },
-  ownerBubble:{ backgroundColor:"#4F46E5", borderRadius:20, borderTopRightRadius:6, paddingHorizontal:14, paddingTop:10, paddingBottom:10, gap:4, maxWidth:W*0.67 },
-  tag:      { fontFamily:"Inter_700Bold", fontSize:11, letterSpacing:0.2 },
-  petText:  { fontFamily:"Inter_400Regular", fontSize:14, color:"#1E293B", lineHeight:20 },
-  ownerText:{ fontFamily:"Inter_400Regular", fontSize:14, color:"#fff", lineHeight:20 },
-  petTime:  { fontFamily:"Inter_400Regular", fontSize:10, color:"#94A3B8", alignSelf:"flex-end" },
-  ownerTime:{ fontFamily:"Inter_400Regular", fontSize:10, color:"rgba(255,255,255,0.5)", alignSelf:"flex-end" },
+  left:       { flexDirection:"row", alignItems:"flex-end", gap:10, marginBottom:14, paddingHorizontal:20 },
+  right:      { alignItems:"flex-end", marginBottom:14, paddingHorizontal:20 },
+  avatar:     { width:34, height:34, borderRadius:17, alignItems:"center", justifyContent:"center", flexShrink:0, marginBottom:4 },
+  petBubble:  { borderRadius:20, borderTopLeftRadius:5, borderWidth:1, paddingHorizontal:14, paddingVertical:11, gap:5 },
+  ownerBubble:{ backgroundColor:"#4F46E5", borderRadius:20, borderTopRightRadius:5, paddingHorizontal:14, paddingVertical:11, gap:4, maxWidth:W*0.67 },
+  tag:        { fontFamily:"Inter_700Bold", fontSize:11, letterSpacing:0.2 },
+  petText:    { fontFamily:"Inter_400Regular", fontSize:14, color:C.text, lineHeight:20 },
+  ownerText:  { fontFamily:"Inter_400Regular", fontSize:14, color:"#fff", lineHeight:20 },
+  petTime:    { fontFamily:"Inter_400Regular", fontSize:10, color:C.muted, alignSelf:"flex-end" },
+  ownerTime:  { fontFamily:"Inter_400Regular", fontSize:10, color:"rgba(255,255,255,0.4)", alignSelf:"flex-end" },
 });
 
 // ── Chat tab ──────────────────────────────────────────────────────────────────
@@ -151,7 +167,7 @@ function Bar({ item }) {
     Animated.timing(anim, { toValue:item.pct/100, duration:900, delay:100, useNativeDriver:false }).start();
   }, []);
   const h = anim.interpolate({ inputRange:[0,1], outputRange:["0%","100%"] });
-  const colors = item.mood==="good" ? ["#059669","#6EE7B7"] : item.mood==="warn" ? ["#D97706","#FCD34D"] : ["#DC2626","#FCA5A5"];
+  const colors = item.mood==="good" ? ["#059669","#34D399"] : ["#DC2626","#F87171"];
   return (
     <View style={bar.col}>
       <View style={bar.track}>
@@ -159,29 +175,29 @@ function Bar({ item }) {
           <LinearGradient colors={[colors[1],colors[0]]} style={StyleSheet.absoluteFill}/>
         </Animated.View>
       </View>
-      <View style={[bar.dayPill, item.today && bar.dayPillToday]}>
-        <Text style={[bar.dayText, item.today && bar.dayTextToday]}>{item.day}</Text>
+      <View style={[bar.pill, item.today && bar.pillToday]}>
+        <Text style={[bar.dayTxt, item.today && bar.dayTxtToday]}>{item.day}</Text>
       </View>
     </View>
   );
 }
 const bar = StyleSheet.create({
   col:         { flex:1, alignItems:"center", gap:8 },
-  track:       { width:28, height:100, backgroundColor:"#F1F5F9", borderRadius:14, overflow:"hidden", justifyContent:"flex-end" },
-  fill:        { width:"100%", borderRadius:14 },
-  dayPill:     { width:28, height:28, borderRadius:9, alignItems:"center", justifyContent:"center" },
-  dayPillToday:{ backgroundColor:"#4F46E5" },
-  dayText:     { fontFamily:"Inter_600SemiBold", fontSize:11, color:"#94A3B8" },
-  dayTextToday:{ color:"#fff" },
+  track:       { width:26, height:96, backgroundColor:"rgba(255,255,255,0.07)", borderRadius:13, overflow:"hidden", justifyContent:"flex-end" },
+  fill:        { width:"100%", borderRadius:13 },
+  pill:        { width:26, height:26, borderRadius:8, alignItems:"center", justifyContent:"center" },
+  pillToday:   { backgroundColor:"#4F46E5" },
+  dayTxt:      { fontFamily:"Inter_600SemiBold", fontSize:11, color:C.muted },
+  dayTxtToday: { color:"#fff" },
 });
 
-// ── Metric card ───────────────────────────────────────────────────────────────
-function Metric({ item }) {
+// ── Metric row ────────────────────────────────────────────────────────────────
+function Metric({ item, last }) {
   return (
-    <View style={mc.card}>
-      <LinearGradient colors={[item.color+"22", item.color+"08"]} style={mc.iconBg}>
-        <MaterialCommunityIcons name={item.icon} size={22} color={item.color}/>
-      </LinearGradient>
+    <View style={[mc.row, last && mc.rowLast]}>
+      <View style={[mc.icon, { backgroundColor: item.color+"20" }]}>
+        <MaterialCommunityIcons name={item.icon} size={19} color={item.color}/>
+      </View>
       <View style={{ flex:1 }}>
         <Text style={mc.label}>{item.label}</Text>
         <Text style={mc.value}>{item.value}</Text>
@@ -190,10 +206,11 @@ function Metric({ item }) {
   );
 }
 const mc = StyleSheet.create({
-  card:  { flexDirection:"row", alignItems:"center", gap:14, paddingVertical:14, borderBottomWidth:1, borderBottomColor:"#F1F5F9" },
-  iconBg:{ width:44, height:44, borderRadius:14, alignItems:"center", justifyContent:"center" },
-  label: { fontFamily:"Inter_400Regular", fontSize:11, color:"#94A3B8", marginBottom:3 },
-  value: { fontFamily:"Inter_700Bold", fontSize:14, color:"#1E293B" },
+  row:     { flexDirection:"row", alignItems:"center", gap:12, paddingVertical:13, borderBottomWidth:1, borderBottomColor:"rgba(255,255,255,0.06)" },
+  rowLast: { borderBottomWidth:0 },
+  icon:    { width:40, height:40, borderRadius:12, alignItems:"center", justifyContent:"center" },
+  label:   { fontFamily:"Inter_400Regular", fontSize:11, color:C.muted, marginBottom:3 },
+  value:   { fontFamily:"Inter_700Bold", fontSize:14, color:C.text },
 });
 
 // ── Diary tab ─────────────────────────────────────────────────────────────────
@@ -203,53 +220,50 @@ function DiaryTab({ isPremium }) {
 
       {/* Chart card */}
       <View style={dr.card}>
-        <View style={dr.cardHeader}>
+        <View style={dr.cardHead}>
           <Text style={dr.cardTitle}>Bienestar semanal</Text>
-          <View style={dr.pill}><Text style={dr.pillText}>Últimos 7 días</Text></View>
+          <View style={dr.badge}><Text style={dr.badgeTxt}>7 días</Text></View>
         </View>
-
-        <View style={[dr.chartArea, !isPremium && {opacity:0.3}]}>
-          <View style={dr.bars}>
-            {WEEK.map(item => <Bar key={item.day} item={item}/>)}
-          </View>
+        <View style={[!isPremium && { opacity:0.28 }]}>
+          <View style={dr.bars}>{WEEK.map(w=><Bar key={w.day} item={w}/>)}</View>
           <View style={dr.legend}>
-            {[["#059669","Bienestar"],["#D97706","Alerta"],["#DC2626","Estrés"]].map(([c,l])=>(
-              <View key={l} style={dr.legendItem}>
-                <View style={[dr.legendDot,{backgroundColor:c}]}/>
-                <Text style={dr.legendText}>{l}</Text>
+            {[["#34D399","Bienestar"],["#F87171","Estrés"]].map(([c,l])=>(
+              <View key={l} style={dr.legItem}>
+                <View style={[dr.legDot,{backgroundColor:c}]}/>
+                <Text style={dr.legText}>{l}</Text>
               </View>
             ))}
           </View>
         </View>
-
         {!isPremium && (
           <View style={dr.lockRow}>
-            <View style={dr.lockIcon}>
-              <MaterialCommunityIcons name="lock-outline" size={16} color="#4F46E5"/>
-            </View>
-            <Text style={dr.lockText}>Gráfica completa disponible en Premium</Text>
+            <MaterialCommunityIcons name="lock-outline" size={14} color={C.indigo}/>
+            <Text style={dr.lockTxt}>Gráfica completa disponible en Premium</Text>
           </View>
         )}
       </View>
 
       {/* Paywall CTA */}
       {!isPremium && (
-        <TouchableOpacity activeOpacity={0.88} style={dr.cta}>
-          <LinearGradient colors={["#FF8A65","#F4511E"]} start={{x:0,y:0}} end={{x:1,y:0}} style={dr.ctaGrad}>
-            <MaterialCommunityIcons name="star" size={18} color="#fff"/>
-            <View>
+        <TouchableOpacity activeOpacity={0.88} style={dr.ctaWrap}>
+          <LinearGradient colors={["#FF8A65","#F4511E"]} start={{x:0,y:0}} end={{x:1,y:0}} style={dr.cta}>
+            <LinearGradient colors={["rgba(255,255,255,0.18)","transparent"]} style={StyleSheet.absoluteFill}/>
+            <MaterialCommunityIcons name="star" size={20} color="#fff"/>
+            <View style={{ flex:1 }}>
               <Text style={dr.ctaTitle}>Desbloquear Reporte Premium</Text>
               <Text style={dr.ctaSub}>Análisis completo · Sin límites diarios</Text>
             </View>
-            <MaterialCommunityIcons name="chevron-right" size={20} color="rgba(255,255,255,0.7)"/>
+            <MaterialCommunityIcons name="chevron-right" size={20} color="rgba(255,255,255,0.6)"/>
           </LinearGradient>
         </TouchableOpacity>
       )}
 
       {/* Metrics */}
-      <View style={[dr.card, !isPremium && {opacity:0.45}]}>
-        <Text style={dr.cardTitle}>Métricas de la semana</Text>
-        {METRICS.map((m,i) => <Metric key={i} item={m}/>)}
+      <View style={[dr.card, !isPremium && { opacity:0.4 }]}>
+        <View style={dr.cardHead}>
+          <Text style={dr.cardTitle}>Métricas de la semana</Text>
+        </View>
+        {METRICS.map((m,i) => <Metric key={i} item={m} last={i===METRICS.length-1}/>)}
       </View>
 
     </ScrollView>
@@ -257,27 +271,25 @@ function DiaryTab({ isPremium }) {
 }
 const dr = StyleSheet.create({
   card: {
-    backgroundColor:"#fff", borderRadius:24, padding:20,
-    marginHorizontal:20, marginBottom:16,
-    shadowColor:"#000", shadowOpacity:0.05, shadowRadius:14, shadowOffset:{width:0,height:4}, elevation:3,
+    backgroundColor:C.card, borderRadius:22, padding:18,
+    marginHorizontal:20, marginBottom:14,
+    borderWidth:1, borderColor:C.border,
   },
-  cardHeader: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:20 },
-  cardTitle:  { fontFamily:"Inter_700Bold", fontSize:16, color:"#1E293B" },
-  pill:       { backgroundColor:"#EEF2FF", borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
-  pillText:   { fontFamily:"Inter_600SemiBold", fontSize:11, color:"#4F46E5" },
-  chartArea:  { gap:16 },
-  bars:       { flexDirection:"row", gap:6, alignItems:"flex-end" },
-  legend:     { flexDirection:"row", gap:16, marginTop:4 },
-  legendItem: { flexDirection:"row", alignItems:"center", gap:5 },
-  legendDot:  { width:7, height:7, borderRadius:4 },
-  legendText: { fontFamily:"Inter_400Regular", fontSize:11, color:"#64748B" },
-  lockRow:    { flexDirection:"row", alignItems:"center", gap:8, marginTop:16, paddingTop:14, borderTopWidth:1, borderTopColor:"#F1F5F9" },
-  lockIcon:   { width:28, height:28, borderRadius:9, backgroundColor:"#EEF2FF", alignItems:"center", justifyContent:"center" },
-  lockText:   { fontFamily:"Inter_400Regular", fontSize:12, color:"#94A3B8", flex:1 },
-  cta: { marginHorizontal:20, borderRadius:20, overflow:"hidden", marginBottom:16, shadowColor:"#F4511E", shadowOpacity:0.3, shadowRadius:12, shadowOffset:{width:0,height:4}, elevation:5 },
-  ctaGrad: { flexDirection:"row", alignItems:"center", gap:14, padding:18 },
+  cardHead: { flexDirection:"row", alignItems:"center", justifyContent:"space-between", marginBottom:18 },
+  cardTitle:{ fontFamily:"Inter_700Bold", fontSize:16, color:C.text },
+  badge:    { backgroundColor:"rgba(129,140,248,0.2)", borderRadius:20, paddingHorizontal:10, paddingVertical:4 },
+  badgeTxt: { fontFamily:"Inter_600SemiBold", fontSize:11, color:C.indigo },
+  bars:     { flexDirection:"row", gap:4, alignItems:"flex-end", marginBottom:14 },
+  legend:   { flexDirection:"row", gap:16 },
+  legItem:  { flexDirection:"row", alignItems:"center", gap:5 },
+  legDot:   { width:7, height:7, borderRadius:4 },
+  legText:  { fontFamily:"Inter_400Regular", fontSize:11, color:C.muted },
+  lockRow:  { flexDirection:"row", alignItems:"center", gap:7, marginTop:14, paddingTop:12, borderTopWidth:1, borderTopColor:C.border },
+  lockTxt:  { fontFamily:"Inter_400Regular", fontSize:12, color:C.muted },
+  ctaWrap:  { marginHorizontal:20, marginBottom:14, borderRadius:18, overflow:"hidden", shadowColor:"#F4511E", shadowOpacity:0.35, shadowRadius:12, shadowOffset:{width:0,height:4}, elevation:6 },
+  cta:      { flexDirection:"row", alignItems:"center", gap:14, padding:18, overflow:"hidden" },
   ctaTitle: { fontFamily:"Inter_700Bold", fontSize:14, color:"#fff" },
-  ctaSub:   { fontFamily:"Inter_400Regular", fontSize:11, color:"rgba(255,255,255,0.75)", marginTop:1 },
+  ctaSub:   { fontFamily:"Inter_400Regular", fontSize:11, color:"rgba(255,255,255,0.7)", marginTop:2 },
 });
 
 // ── Bottom nav ────────────────────────────────────────────────────────────────
@@ -294,7 +306,7 @@ function BottomNav({ navigation, active }) {
         return (
           <TouchableOpacity key={tab.screen} style={nav.item} onPress={()=>!on&&navigation.navigate(tab.screen)} activeOpacity={0.7}>
             <View style={[nav.icon, on && nav.iconOn]}>
-              <MaterialCommunityIcons name={tab.icon} size={23} color={on?"#4F46E5":"#94A3B8"}/>
+              <MaterialCommunityIcons name={tab.icon} size={23} color={on ? "#818CF8" : C.muted}/>
             </View>
             <Text style={[nav.label, on && nav.labelOn]}>{tab.label}</Text>
           </TouchableOpacity>
@@ -304,12 +316,12 @@ function BottomNav({ navigation, active }) {
   );
 }
 const nav = StyleSheet.create({
-  bar:    { flexDirection:"row", paddingTop:8, paddingBottom:4, paddingHorizontal:12, backgroundColor:"#fff", borderTopWidth:1, borderTopColor:"#F1F5F9" },
+  bar:    { flexDirection:"row", paddingTop:8, paddingBottom:4, paddingHorizontal:12, backgroundColor:"#0A0C22", borderTopWidth:1, borderTopColor:C.border },
   item:   { flex:1, alignItems:"center", gap:3 },
   icon:   { width:42, height:34, borderRadius:13, alignItems:"center", justifyContent:"center" },
-  iconOn: { backgroundColor:"#EEF2FF" },
-  label:  { fontFamily:"Inter_400Regular", fontSize:10, color:"#94A3B8" },
-  labelOn:{ fontFamily:"Inter_600SemiBold", fontSize:10, color:"#4F46E5" },
+  iconOn: { backgroundColor:"rgba(129,140,248,0.15)" },
+  label:  { fontFamily:"Inter_400Regular", fontSize:10, color:C.muted },
+  labelOn:{ fontFamily:"Inter_600SemiBold", fontSize:10, color:"#818CF8" },
 });
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -319,17 +331,20 @@ export default function HistoryScreen({ navigation }) {
   const isPremium = false;
 
   return (
-    <View style={{ flex:1, backgroundColor:"#F8FAFC" }}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC"/>
+    <View style={{ flex:1, backgroundColor:C.bg }}>
+      <LinearGradient colors={["#06071A","#0C0E2E","#080C24"]} style={StyleSheet.absoluteFill}/>
+      <LinearGradient colors={["#4F46E518","transparent","#7C3AED10"]} style={StyleSheet.absoluteFill} start={{x:1,y:0}} end={{x:0,y:1}}/>
+      <StatusBar barStyle="light-content" backgroundColor={C.bg}/>
       <SafeAreaView style={{ flex:1 }} edges={["top"]}>
 
+        {/* Header */}
         <View style={sc.header}>
           <View>
             <Text style={sc.title}>Historial</Text>
             <Text style={sc.sub}>{pet?.name||"Tu mascota"} · PetVoice AI</Text>
           </View>
           <TouchableOpacity style={sc.searchBtn} activeOpacity={0.7}>
-            <MaterialCommunityIcons name="magnify" size={20} color="#64748B"/>
+            <MaterialCommunityIcons name="magnify" size={20} color={C.muted}/>
           </TouchableOpacity>
         </View>
 
@@ -340,7 +355,7 @@ export default function HistoryScreen({ navigation }) {
         </View>
 
       </SafeAreaView>
-      <SafeAreaView edges={["bottom"]} style={{ backgroundColor:"#fff" }}>
+      <SafeAreaView edges={["bottom"]} style={{ backgroundColor:"#0A0C22" }}>
         <BottomNav navigation={navigation} active="History"/>
       </SafeAreaView>
     </View>
@@ -349,7 +364,7 @@ export default function HistoryScreen({ navigation }) {
 
 const sc = StyleSheet.create({
   header:    { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:8, paddingBottom:16 },
-  title:     { fontFamily:"Inter_700Bold", fontSize:26, color:"#1E293B", letterSpacing:-0.6 },
-  sub:       { fontFamily:"Inter_400Regular", fontSize:12, color:"#94A3B8", marginTop:2 },
-  searchBtn: { width:40, height:40, borderRadius:12, backgroundColor:"#fff", borderWidth:1, borderColor:"#E2E8F0", alignItems:"center", justifyContent:"center" },
+  title:     { fontFamily:"Inter_700Bold", fontSize:26, color:C.text, letterSpacing:-0.6 },
+  sub:       { fontFamily:"Inter_400Regular", fontSize:12, color:C.muted, marginTop:2 },
+  searchBtn: { width:40, height:40, borderRadius:12, backgroundColor:C.card, borderWidth:1, borderColor:C.border, alignItems:"center", justifyContent:"center" },
 });
