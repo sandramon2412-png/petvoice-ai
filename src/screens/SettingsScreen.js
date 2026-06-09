@@ -56,9 +56,9 @@ const card = StyleSheet.create({
 
 function BottomNav({ navigation }) {
   const TABS = [
-    { label:"Inicio",    icon:"home-outline",          screen:"Home"     },
-    { label:"Historial", icon:"clock-time-four-outline",screen:"History"  },
-    { label:"Ajustes",   icon:"cog-outline",           screen:"Settings" },
+    { label:"Inicio",    icon:"home-outline",          iconOn:"home",             screen:"Home"     },
+    { label:"Historial", icon:"clock-time-four-outline",iconOn:"clock-time-four",  screen:"History"  },
+    { label:"Ajustes",   icon:"cog-outline",           iconOn:"cog",              screen:"Settings" },
   ];
   return (
     <View style={nav.bar}>
@@ -67,7 +67,7 @@ function BottomNav({ navigation }) {
         return (
           <TouchableOpacity key={tab.screen} style={nav.item} onPress={()=>!on&&navigation.navigate(tab.screen)} activeOpacity={0.7}>
             <View style={[nav.icon, on && nav.iconOn]}>
-              <MaterialCommunityIcons name={tab.icon} size={23} color={on?"#818CF8":C.muted}/>
+              <MaterialCommunityIcons name={on ? tab.iconOn : tab.icon} size={23} color={on?"#818CF8":C.muted}/>
             </View>
             <Text style={[nav.label, on && nav.labelOn]}>{tab.label}</Text>
           </TouchableOpacity>
