@@ -100,13 +100,15 @@ export default function ResultScreen({ navigation }) {
         : now >= yesterday ? "Ayer"
         : now.toLocaleDateString("es-ES", { weekday:"long" }).replace(/^\w/, c=>c.toUpperCase());
       addToHistory({
-        id:        Date.now().toString(),
+        id:          Date.now().toString(),
         ts,
-        day:       dayLabel,
-        timestamp: now.toISOString(),
-        emotion:   analysisResult.emocion_principal,
-        text:      analysisResult.traduccion_humana,
-        posture:   lastPosture,
+        day:         dayLabel,
+        timestamp:   now.toISOString(),
+        emotion:     analysisResult.emocion_principal,
+        text:        analysisResult.traduccion_humana,
+        petName:     pet?.name || "Mascota",
+        petSpecies:  pet?.species || "dog",
+        posture:     lastPosture,
         environment: lastEnvironment,
       });
     }

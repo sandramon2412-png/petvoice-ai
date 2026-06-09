@@ -1,4 +1,5 @@
 import React from "react";
+import { View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OnboardingScreen from "../screens/OnboardingScreen";
@@ -12,7 +13,17 @@ import { useApp } from "../context/AppContext";
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  const { pet } = useApp();
+  const { pet, ready } = useApp();
+
+  // Espera a que AsyncStorage cargue antes de decidir la ruta inicial
+  if (!ready) {
+    return (
+      <View style={{ flex:1, backgroundColor:"#06071A", alignItems:"center", justifyContent:"center" }}>
+        <ActivityIndicator color="#818CF8" size="large"/>
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator

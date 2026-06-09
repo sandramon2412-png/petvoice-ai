@@ -5,24 +5,33 @@ const AppContext = createContext(null);
 
 const FREE_DAILY_LIMIT = 5;
 const HISTORY_KEY = "@petvoice_history";
+const PET_KEY     = "@petvoice_pet";
 
 export function AppProvider({ children }) {
-  const [pet, setPet]                   = useState(null);
+  const [pet, setPet]                       = useState(null);
   const [analysisResult, setAnalysisResult] = useState(null);
   const [recordingsToday, setRecordingsToday] = useState(0);
   const [lastAnalysisAudio, setLastAnalysisAudio] = useState(null);
-  const [lastPosture, setLastPosture]   = useState(null);
+  const [lastPosture, setLastPosture]       = useState(null);
   const [lastEnvironment, setLastEnvironment] = useState(null);
-  const [history, setHistory]           = useState([]);
+  const [history, setHistory]               = useState([]);
+  const [ready, setReady]                   = useState(false);
 
-  // Load persisted history on mount
+  // Load persisted pet + history on mount
   useEffect(() => {
-    AsyncStorage.getItem(HISTORY_KEY)
-      .then(raw => { if (raw) setHistory(JSON.parse(raw)); })
-      .catch(() => {});
+    Promise.all([
+      AsyncStorage.getItem(PET_KEY),
+      AsyncStorage.getItem(HISTORY_KEY),
+    ]).then(([petRaw, histRaw]) => {
+      if (petRaw)  setPet(JSON.parse(petRaw));
+      if (histRaw) setHistory(JSON.parse(histRaw));
+    }).catch(() => {}).finally(() => setReady(true));
   }, []);
 
-  const savePet = useCallback((data) => { setPet(data); }, []);
+  const savePet = useCallback((data) => {
+    setPet(data);
+    AsyncStorage.setItem(PET_KEY, JSON.stringify(data)).catch(() => {});
+  }, []);
 
   const saveResult = useCallback((result) => {
     setAnalysisResult(result);
@@ -37,9 +46,13 @@ export function AppProvider({ children }) {
     });
   }, []);
 
-  const clearHistory = useCallback(() => {
-    setHistory([]);
-    AsyncStorage.removeItem(HISTORY_KEY).catch(() => {});
+  // Borra solo el historial de la mascota actual
+  const clearHistory = useCallback((petName) => {
+    setHistory(prev => {
+      const next = petName ? prev.filter(e => e.petName !== petName) : [];
+      AsyncStorage.setItem(HISTORY_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
   }, []);
 
   const canRecord = recordingsToday < FREE_DAILY_LIMIT;
@@ -55,6 +68,7 @@ export function AppProvider({ children }) {
         lastPosture, setLastPosture,
         lastEnvironment, setLastEnvironment,
         history, addToHistory, clearHistory,
+        ready,
       }}
     >
       {children}

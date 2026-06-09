@@ -406,6 +406,11 @@ export default function HistoryScreen({ navigation }) {
   const [tab, setTab] = useState(0);
   const isPremium = false;
 
+  // Solo muestra el historial de la mascota actual
+  const petHistory = history.filter(e =>
+    !e.petName || e.petName === (pet?.name || "Mascota")
+  );
+
   return (
     <View style={{ flex:1, backgroundColor:C.bg }}>
       <LinearGradient colors={["#06071A","#0C0E2E","#080C24"]} style={StyleSheet.absoluteFill}/>
@@ -416,10 +421,10 @@ export default function HistoryScreen({ navigation }) {
         <View style={sc.header}>
           <View>
             <Text style={sc.title}>Historial</Text>
-            <Text style={sc.sub}>{pet?.name||"Tu mascota"} · {history.length} análisis</Text>
+            <Text style={sc.sub}>{pet?.name||"Tu mascota"} · {petHistory.length} análisis</Text>
           </View>
-          {history.length > 0 && (
-            <TouchableOpacity style={sc.iconBtn} activeOpacity={0.7} onPress={clearHistory}>
+          {petHistory.length > 0 && (
+            <TouchableOpacity style={sc.iconBtn} activeOpacity={0.7} onPress={() => clearHistory(pet?.name)}>
               <MaterialCommunityIcons name="delete-outline" size={20} color={C.muted}/>
             </TouchableOpacity>
           )}
@@ -427,7 +432,7 @@ export default function HistoryScreen({ navigation }) {
 
         <Tabs active={tab} onChange={setTab}/>
         <View style={{ flex:1 }}>
-          {tab===0 ? <ChatTab history={history}/> : <DiaryTab isPremium={isPremium}/>}
+          {tab===0 ? <ChatTab history={petHistory}/> : <DiaryTab isPremium={isPremium}/>}
         </View>
 
       </SafeAreaView>
