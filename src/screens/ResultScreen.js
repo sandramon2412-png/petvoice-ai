@@ -75,7 +75,8 @@ function LightBlob({ color, size, top, left, right, bottom, opacity = 0.18 }) {
 }
 
 export default function ResultScreen({ navigation }) {
-  const { pet, analysisResult } = useApp();
+  const { pet, analysisResult, addToHistory, lastPosture, lastEnvironment } = useApp();
+  const savedRef = React.useRef(false);
 
   const titleY   = useRef(new Animated.Value(50)).current;
   const titleO   = useRef(new Animated.Value(0)).current;
@@ -86,6 +87,30 @@ export default function ResultScreen({ navigation }) {
   const card2Y   = useRef(new Animated.Value(55)).current;
   const card2O   = useRef(new Animated.Value(0)).current;
   const floatY   = useRef(new Animated.Value(0)).current;
+
+  // Save to history once per result
+  useEffect(() => {
+    if (analysisResult && !savedRef.current) {
+      savedRef.current = true;
+      const now = new Date();
+      const ts  = now.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+      const today = new Date(); today.setHours(0,0,0,0);
+      const yesterday = new Date(today); yesterday.setDate(yesterday.getDate()-1);
+      const dayLabel = now >= today ? "Hoy"
+        : now >= yesterday ? "Ayer"
+        : now.toLocaleDateString("es-ES", { weekday:"long" }).replace(/^\w/, c=>c.toUpperCase());
+      addToHistory({
+        id:        Date.now().toString(),
+        ts,
+        day:       dayLabel,
+        timestamp: now.toISOString(),
+        emotion:   analysisResult.emocion_principal,
+        text:      analysisResult.traduccion_humana,
+        posture:   lastPosture,
+        environment: lastEnvironment,
+      });
+    }
+  }, [analysisResult]);
 
   useEffect(() => {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});

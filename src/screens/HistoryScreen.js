@@ -33,19 +33,7 @@ const EMO = {
   Hambriento: { color: "#FB923C", bg: "rgba(251,146,60,0.15)",  icon: "food-drumstick-outline"   },
 };
 
-const CHAT = [
-  { id:"1",  ts:"09:14", day:"Hoy",    emotion:"Feliz",      text:"¡Estoy tan contento de verte! Eres mi persona favorita en el mundo." },
-  { id:"2",  ts:"09:14", day:"Hoy",    owner:true,           text:"¡Hola campeón! ¿Cómo amaneciste hoy?" },
-  { id:"3",  ts:"12:05", day:"Hoy",    emotion:"Hambriento", text:"Ya es hora de comer. Mi estómago lleva un rato protestando." },
-  { id:"4",  ts:"15:30", day:"Hoy",    emotion:"Juguetón",   text:"¡Quiero jugar! Ven, persígueme, será muy divertido." },
-  { id:"5",  ts:"18:47", day:"Hoy",    emotion:"Tranquilo",  text:"Estoy muy relajado y a gusto. Este momento es perfecto." },
-  { id:"6",  ts:"10:20", day:"Ayer",   emotion:"Alerta",     text:"Hay algo ahí afuera. No sé si es peligroso pero lo estoy vigilando." },
-  { id:"7",  ts:"10:20", day:"Ayer",   owner:true,           text:"Tranquilo, es solo el cartero." },
-  { id:"8",  ts:"14:55", day:"Ayer",   emotion:"Curioso",    text:"¿Qué es eso? Nunca lo había visto. Quiero investigarlo." },
-  { id:"9",  ts:"20:10", day:"Ayer",   emotion:"Estresado",  text:"Me siento incómodo y necesito tu ayuda. Por favor quédate cerca." },
-  { id:"10", ts:"11:30", day:"Martes", emotion:"Feliz",      text:"¡Estoy tan contento de verte! Eres mi persona favorita." },
-  { id:"11", ts:"16:00", day:"Martes", emotion:"Asustado",   text:"Tengo miedo. Ese ruido me asusta mucho, necesito que me protejas." },
-];
+// No more mock data — uses real history from context
 
 const WEEK = [
   { day:"L", pct:75,  mood:"good" },
@@ -163,14 +151,32 @@ const b = StyleSheet.create({
   ownerTime:{ fontFamily:"Inter_400Regular", fontSize:10, color:"rgba(255,255,255,0.4)", alignSelf:"flex-end" },
 });
 
+// ── Empty state ───────────────────────────────────────────────────────────────
+function EmptyChat() {
+  return (
+    <View style={{ flex:1, alignItems:"center", justifyContent:"center", paddingHorizontal:40, gap:12 }}>
+      <View style={{ width:64, height:64, borderRadius:20, backgroundColor:"rgba(129,140,248,0.12)", alignItems:"center", justifyContent:"center" }}>
+        <MaterialCommunityIcons name="chat-processing-outline" size={30} color="#818CF8"/>
+      </View>
+      <Text style={{ fontFamily:"Inter_700Bold", fontSize:17, color:C.text, textAlign:"center" }}>Sin análisis aún</Text>
+      <Text style={{ fontFamily:"Inter_400Regular", fontSize:13, color:C.muted, textAlign:"center", lineHeight:19 }}>
+        Graba el sonido de tu mascota en Inicio y aquí aparecerá la traducción.
+      </Text>
+    </View>
+  );
+}
+
 // ── Chat tab ──────────────────────────────────────────────────────────────────
-function ChatTab() {
+function ChatTab({ history }) {
   const rows = [];
   let last = null;
-  CHAT.forEach(item => {
-    if (item.day !== last) { rows.push({ type:"day", id:"d"+item.day, label:item.day }); last=item.day; }
+  history.forEach(item => {
+    if (item.day !== last) { rows.push({ type:"day", id:"d"+item.day+item.id, label:item.day }); last=item.day; }
     rows.push({ type:"bubble", ...item });
   });
+
+  if (history.length === 0) return <EmptyChat/>;
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingTop:4, paddingBottom:24 }}>
       {rows.map(r => r.type==="day" ? <Day key={r.id} label={r.label}/> : <Bubble key={r.id} item={r}/>)}
@@ -344,7 +350,7 @@ const nav = StyleSheet.create({
 
 // ── Screen ────────────────────────────────────────────────────────────────────
 export default function HistoryScreen({ navigation }) {
-  const { pet } = useApp();
+  const { pet, history, clearHistory } = useApp();
   const [tab, setTab] = useState(0);
   const isPremium = false;
 
@@ -359,17 +365,21 @@ export default function HistoryScreen({ navigation }) {
         <View style={sc.header}>
           <View>
             <Text style={sc.title}>Historial</Text>
-            <Text style={sc.sub}>{pet?.name||"Tu mascota"} · PetVoice AI</Text>
+            <Text style={sc.sub}>
+              {pet?.name||"Tu mascota"} · {history.length} {history.length===1?"análisis":"análisis"}
+            </Text>
           </View>
-          <TouchableOpacity style={sc.searchBtn} activeOpacity={0.7}>
-            <MaterialCommunityIcons name="magnify" size={20} color={C.muted}/>
-          </TouchableOpacity>
+          {history.length > 0 && (
+            <TouchableOpacity style={sc.clearBtn} activeOpacity={0.7} onPress={clearHistory}>
+              <MaterialCommunityIcons name="delete-outline" size={18} color={C.muted}/>
+            </TouchableOpacity>
+          )}
         </View>
 
         <Tabs active={tab} onChange={setTab}/>
 
         <View style={{ flex:1 }}>
-          {tab===0 ? <ChatTab/> : <DiaryTab isPremium={isPremium}/>}
+          {tab===0 ? <ChatTab history={history}/> : <DiaryTab isPremium={isPremium}/>}
         </View>
 
       </SafeAreaView>
@@ -384,5 +394,5 @@ const sc = StyleSheet.create({
   header:    { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:8, paddingBottom:16 },
   title:     { fontFamily:"Inter_700Bold", fontSize:26, color:C.text, letterSpacing:-0.6 },
   sub:       { fontFamily:"Inter_400Regular", fontSize:12, color:C.muted, marginTop:2 },
-  searchBtn: { width:40, height:40, borderRadius:12, backgroundColor:C.card, borderWidth:1, borderColor:C.border, alignItems:"center", justifyContent:"center" },
+  clearBtn:  { width:40, height:40, borderRadius:12, backgroundColor:C.card, borderWidth:1, borderColor:C.border, alignItems:"center", justifyContent:"center" },
 });
