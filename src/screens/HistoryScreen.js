@@ -404,12 +404,13 @@ const nav = StyleSheet.create({
 export default function HistoryScreen({ navigation }) {
   const { pet, history, clearHistory } = useApp();
   const [tab, setTab] = useState(0);
+  const [selectedPet, setSelectedPet] = useState(null);
   const isPremium = false;
 
-  // Solo muestra el historial de la mascota actual
-  const petHistory = history.filter(e =>
-    !e.petName || e.petName === (pet?.name || "Mascota")
-  );
+  // Todas las mascotas con historial (sin duplicados)
+  const allPets = [...new Set(history.map(e => e.petName || pet?.name || "Mascota").filter(Boolean))];
+  const activePet = selectedPet || pet?.name || allPets[0] || "Mascota";
+  const petHistory = history.filter(e => (e.petName || pet?.name || "Mascota") === activePet);
 
   return (
     <View style={{ flex:1, backgroundColor:C.bg }}>
@@ -421,14 +422,31 @@ export default function HistoryScreen({ navigation }) {
         <View style={sc.header}>
           <View>
             <Text style={sc.title}>Historial</Text>
-            <Text style={sc.sub}>{pet?.name||"Tu mascota"} · {petHistory.length} análisis</Text>
+            <Text style={sc.sub}>{activePet} · {petHistory.length} análisis</Text>
           </View>
           {petHistory.length > 0 && (
-            <TouchableOpacity style={sc.iconBtn} activeOpacity={0.7} onPress={() => clearHistory(pet?.name)}>
+            <TouchableOpacity style={sc.iconBtn} activeOpacity={0.7} onPress={() => clearHistory(activePet)}>
               <MaterialCommunityIcons name="delete-outline" size={20} color={C.muted}/>
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Selector de mascota — solo aparece si hay más de una */}
+        {allPets.length > 1 && (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={sc.petsRow}>
+            {allPets.map(name => (
+              <TouchableOpacity
+                key={name}
+                style={[sc.petChip, name===activePet && sc.petChipOn]}
+                onPress={() => setSelectedPet(name)}
+                activeOpacity={0.7}
+              >
+                <MaterialCommunityIcons name="paw" size={12} color={name===activePet ? "#818CF8" : C.muted}/>
+                <Text style={[sc.petChipText, name===activePet && sc.petChipTextOn]}>{name}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        )}
 
         <Tabs active={tab} onChange={setTab}/>
         <View style={{ flex:1 }}>
@@ -444,8 +462,13 @@ export default function HistoryScreen({ navigation }) {
 }
 
 const sc = StyleSheet.create({
-  header:  { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:8, paddingBottom:16 },
-  title:   { fontFamily:"Inter_700Bold", fontSize:26, color:C.text, letterSpacing:-0.6 },
-  sub:     { fontFamily:"Inter_400Regular", fontSize:12, color:C.muted, marginTop:2 },
-  iconBtn: { width:40, height:40, borderRadius:12, backgroundColor:C.card, borderWidth:1, borderColor:C.border, alignItems:"center", justifyContent:"center" },
+  header:       { flexDirection:"row", alignItems:"center", justifyContent:"space-between", paddingHorizontal:20, paddingTop:8, paddingBottom:12 },
+  title:        { fontFamily:"Inter_700Bold", fontSize:26, color:C.text, letterSpacing:-0.6 },
+  sub:          { fontFamily:"Inter_400Regular", fontSize:12, color:C.muted, marginTop:2 },
+  iconBtn:      { width:40, height:40, borderRadius:12, backgroundColor:C.card, borderWidth:1, borderColor:C.border, alignItems:"center", justifyContent:"center" },
+  petsRow:      { paddingHorizontal:20, paddingBottom:12, gap:8, flexDirection:"row" },
+  petChip:      { flexDirection:"row", alignItems:"center", gap:5, paddingHorizontal:12, paddingVertical:7, borderRadius:20, backgroundColor:C.card, borderWidth:1, borderColor:C.border },
+  petChipOn:    { backgroundColor:"rgba(129,140,248,0.18)", borderColor:"rgba(129,140,248,0.45)" },
+  petChipText:  { fontFamily:"Inter_500Medium", fontSize:12, color:C.muted },
+  petChipTextOn:{ color:"#818CF8", fontFamily:"Inter_600SemiBold" },
 });
