@@ -436,12 +436,12 @@ export default function HomeScreen({ navigation }) {
       />
 
       {/* ── Bottom navigation bar ── */}
-      <SafeAreaView edges={["bottom"]} style={{ backgroundColor: "rgba(6,7,26,0.96)" }}>
+      <SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#0A0C22" }}>
         <View style={s.bottomNav}>
           {[
-            { label: "Inicio",    icon: "home",    screen: "Home"    },
-            { label: "Historial", icon: "history", screen: "History" },
-            { label: "Ajustes",   icon: "cog-outline", screen: "Settings" },
+            { label: "Inicio",    icon: "home-variant",  screen: "Home"     },
+            { label: "Historial", icon: "history",        screen: "History"  },
+            { label: "Ajustes",   icon: "tune-variant",   screen: "Settings" },
           ].map((t) => {
             const active = t.screen === "Home";
             return (
@@ -452,7 +452,7 @@ export default function HomeScreen({ navigation }) {
                 activeOpacity={0.7}
               >
                 <View style={[s.bottomNavIcon, active && s.bottomNavIconActive]}>
-                  <MaterialCommunityIcons name={t.icon} size={22} color={active ? "#818CF8" : "rgba(255,255,255,0.35)"} />
+                  <MaterialCommunityIcons name={t.icon} size={24} color={active ? "#818CF8" : "#4B5563"} />
                 </View>
                 <Text style={[s.bottomNavLabel, active && s.bottomNavLabelActive]}>{t.label}</Text>
               </TouchableOpacity>
@@ -604,12 +604,12 @@ const s = StyleSheet.create({
 
   // Bottom nav
   bottomNav: {
-    flexDirection: "row", paddingTop: 8, paddingBottom: 4, paddingHorizontal: 12,
-    borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.07)",
+    flexDirection: "row", paddingTop: 10, paddingBottom: 6, paddingHorizontal: 8,
+    borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.05)",
   },
-  bottomNavItem:       { flex: 1, alignItems: "center", gap: 3 },
-  bottomNavIcon:       { width: 40, height: 34, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  bottomNavIconActive: { backgroundColor: "rgba(129,140,248,0.15)" },
-  bottomNavLabel:      { fontFamily: "Inter_400Regular", fontSize: 10, color: "rgba(255,255,255,0.3)" },
+  bottomNavItem:       { flex: 1, alignItems: "center", gap: 4 },
+  bottomNavIcon:       { width: 44, height: 36, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  bottomNavIconActive: { backgroundColor: "rgba(129,140,248,0.18)" },
+  bottomNavLabel:      { fontFamily: "Inter_500Medium", fontSize: 10, color: "#4B5563" },
   bottomNavLabelActive:{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: "#818CF8" },
 });

@@ -195,14 +195,14 @@ function StatCard({ icon, label, value, accent }) {
 }
 const sc = StyleSheet.create({
   card: {
-    flexDirection: "row", alignItems: "center", gap: 12,
-    backgroundColor: "#fff", borderRadius: 16, padding: 14,
-    borderWidth: 1, borderColor: "#F1F5F9", marginBottom: 10,
-    shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 }, elevation: 2,
+    flexDirection: "row", alignItems: "center", gap: 14,
+    backgroundColor: "#fff", borderRadius: 18, padding: 16,
+    borderWidth: 1, borderColor: "#EEF2FF", marginBottom: 10,
+    shadowColor: "#4F46E5", shadowOpacity: 0.06, shadowRadius: 12, shadowOffset: { width: 0, height: 3 }, elevation: 3,
   },
-  iconBg: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
-  label: { fontFamily: "Inter_400Regular", fontSize: 11, color: "#94A3B8", marginBottom: 2 },
-  value: { fontFamily: "Inter_700Bold", fontSize: 14, color: "#1E293B" },
+  iconBg: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  label: { fontFamily: "Inter_400Regular", fontSize: 11, color: "#94A3B8", marginBottom: 3 },
+  value: { fontFamily: "Inter_700Bold", fontSize: 14, color: "#1E293B", lineHeight: 20 },
 });
 
 // ─── Mood Diary tab ────────────────────────────────────────────────────────────
@@ -215,7 +215,7 @@ function MoodDiaryTab({ isPremium }) {
 
       {/* Chart + optional paywall */}
       <View style={{ marginBottom: 20 }}>
-        <View style={[md.chartCard, !isPremium && { opacity: 0.22 }]}>
+        <View style={[md.chartCard, !isPremium && { opacity: 0.30 }]}>
           <View style={md.legendRow}>
             {[["#10B981", "Bienestar"], ["#F59E0B", "Alerta"], ["#EF4444", "Estrés"]].map(([c, l]) => (
               <View key={l} style={md.legendItem}>
@@ -248,7 +248,7 @@ function MoodDiaryTab({ isPremium }) {
       </View>
 
       {/* Metrics */}
-      <View style={[!isPremium && { opacity: 0.2 }]}>
+      <View style={[!isPremium && { opacity: 0.45 }]}>
         <Text style={[md.sectionTitle, { marginBottom: 12 }]}>Métricas de la semana</Text>
         <StatCard icon="emoticon-happy-outline"  label="Emoción predominante"          value="Feliz · 72% de los análisis"       accent="#10B981" />
         <StatCard icon="lightning-bolt-outline"  label="Picos de estrés detectados"    value="Martes y Jueves por la tarde"      accent="#EF4444" />
