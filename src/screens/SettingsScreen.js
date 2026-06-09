@@ -1,361 +1,158 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  Alert,
-  Platform,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../context/AppContext';
-import { COLORS } from '../constants/colors';
-import { FONTS } from '../constants/typography';
+import React from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useApp } from "../context/AppContext";
 
-const SettingRow = ({ icon, label, value, onPress, danger }) => (
-  <TouchableOpacity
-    style={styles.settingRow}
-    onPress={onPress}
-    activeOpacity={onPress ? 0.7 : 1}
-  >
-    <View style={styles.settingLeft}>
-      <Text style={styles.settingIcon}>{icon}</Text>
-      <Text style={[styles.settingLabel, danger && styles.settingLabelDanger]}>
-        {label}
-      </Text>
+function SettingRow({ icon, label, value, accent = "#4F46E5", onPress }) {
+  return (
+    <TouchableOpacity style={s.row} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
+      <View style={[s.rowIcon, { backgroundColor: accent + "15" }]}>
+        <MaterialCommunityIcons name={icon} size={20} color={accent} />
+      </View>
+      <Text style={s.rowLabel}>{label}</Text>
+      <View style={{ flex: 1 }} />
+      {value ? <Text style={s.rowValue}>{value}</Text> : null}
+      {onPress ? <MaterialCommunityIcons name="chevron-right" size={18} color="#CBD5E1" /> : null}
+    </TouchableOpacity>
+  );
+}
+
+function SectionCard({ title, children }) {
+  return (
+    <View style={s.card}>
+      <Text style={s.cardTitle}>{title}</Text>
+      {children}
     </View>
-    {value !== undefined && (
-      <Text style={styles.settingValue}>{value}</Text>
-    )}
-    {onPress && !danger && (
-      <Text style={styles.settingArrow}>›</Text>
-    )}
-  </TouchableOpacity>
-);
+  );
+}
 
-const SettingsScreen = ({ navigation }) => {
-  const { pet, user, clearHistory, setPremium } = useApp();
-  const insets = useSafeAreaInsets();
+function BottomNav({ navigation }) {
+  const tabs = [
+    { label: "Inicio",    icon: "home-variant",  screen: "Home"     },
+    { label: "Historial", icon: "history",        screen: "History"  },
+    { label: "Ajustes",   icon: "tune-variant",   screen: "Settings" },
+  ];
+  return (
+    <View style={s.bottomNav}>
+      {tabs.map((t) => {
+        const active = t.screen === "Settings";
+        return (
+          <TouchableOpacity key={t.screen} style={s.navItem} onPress={() => !active && navigation.navigate(t.screen)} activeOpacity={0.7}>
+            <View style={[s.navIcon, active && s.navIconActive]}>
+              <MaterialCommunityIcons name={t.icon} size={24} color={active ? "#4F46E5" : "#94A3B8"} />
+            </View>
+            <Text style={[s.navLabel, active && s.navLabelActive]}>{t.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
 
-  const petInitial = pet?.name ? pet.name.charAt(0).toUpperCase() : '?';
-
-  const handleClearHistory = () => {
-    Alert.alert(
-      'Borrar historial',
-      '¿Estás seguro? Esto eliminará todas las conversaciones guardadas.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Borrar',
-          style: 'destructive',
-          onPress: async () => {
-            await clearHistory();
-            Alert.alert('Listo', 'El historial fue borrado.');
-          },
-        },
-      ]
-    );
-  };
-
-  const handleEditPet = () => {
-    navigation.navigate('Onboarding');
-  };
-
-  const handleManagePremium = () => {
-    if (user.isPremium) {
-      Alert.alert(
-        'Gestionar suscripción',
-        'Para cancelar tu suscripción, ve a la configuración de tu tienda de aplicaciones.',
-        [{ text: 'Entendido' }]
-      );
-    } else {
-      navigation.navigate('Paywall');
-    }
-  };
-
-  // Dev-only: toggle premium for testing
-  const handleTogglePremiumDev = () => {
-    Alert.alert(
-      'Demo: Toggle Premium',
-      `Cambiar a ${user.isPremium ? 'Free' : 'Premium'}?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Confirmar',
-          onPress: () => setPremium(!user.isPremium),
-        },
-      ]
-    );
-  };
+export default function SettingsScreen({ navigation }) {
+  const { pet } = useApp();
 
   return (
-    <ScrollView
-      style={[styles.container, { paddingTop: insets.top + 12 }]}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.screenTitle}>Ajustes</Text>
+    <View style={{ flex: 1, backgroundColor: "#F8FAFC" }}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
+      <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
 
-      {/* Pet profile card */}
-      <View style={styles.petCard}>
-        {pet?.photo ? (
-          <Image source={{ uri: pet.photo }} style={styles.petCardAvatar} />
-        ) : (
-          <View style={styles.petCardAvatarFallback}>
-            <Text style={styles.petCardAvatarInitial}>{petInitial}</Text>
-          </View>
-        )}
-        <View style={styles.petCardInfo}>
-          <Text style={styles.petCardName}>{pet?.name || 'Sin nombre'}</Text>
-          <Text style={styles.petCardDetails}>
-            {pet?.species === 'cat' ? 'Gato' : 'Perro'}
-            {pet?.breed ? ` · ${pet.breed}` : ''}
-            {pet?.age ? ` · ${pet.age}` : ''}
-          </Text>
+        <View style={s.header}>
+          <Text style={s.headerTitle}>Ajustes</Text>
+          <Text style={s.headerSub}>{pet?.name || "Tu mascota"} · PetVoice AI</Text>
         </View>
-        <TouchableOpacity style={styles.editBtn} onPress={handleEditPet}>
-          <Text style={styles.editBtnText}>Editar</Text>
-        </TouchableOpacity>
-      </View>
 
-      {/* Account section */}
-      <Text style={styles.sectionHeader}>Cuenta</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow
-          icon={user.isPremium ? '⭐' : '🔒'}
-          label={user.isPremium ? 'PetVoice Premium' : 'Actualizar a Premium'}
-          value={user.isPremium ? 'Activo' : undefined}
-          onPress={handleManagePremium}
-        />
-        <View style={styles.groupDivider} />
-        <SettingRow
-          icon="📊"
-          label="Traducciones hoy"
-          value={user.isPremium ? 'Ilimitadas' : `${user.translationsToday} / 3`}
-        />
-      </View>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingBottom: 24 }}>
 
-      {/* Data section */}
-      <Text style={styles.sectionHeader}>Datos</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow
-          icon="💬"
-          label="Ver historial"
-          onPress={() => navigation.navigate('Historial')}
-        />
-        <View style={styles.groupDivider} />
-        <SettingRow
-          icon="🗑"
-          label="Borrar historial"
-          onPress={handleClearHistory}
-          danger
-        />
-      </View>
+          {/* Plan */}
+          <View style={s.planCard}>
+            <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={StyleSheet.absoluteFill} />
+            <View style={s.planRow}>
+              <View>
+                <Text style={s.planLabel}>Plan actual</Text>
+                <Text style={s.planName}>Gratuito</Text>
+              </View>
+              <TouchableOpacity style={s.upgradeBtn} activeOpacity={0.85}>
+                <LinearGradient colors={["#FF8A65", "#F4511E"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.upgradeBtnGrad}>
+                  <MaterialCommunityIcons name="star-outline" size={14} color="#fff" />
+                  <Text style={s.upgradeBtnText}>Upgrade a Pro</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            </View>
+            <View style={s.planFeatures}>
+              {["5 análisis por día", "Historial básico"].map((f) => (
+                <View key={f} style={s.planFeature}>
+                  <MaterialCommunityIcons name="check-circle-outline" size={14} color="rgba(255,255,255,0.7)" />
+                  <Text style={s.planFeatureText}>{f}</Text>
+                </View>
+              ))}
+            </View>
+          </View>
 
-      {/* About section */}
-      <Text style={styles.sectionHeader}>Acerca de</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow icon="📝" label="Términos de servicio" onPress={() => {}} />
-        <View style={styles.groupDivider} />
-        <SettingRow icon="🔐" label="Política de privacidad" onPress={() => {}} />
-        <View style={styles.groupDivider} />
-        <SettingRow icon="⭐" label="Calificar la app" onPress={() => {}} />
-        <View style={styles.groupDivider} />
-        <SettingRow icon="📱" label="Versión" value="1.0.0" />
-      </View>
+          <SectionCard title="Mascota">
+            <SettingRow icon="paw" label="Nombre" value={pet?.name || "—"} accent="#10B981" />
+            <SettingRow icon="dog" label="Especie" value={pet?.species === "cat" ? "Gato" : "Perro"} accent="#6366F1" />
+            <SettingRow icon="cake-variant-outline" label="Edad" value={pet?.age ? `${pet.age} años` : "—"} accent="#F59E0B" />
+          </SectionCard>
 
-      {/* Dev tools */}
-      <Text style={styles.sectionHeader}>Herramientas de demo</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow
-          icon="🧪"
-          label={`Toggle Premium (ahora: ${user.isPremium ? 'ON' : 'OFF'})`}
-          onPress={handleTogglePremiumDev}
-        />
-      </View>
+          <SectionCard title="Preferencias">
+            <SettingRow icon="bell-outline"      label="Notificaciones"   onPress={() => {}} accent="#4F46E5" />
+            <SettingRow icon="translate"          label="Idioma"          value="Español"    accent="#0EA5E9" />
+            <SettingRow icon="moon-waning-crescent" label="Tema oscuro"   onPress={() => {}} accent="#7C3AED" />
+          </SectionCard>
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>🐾 PetVoice AI</Text>
-        <Text style={styles.footerSubText}>
-          Hecho con amor para las mascotas y sus familias
-        </Text>
-      </View>
+          <SectionCard title="Acerca de">
+            <SettingRow icon="shield-check-outline" label="Privacidad"    onPress={() => {}} accent="#10B981" />
+            <SettingRow icon="file-document-outline" label="Términos"     onPress={() => {}} accent="#64748B" />
+            <SettingRow icon="information-outline"  label="Versión"       value="1.0.0"      accent="#94A3B8" />
+          </SectionCard>
 
-      <View style={{ height: insets.bottom + 24 }} />
-    </ScrollView>
+        </ScrollView>
+      </SafeAreaView>
+
+      <SafeAreaView edges={["bottom"]} style={{ backgroundColor: "#fff" }}>
+        <BottomNav navigation={navigation} />
+      </SafeAreaView>
+    </View>
   );
-};
+}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BG,
-  },
-  content: {
-    paddingHorizontal: 20,
-  },
-  screenTitle: {
-    fontSize: FONTS.size.xxl,
-    fontWeight: FONTS.weight.extrabold,
-    color: COLORS.DARK,
-    marginBottom: 20,
-  },
+const s = StyleSheet.create({
+  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
+  headerTitle: { fontFamily: "Inter_700Bold", fontSize: 26, color: "#1E293B", letterSpacing: -0.6 },
+  headerSub:   { fontFamily: "Inter_400Regular", fontSize: 12, color: "#94A3B8", marginTop: 2 },
 
-  // Pet card
-  petCard: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    marginBottom: 28,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.07,
-        shadowRadius: 8,
-      },
-      android: { elevation: 2 },
-    }),
+  planCard: {
+    borderRadius: 20, overflow: "hidden", padding: 20, marginBottom: 20,
+    shadowColor: "#4F46E5", shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
   },
-  petCardAvatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    borderWidth: 2,
-    borderColor: COLORS.PRIMARY,
-  },
-  petCardAvatarFallback: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: COLORS.PRIMARY,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  petCardAvatarInitial: {
-    color: COLORS.WHITE,
-    fontSize: FONTS.size.xl,
-    fontWeight: FONTS.weight.bold,
-  },
-  petCardInfo: {
-    flex: 1,
-  },
-  petCardName: {
-    fontSize: FONTS.size.lg,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.DARK,
-    marginBottom: 3,
-  },
-  petCardDetails: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.MUTED,
-    textTransform: 'capitalize',
-  },
-  editBtn: {
-    borderWidth: 1.5,
-    borderColor: COLORS.PRIMARY,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-  },
-  editBtnText: {
-    color: COLORS.PRIMARY,
-    fontSize: FONTS.size.sm,
-    fontWeight: FONTS.weight.semibold,
-  },
+  planRow:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 14 },
+  planLabel:   { fontFamily: "Inter_400Regular", fontSize: 11, color: "rgba(255,255,255,0.65)", marginBottom: 2 },
+  planName:    { fontFamily: "Inter_700Bold", fontSize: 20, color: "#fff" },
+  upgradeBtn:  { borderRadius: 12, overflow: "hidden" },
+  upgradeBtnGrad: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 10 },
+  upgradeBtnText: { fontFamily: "Inter_700Bold", fontSize: 13, color: "#fff" },
+  planFeatures:   { flexDirection: "row", gap: 16 },
+  planFeature:    { flexDirection: "row", alignItems: "center", gap: 5 },
+  planFeatureText:{ fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(255,255,255,0.7)" },
 
-  // Settings groups
-  sectionHeader: {
-    fontSize: FONTS.size.xs,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.MUTED,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 8,
-    marginLeft: 4,
+  card: {
+    backgroundColor: "#fff", borderRadius: 20, padding: 6,
+    marginBottom: 16, borderWidth: 1, borderColor: "#F1F5F9",
+    shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2,
   },
-  settingsGroup: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    marginBottom: 20,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-      },
-      android: { elevation: 1 },
-    }),
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  settingIcon: {
-    fontSize: 20,
-    width: 26,
-    textAlign: 'center',
-  },
-  settingLabel: {
-    fontSize: FONTS.size.md,
-    color: COLORS.DARK,
-    fontWeight: FONTS.weight.medium,
-  },
-  settingLabelDanger: {
-    color: COLORS.DANGER,
-  },
-  settingValue: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.MUTED,
-    fontWeight: FONTS.weight.medium,
-    marginRight: 4,
-  },
-  settingArrow: {
-    fontSize: FONTS.size.xl,
-    color: COLORS.MUTED,
-    marginLeft: 4,
-  },
-  groupDivider: {
-    height: 1,
-    backgroundColor: COLORS.BORDER,
-    marginLeft: 54,
-  },
+  cardTitle: { fontFamily: "Inter_600SemiBold", fontSize: 12, color: "#94A3B8", letterSpacing: 0.8, textTransform: "uppercase", paddingHorizontal: 14, paddingTop: 10, paddingBottom: 6 },
+  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 13, borderRadius: 14 },
+  rowIcon:  { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  rowLabel: { fontFamily: "Inter_500Medium", fontSize: 15, color: "#1E293B" },
+  rowValue: { fontFamily: "Inter_400Regular", fontSize: 13, color: "#94A3B8" },
 
-  // Footer
-  footer: {
-    alignItems: 'center',
-    paddingVertical: 16,
-    gap: 4,
-  },
-  footerText: {
-    fontSize: FONTS.size.lg,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.PRIMARY,
-  },
-  footerSubText: {
-    fontSize: FONTS.size.xs,
-    color: COLORS.MUTED,
-    textAlign: 'center',
-  },
+  bottomNav: { flexDirection: "row", paddingTop: 10, paddingBottom: 4, paddingHorizontal: 8, borderTopWidth: 1, borderTopColor: "#F1F5F9" },
+  navItem:       { flex: 1, alignItems: "center", gap: 4 },
+  navIcon:       { width: 44, height: 36, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  navIconActive: { backgroundColor: "#EEF2FF" },
+  navLabel:      { fontFamily: "Inter_400Regular", fontSize: 10, color: "#94A3B8" },
+  navLabelActive:{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: "#4F46E5" },
 });
-
-export default SettingsScreen;
