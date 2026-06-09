@@ -439,7 +439,7 @@ const styles = StyleSheet.create({
   titleSub: {
     fontFamily: "Inter_400Regular",
     fontSize: 12,
-    color: "#475569",
+    color: "#94A3B8",
     letterSpacing: 0.8,
     textTransform: "uppercase",
   },
