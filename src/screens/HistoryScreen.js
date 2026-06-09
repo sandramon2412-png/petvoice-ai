@@ -42,10 +42,10 @@ const WEEK = [
 ];
 
 const METRICS = [
-  { icon:"emoticon-happy-outline", color:"#10B981", label:"Emoción predominante",  value:"Feliz · 72% de los análisis" },
-  { icon:"lightning-bolt-outline", color:"#F87171", label:"Picos de estrés",        value:"Martes y Jueves por la tarde" },
-  { icon:"chart-line-variant",     color:"#818CF8", label:"Análisis esta semana",   value:"18 análisis en 4 días" },
-  { icon:"weather-sunny",          color:"#FBBF24", label:"Día más feliz",          value:"Miércoles · 100% bienestar" },
+  { icon:"emoticon-happy",         color:"#10B981", g1:"#065F46", g2:"#047857", label:"Emoción predominante",  value:"Feliz · 72% de los análisis",   badge:"72%" },
+  { icon:"lightning-bolt",         color:"#F87171", g1:"#7F1D1D", g2:"#991B1B", label:"Picos de estrés",        value:"Martes y Jueves por la tarde",   badge:"2 días" },
+  { icon:"chart-line-variant",     color:"#818CF8", g1:"#1E1B4B", g2:"#312E81", label:"Análisis esta semana",   value:"18 análisis en 4 días",          badge:"18" },
+  { icon:"white-balance-sunny",    color:"#FBBF24", g1:"#78350F", g2:"#92400E", label:"Día más feliz",          value:"Miércoles · 100% bienestar",     badge:"100%" },
 ];
 
 // ── Tabs ───────────────────────────────────────────────────────────────────────
@@ -220,26 +220,36 @@ const bar = StyleSheet.create({
   dayOn:  { color:"#fff" },
 });
 
-// ── Metric row ─────────────────────────────────────────────────────────────────
-function Metric({ item, last }) {
+// ── Metric card ────────────────────────────────────────────────────────────────
+function Metric({ item }) {
   return (
-    <View style={[mc.row, last && mc.last]}>
-      <LinearGradient colors={[item.color+"30", item.color+"15"]} style={mc.icon}>
-        <MaterialCommunityIcons name={item.icon} size={20} color={item.color}/>
-      </LinearGradient>
-      <View style={{ flex:1 }}>
-        <Text style={mc.label}>{item.label}</Text>
-        <Text style={mc.value}>{item.value}</Text>
+    <View style={mc.card}>
+      <LinearGradient colors={[item.g1, item.g2]} start={{x:0,y:0}} end={{x:1,y:1}} style={StyleSheet.absoluteFill}/>
+      <LinearGradient colors={["rgba(255,255,255,0.14)","transparent"]} start={{x:0,y:0}} end={{x:0,y:1}} style={StyleSheet.absoluteFill}/>
+      <View style={mc.top}>
+        <View style={[mc.iconCircle, { backgroundColor: item.color+"30" }]}>
+          <MaterialCommunityIcons name={item.icon} size={22} color={item.color}/>
+        </View>
+        <View style={[mc.badgePill, { backgroundColor: item.color+"25", borderColor: item.color+"50" }]}>
+          <Text style={[mc.badgeText, { color: item.color }]}>{item.badge}</Text>
+        </View>
       </View>
+      <Text style={mc.label}>{item.label}</Text>
+      <Text style={mc.value}>{item.value}</Text>
     </View>
   );
 }
 const mc = StyleSheet.create({
-  row:   { flexDirection:"row", alignItems:"center", gap:14, paddingVertical:14, borderBottomWidth:1, borderBottomColor:"rgba(255,255,255,0.06)" },
-  last:  { borderBottomWidth:0 },
-  icon:  { width:44, height:44, borderRadius:14, alignItems:"center", justifyContent:"center" },
-  label: { fontFamily:"Inter_400Regular", fontSize:11, color:C.muted, marginBottom:3 },
-  value: { fontFamily:"Inter_700Bold", fontSize:14, color:C.text },
+  card: {
+    flex:1, borderRadius:20, padding:14, gap:8, overflow:"hidden",
+    borderWidth:1, borderColor:"rgba(255,255,255,0.12)", minHeight:120,
+  },
+  top:        { flexDirection:"row", justifyContent:"space-between", alignItems:"flex-start" },
+  iconCircle: { width:40, height:40, borderRadius:13, alignItems:"center", justifyContent:"center" },
+  badgePill:  { borderRadius:20, paddingHorizontal:8, paddingVertical:3, borderWidth:1 },
+  badgeText:  { fontFamily:"Inter_700Bold", fontSize:11 },
+  label:      { fontFamily:"Inter_400Regular", fontSize:11, color:"rgba(255,255,255,0.55)", lineHeight:15 },
+  value:      { fontFamily:"Inter_700Bold", fontSize:13, color:"#F1F5F9", lineHeight:17 },
 });
 
 // ── Diary tab ──────────────────────────────────────────────────────────────────
@@ -304,12 +314,19 @@ function DiaryTab({ isPremium }) {
         </TouchableOpacity>
       )}
 
-      {/* Metrics card */}
-      <View style={[dr.card, !isPremium && { opacity:0.45 }]}>
-        <View style={dr.cardHead}>
-          <Text style={dr.cardTitle}>Métricas de la semana</Text>
+      {/* Metrics grid 2×2 */}
+      <View style={[!isPremium && { opacity:0.45 }]}>
+        <Text style={dr.gridTitle}>Métricas de la semana</Text>
+        <View style={dr.grid}>
+          <View style={dr.gridCol}>
+            <Metric item={METRICS[0]}/>
+            <Metric item={METRICS[2]}/>
+          </View>
+          <View style={dr.gridCol}>
+            <Metric item={METRICS[1]}/>
+            <Metric item={METRICS[3]}/>
+          </View>
         </View>
-        {METRICS.map((m,i) => <Metric key={i} item={m} last={i===METRICS.length-1}/>)}
       </View>
 
     </ScrollView>
@@ -344,8 +361,11 @@ const dr = StyleSheet.create({
   lockTxt:  { fontFamily:"Inter_400Regular", fontSize:12, color:C.muted, flex:1 },
   ctaWrap:  { marginHorizontal:20, marginBottom:14, borderRadius:18, overflow:"hidden", shadowColor:"#F4511E", shadowOpacity:0.4, shadowRadius:14, shadowOffset:{width:0,height:5}, elevation:7 },
   cta:      { flexDirection:"row", alignItems:"center", gap:14, padding:18, overflow:"hidden" },
-  ctaTitle: { fontFamily:"Inter_700Bold", fontSize:14, color:"#fff" },
-  ctaSub:   { fontFamily:"Inter_400Regular", fontSize:11, color:"rgba(255,255,255,0.72)", marginTop:2 },
+  ctaTitle:  { fontFamily:"Inter_700Bold", fontSize:14, color:"#fff" },
+  ctaSub:    { fontFamily:"Inter_400Regular", fontSize:11, color:"rgba(255,255,255,0.72)", marginTop:2 },
+  gridTitle: { fontFamily:"Inter_700Bold", fontSize:16, color:C.text, marginHorizontal:20, marginBottom:12 },
+  grid:      { flexDirection:"row", gap:10, paddingHorizontal:20, marginBottom:14 },
+  gridCol:   { flex:1, gap:10 },
 });
 
 // ── Bottom nav ─────────────────────────────────────────────────────────────────
