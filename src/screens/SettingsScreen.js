@@ -1,55 +1,83 @@
 import React from "react";
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useApp } from "../context/AppContext";
 
-function SettingRow({ icon, label, value, accent = "#4F46E5", onPress }) {
+function Row({ icon, color, label, value, onPress, last }) {
   return (
-    <TouchableOpacity style={s.row} onPress={onPress} activeOpacity={onPress ? 0.7 : 1}>
-      <View style={[s.rowIcon, { backgroundColor: accent + "15" }]}>
-        <MaterialCommunityIcons name={icon} size={20} color={accent} />
+    <TouchableOpacity
+      style={[r.row, last && r.rowLast]}
+      onPress={onPress || undefined}
+      activeOpacity={onPress ? 0.7 : 1}
+    >
+      <View style={[r.iconBox, { backgroundColor: color + "15" }]}>
+        <MaterialCommunityIcons name={icon} size={19} color={color} />
       </View>
-      <Text style={s.rowLabel}>{label}</Text>
+      <Text style={r.label}>{label}</Text>
       <View style={{ flex: 1 }} />
-      {value ? <Text style={s.rowValue}>{value}</Text> : null}
-      {onPress ? <MaterialCommunityIcons name="chevron-right" size={18} color="#CBD5E1" /> : null}
+      {value ? <Text style={r.value}>{value}</Text> : null}
+      {onPress ? <MaterialCommunityIcons name="chevron-right" size={17} color="#CBD5E1" /> : null}
     </TouchableOpacity>
   );
 }
+const r = StyleSheet.create({
+  row: {
+    flexDirection: "row", alignItems: "center", gap: 12,
+    paddingVertical: 14, paddingHorizontal: 16,
+    borderBottomWidth: 1, borderBottomColor: "#F8FAFC",
+  },
+  rowLast: { borderBottomWidth: 0 },
+  iconBox: { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  label:   { fontFamily: "Inter_500Medium", fontSize: 15, color: "#1E293B" },
+  value:   { fontFamily: "Inter_400Regular", fontSize: 13, color: "#94A3B8", marginRight: 4 },
+});
 
-function SectionCard({ title, children }) {
+function Card({ title, children }) {
   return (
-    <View style={s.card}>
-      <Text style={s.cardTitle}>{title}</Text>
-      {children}
+    <View style={c.card}>
+      <Text style={c.title}>{title}</Text>
+      <View style={c.body}>{children}</View>
     </View>
   );
 }
+const c = StyleSheet.create({
+  card:  { marginHorizontal: 20, marginBottom: 16, backgroundColor: "#fff", borderRadius: 20, overflow: "hidden", shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 12, shadowOffset: { width: 0, height: 3 }, elevation: 2 },
+  title: { fontFamily: "Inter_600SemiBold", fontSize: 11, color: "#94A3B8", letterSpacing: 0.8, textTransform: "uppercase", paddingHorizontal: 16, paddingTop: 16, paddingBottom: 10 },
+  body:  {},
+});
 
 function BottomNav({ navigation }) {
-  const tabs = [
-    { label: "Inicio",    icon: "home-variant",  screen: "Home"     },
-    { label: "Historial", icon: "history",        screen: "History"  },
-    { label: "Ajustes",   icon: "tune-variant",   screen: "Settings" },
+  const TABS = [
+    { label: "Inicio",    icon: "home-variant-outline", screen: "Home"     },
+    { label: "Historial", icon: "history",               screen: "History"  },
+    { label: "Ajustes",   icon: "tune-variant",          screen: "Settings" },
   ];
   return (
-    <View style={s.bottomNav}>
-      {tabs.map((t) => {
-        const active = t.screen === "Settings";
+    <View style={nav.bar}>
+      {TABS.map(tab => {
+        const on = tab.screen === "Settings";
         return (
-          <TouchableOpacity key={t.screen} style={s.navItem} onPress={() => !active && navigation.navigate(t.screen)} activeOpacity={0.7}>
-            <View style={[s.navIcon, active && s.navIconActive]}>
-              <MaterialCommunityIcons name={t.icon} size={24} color={active ? "#4F46E5" : "#94A3B8"} />
+          <TouchableOpacity key={tab.screen} style={nav.item} onPress={() => !on && navigation.navigate(tab.screen)} activeOpacity={0.7}>
+            <View style={[nav.icon, on && nav.iconOn]}>
+              <MaterialCommunityIcons name={tab.icon} size={23} color={on ? "#4F46E5" : "#94A3B8"} />
             </View>
-            <Text style={[s.navLabel, active && s.navLabelActive]}>{t.label}</Text>
+            <Text style={[nav.label, on && nav.labelOn]}>{tab.label}</Text>
           </TouchableOpacity>
         );
       })}
     </View>
   );
 }
+const nav = StyleSheet.create({
+  bar:    { flexDirection: "row", paddingTop: 8, paddingBottom: 4, paddingHorizontal: 12, backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#F1F5F9" },
+  item:   { flex: 1, alignItems: "center", gap: 3 },
+  icon:   { width: 42, height: 34, borderRadius: 13, alignItems: "center", justifyContent: "center" },
+  iconOn: { backgroundColor: "#EEF2FF" },
+  label:  { fontFamily: "Inter_400Regular", fontSize: 10, color: "#94A3B8" },
+  labelOn:{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: "#4F46E5" },
+});
 
 export default function SettingsScreen({ navigation }) {
   const { pet } = useApp();
@@ -59,55 +87,48 @@ export default function SettingsScreen({ navigation }) {
       <StatusBar barStyle="dark-content" backgroundColor="#F8FAFC" />
       <SafeAreaView style={{ flex: 1 }} edges={["top"]}>
 
-        <View style={s.header}>
-          <Text style={s.headerTitle}>Ajustes</Text>
-          <Text style={s.headerSub}>{pet?.name || "Tu mascota"} · PetVoice AI</Text>
+        <View style={sc.header}>
+          <Text style={sc.title}>Ajustes</Text>
+          <Text style={sc.sub}>{pet?.name || "Tu mascota"} · PetVoice AI</Text>
         </View>
 
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ padding: 20, paddingBottom: 24 }}>
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 24 }}>
 
-          {/* Plan */}
-          <View style={s.planCard}>
-            <LinearGradient colors={["#4F46E5", "#7C3AED"]} style={StyleSheet.absoluteFill} />
-            <View style={s.planRow}>
+          {/* Plan banner */}
+          <View style={sc.planWrap}>
+            <LinearGradient colors={["#4F46E5", "#7C3AED"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={sc.planCard}>
               <View>
-                <Text style={s.planLabel}>Plan actual</Text>
-                <Text style={s.planName}>Gratuito</Text>
+                <Text style={sc.planLabel}>Plan activo</Text>
+                <Text style={sc.planName}>Gratuito</Text>
+                <Text style={sc.planDesc}>5 análisis por día · Historial básico</Text>
               </View>
-              <TouchableOpacity style={s.upgradeBtn} activeOpacity={0.85}>
-                <LinearGradient colors={["#FF8A65", "#F4511E"]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={s.upgradeBtnGrad}>
-                  <MaterialCommunityIcons name="star-outline" size={14} color="#fff" />
-                  <Text style={s.upgradeBtnText}>Upgrade a Pro</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-            <View style={s.planFeatures}>
-              {["5 análisis por día", "Historial básico"].map((f) => (
-                <View key={f} style={s.planFeature}>
-                  <MaterialCommunityIcons name="check-circle-outline" size={14} color="rgba(255,255,255,0.7)" />
-                  <Text style={s.planFeatureText}>{f}</Text>
+              <TouchableOpacity activeOpacity={0.85}>
+                <View style={sc.upgradePill}>
+                  <MaterialCommunityIcons name="star" size={14} color="#F4511E" />
+                  <Text style={sc.upgradeText}>Ver Pro</Text>
                 </View>
-              ))}
-            </View>
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
 
-          <SectionCard title="Mascota">
-            <SettingRow icon="paw" label="Nombre" value={pet?.name || "—"} accent="#10B981" />
-            <SettingRow icon="dog" label="Especie" value={pet?.species === "cat" ? "Gato" : "Perro"} accent="#6366F1" />
-            <SettingRow icon="cake-variant-outline" label="Edad" value={pet?.age ? `${pet.age} años` : "—"} accent="#F59E0B" />
-          </SectionCard>
+          <Card title="Mi mascota">
+            <Row icon="paw"             color="#10B981" label="Nombre"   value={pet?.name || "—"} last={false} />
+            <Row icon="dog"             color="#6366F1" label="Especie"  value={pet?.species === "cat" ? "Gato" : "Perro"} last={false} />
+            <Row icon="cake-variant"    color="#F59E0B" label="Edad"     value={pet?.age ? `${pet.age} años` : "—"} last />
+          </Card>
 
-          <SectionCard title="Preferencias">
-            <SettingRow icon="bell-outline"      label="Notificaciones"   onPress={() => {}} accent="#4F46E5" />
-            <SettingRow icon="translate"          label="Idioma"          value="Español"    accent="#0EA5E9" />
-            <SettingRow icon="moon-waning-crescent" label="Tema oscuro"   onPress={() => {}} accent="#7C3AED" />
-          </SectionCard>
+          <Card title="App">
+            <Row icon="bell-outline"        color="#4F46E5" label="Notificaciones"  onPress={() => Alert.alert("Próximamente")} last={false} />
+            <Row icon="translate"           color="#0EA5E9" label="Idioma"          value="Español" last={false} />
+            <Row icon="shield-check-outline"color="#10B981" label="Privacidad"      onPress={() => Alert.alert("Próximamente")} last={false} />
+            <Row icon="file-document"       color="#64748B" label="Términos de uso" onPress={() => Alert.alert("Próximamente")} last />
+          </Card>
 
-          <SectionCard title="Acerca de">
-            <SettingRow icon="shield-check-outline" label="Privacidad"    onPress={() => {}} accent="#10B981" />
-            <SettingRow icon="file-document-outline" label="Términos"     onPress={() => {}} accent="#64748B" />
-            <SettingRow icon="information-outline"  label="Versión"       value="1.0.0"      accent="#94A3B8" />
-          </SectionCard>
+          <Card title="Soporte">
+            <Row icon="help-circle-outline"  color="#6366F1" label="Centro de ayuda"   onPress={() => Alert.alert("Próximamente")} last={false} />
+            <Row icon="message-outline"      color="#F59E0B" label="Enviar comentario" onPress={() => Alert.alert("Próximamente")} last={false} />
+            <Row icon="information-outline"  color="#94A3B8" label="Versión"           value="1.0.0" last />
+          </Card>
 
         </ScrollView>
       </SafeAreaView>
@@ -119,40 +140,15 @@ export default function SettingsScreen({ navigation }) {
   );
 }
 
-const s = StyleSheet.create({
-  header: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
-  headerTitle: { fontFamily: "Inter_700Bold", fontSize: 26, color: "#1E293B", letterSpacing: -0.6 },
-  headerSub:   { fontFamily: "Inter_400Regular", fontSize: 12, color: "#94A3B8", marginTop: 2 },
-
-  planCard: {
-    borderRadius: 20, overflow: "hidden", padding: 20, marginBottom: 20,
-    shadowColor: "#4F46E5", shadowOpacity: 0.25, shadowRadius: 16, shadowOffset: { width: 0, height: 6 }, elevation: 8,
-  },
-  planRow:     { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 14 },
-  planLabel:   { fontFamily: "Inter_400Regular", fontSize: 11, color: "rgba(255,255,255,0.65)", marginBottom: 2 },
-  planName:    { fontFamily: "Inter_700Bold", fontSize: 20, color: "#fff" },
-  upgradeBtn:  { borderRadius: 12, overflow: "hidden" },
-  upgradeBtnGrad: { flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 14, paddingVertical: 10 },
-  upgradeBtnText: { fontFamily: "Inter_700Bold", fontSize: 13, color: "#fff" },
-  planFeatures:   { flexDirection: "row", gap: 16 },
-  planFeature:    { flexDirection: "row", alignItems: "center", gap: 5 },
-  planFeatureText:{ fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(255,255,255,0.7)" },
-
-  card: {
-    backgroundColor: "#fff", borderRadius: 20, padding: 6,
-    marginBottom: 16, borderWidth: 1, borderColor: "#F1F5F9",
-    shadowColor: "#000", shadowOpacity: 0.04, shadowRadius: 10, shadowOffset: { width: 0, height: 3 }, elevation: 2,
-  },
-  cardTitle: { fontFamily: "Inter_600SemiBold", fontSize: 12, color: "#94A3B8", letterSpacing: 0.8, textTransform: "uppercase", paddingHorizontal: 14, paddingTop: 10, paddingBottom: 6 },
-  row: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 14, paddingVertical: 13, borderRadius: 14 },
-  rowIcon:  { width: 36, height: 36, borderRadius: 10, alignItems: "center", justifyContent: "center" },
-  rowLabel: { fontFamily: "Inter_500Medium", fontSize: 15, color: "#1E293B" },
-  rowValue: { fontFamily: "Inter_400Regular", fontSize: 13, color: "#94A3B8" },
-
-  bottomNav: { flexDirection: "row", paddingTop: 10, paddingBottom: 4, paddingHorizontal: 8, borderTopWidth: 1, borderTopColor: "#F1F5F9" },
-  navItem:       { flex: 1, alignItems: "center", gap: 4 },
-  navIcon:       { width: 44, height: 36, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  navIconActive: { backgroundColor: "#EEF2FF" },
-  navLabel:      { fontFamily: "Inter_400Regular", fontSize: 10, color: "#94A3B8" },
-  navLabelActive:{ fontFamily: "Inter_600SemiBold", fontSize: 10, color: "#4F46E5" },
+const sc = StyleSheet.create({
+  header:   { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 20 },
+  title:    { fontFamily: "Inter_700Bold", fontSize: 26, color: "#1E293B", letterSpacing: -0.6 },
+  sub:      { fontFamily: "Inter_400Regular", fontSize: 12, color: "#94A3B8", marginTop: 2 },
+  planWrap: { marginHorizontal: 20, marginBottom: 20 },
+  planCard: { borderRadius: 22, padding: 20, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  planLabel:{ fontFamily: "Inter_400Regular", fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 2 },
+  planName: { fontFamily: "Inter_700Bold", fontSize: 22, color: "#fff" },
+  planDesc: { fontFamily: "Inter_400Regular", fontSize: 12, color: "rgba(255,255,255,0.6)", marginTop: 4 },
+  upgradePill: { backgroundColor: "#fff", borderRadius: 20, paddingHorizontal: 14, paddingVertical: 8, flexDirection: "row", alignItems: "center", gap: 6 },
+  upgradeText: { fontFamily: "Inter_700Bold", fontSize: 13, color: "#F4511E" },
 });
