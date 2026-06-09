@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Animated, Dimensions, StatusBar,
+  Animated, Dimensions, StatusBar, Image,
 } from "react-native";
 import LottieView from "lottie-react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -371,14 +371,16 @@ const dr = StyleSheet.create({
 
 // ── Pet cards ──────────────────────────────────────────────────────────────────
 const pc = StyleSheet.create({
-  row:      { paddingHorizontal:20, paddingBottom:14, gap:12, flexDirection:"row", alignItems:"flex-start" },
-  card:     { width:120, borderRadius:22, paddingBottom:14, alignItems:"center", overflow:"hidden", borderWidth:1.5, borderColor:"rgba(255,255,255,0.08)" },
-  cardOn:   { borderColor:"rgba(129,140,248,0.50)", shadowColor:"#818CF8", shadowOpacity:0.35, shadowRadius:12, shadowOffset:{width:0,height:4}, elevation:6 },
-  lottieWrap:{ width:90, height:80, overflow:"hidden", marginTop:8 },
-  lottie:   { width:110, height:110, marginTop:-10, marginLeft:-10 },
-  name:     { fontFamily:"Inter_700Bold", fontSize:13, marginTop:4 },
-  badge:    { marginTop:5, paddingHorizontal:9, paddingVertical:3, borderRadius:20, borderWidth:1 },
-  badgeTxt: { fontFamily:"Inter_600SemiBold", fontSize:10 },
+  row:       { paddingHorizontal:20, paddingBottom:14, gap:12, flexDirection:"row", alignItems:"flex-start" },
+  singleWrap:{ paddingHorizontal:20, paddingBottom:14, alignItems:"center" },
+  card:      { width:124, borderRadius:22, paddingBottom:14, alignItems:"center", overflow:"hidden", borderWidth:1.5, borderColor:"rgba(255,255,255,0.08)" },
+  cardOn:    { shadowOpacity:0.35, shadowRadius:14, shadowOffset:{width:0,height:4}, elevation:7 },
+  mediaWrap: { width:96, height:88, overflow:"hidden", marginTop:10, alignItems:"center", justifyContent:"center" },
+  photo:     { width:88, height:88, borderRadius:44 },
+  lottie:    { width:120, height:120, marginTop:-14, marginLeft:-12 },
+  name:      { fontFamily:"Inter_700Bold", fontSize:13, marginTop:6 },
+  badge:     { marginTop:5, paddingHorizontal:9, paddingVertical:3, borderRadius:20, borderWidth:1 },
+  badgeTxt:  { fontFamily:"Inter_600SemiBold", fontSize:10 },
 });
 
 // ── Bottom nav ─────────────────────────────────────────────────────────────────
@@ -444,47 +446,57 @@ export default function HistoryScreen({ navigation }) {
           )}
         </View>
 
-        {/* Selector de mascota — tarjetas estilo onboarding */}
-        {allPets.length > 1 && (
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={pc.row}>
-            {allPets.map(name => {
-              const species = (history.find(e => (e.petName || pet?.name || "Mascota") === name)?.petSpecies) || "dog";
-              const isDog = species !== "cat";
-              const on = name === activePet;
-              return (
-                <TouchableOpacity key={name} onPress={() => setSelectedPet(name)} activeOpacity={0.85}>
-                  <View style={[pc.card, on && pc.cardOn]}>
+        {/* Selector de mascota — tarjetas con foto o Lottie */}
+        {(() => {
+          const cards = allPets.map(name => {
+            const entry = history.find(e => (e.petName || pet?.name || "Mascota") === name);
+            const species = entry?.petSpecies || "dog";
+            const isDog = species !== "cat";
+            const photo = (pet?.name === name) ? pet?.photo : null;
+            const on = name === activePet;
+            const accentColor = isDog ? "#FB923C" : "#A78BFA";
+            return (
+              <TouchableOpacity key={name} onPress={() => setSelectedPet(name)} activeOpacity={0.85}>
+                <View style={[pc.card, on && pc.cardOn, on && { borderColor: accentColor + "88" }]}>
+                  <LinearGradient
+                    colors={isDog ? ["#2A1A0A","#3D2610"] : ["#1A0A2E","#2E1065"]}
+                    start={{x:0,y:0}} end={{x:1,y:1}}
+                    style={StyleSheet.absoluteFill}
+                  />
+                  {on && (
                     <LinearGradient
-                      colors={isDog ? ["#2A1A0A","#3D2610"] : ["#1A0A2E","#2E1065"]}
-                      start={{x:0,y:0}} end={{x:1,y:1}}
+                      colors={[accentColor + "22","transparent"]}
+                      start={{x:0,y:0}} end={{x:0,y:1}}
                       style={StyleSheet.absoluteFill}
                     />
-                    {on && (
-                      <LinearGradient
-                        colors={isDog ? ["rgba(251,146,60,0.18)","transparent"] : ["rgba(167,139,250,0.18)","transparent"]}
-                        start={{x:0,y:0}} end={{x:0,y:1}}
-                        style={StyleSheet.absoluteFill}
-                      />
-                    )}
-                    <View style={pc.lottieWrap}>
+                  )}
+                  <View style={pc.mediaWrap}>
+                    {photo ? (
+                      <Image source={{ uri: photo }} style={pc.photo}/>
+                    ) : (
                       <LottieView
                         source={isDog ? require("../../assets/lottie/dog.json") : require("../../assets/lottie/cat.json")}
                         autoPlay loop
                         style={pc.lottie}
                       />
-                    </View>
-                    <Text style={[pc.name, { color: on ? (isDog ? "#FB923C" : "#A78BFA") : C.text }]}>{name}</Text>
-                    {on && (
-                      <View style={[pc.badge, { backgroundColor: isDog ? "#FB923C22" : "#A78BFA22", borderColor: isDog ? "#FB923C66" : "#A78BFA66" }]}>
-                        <Text style={[pc.badgeTxt, { color: isDog ? "#FB923C" : "#A78BFA" }]}>Activo</Text>
-                      </View>
                     )}
                   </View>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        )}
+                  <Text style={[pc.name, { color: on ? accentColor : C.text }]}>{name}</Text>
+                  {on && (
+                    <View style={[pc.badge, { backgroundColor: accentColor + "22", borderColor: accentColor + "66" }]}>
+                      <Text style={[pc.badgeTxt, { color: accentColor }]}>Activo</Text>
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+            );
+          });
+          return allPets.length === 1 ? (
+            <View style={pc.singleWrap}>{cards}</View>
+          ) : (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={pc.row}>{cards}</ScrollView>
+          );
+        })()}
 
         <Tabs active={tab} onChange={setTab}/>
         <View style={{ flex:1 }}>
