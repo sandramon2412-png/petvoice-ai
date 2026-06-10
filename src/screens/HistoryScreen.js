@@ -112,16 +112,15 @@ function buildMetrics(history) {
 // ── Tabs ───────────────────────────────────────────────────────────────────────
 function Tabs({ active, onChange }) {
   const TABS = [
-    { label:"Conversaciones",  iconOn:"chat-processing",         iconOff:"chat-processing-outline"        },
-    { label:"Diario de Ánimo", iconOn:"chart-timeline-variant",  iconOff:"chart-timeline-variant-shimmer" },
+    { label:"Conversaciones",  iconOn:"chat-processing",        iconOff:"chat-processing-outline"        },
+    { label:"Diario de Ánimo", iconOn:"chart-timeline-variant", iconOff:"chart-timeline-variant-shimmer" },
   ];
   return (
     <View style={tb.wrap}>
       {TABS.map((tab, i) => {
         const on = active === i;
         return (
-          <TouchableOpacity key={i} style={[tb.tab, on && tb.tabOn]} onPress={() => onChange(i)} activeOpacity={0.8}>
-            {on && <LinearGradient colors={["rgba(129,140,248,0.25)","rgba(129,140,248,0.10)"]} style={StyleSheet.absoluteFill} />}
+          <TouchableOpacity key={i} style={[tb.tab, on && tb.tabOn]} onPress={() => onChange(i)} activeOpacity={0.75}>
             <MaterialCommunityIcons name={on ? tab.iconOn : tab.iconOff} size={15} color={on ? "#818CF8" : C.muted}/>
             <Text style={[tb.label, on && tb.labelOn]}>{tab.label}</Text>
           </TouchableOpacity>
@@ -133,7 +132,7 @@ function Tabs({ active, onChange }) {
 const tb = StyleSheet.create({
   wrap:    { flexDirection:"row", backgroundColor:"rgba(255,255,255,0.04)", borderRadius:16, padding:4, marginHorizontal:20, marginBottom:16, borderWidth:1, borderColor:C.border },
   tab:     { flex:1, flexDirection:"row", alignItems:"center", justifyContent:"center", gap:6, paddingVertical:11, borderRadius:13 },
-  tabOn:   {},
+  tabOn:   { backgroundColor:"rgba(129,140,248,0.20)" },
   label:   { fontFamily:"Inter_600SemiBold", fontSize:13, color:C.muted },
   labelOn: { color:"#818CF8" },
 });
@@ -481,28 +480,36 @@ function PetCard({ name, species, photo, active, onPress }) {
 }
 
 function PetSelector({ allPets, activePet, history, pet, onSelect }) {
+  // Mapa de foto por nombre: toma la más reciente con foto, o la del perfil actual
+  const photoMap = {};
+  allPets.forEach(name => {
+    const withPhoto = history.find(e => e.petName === name && e.petPhoto);
+    photoMap[name] = withPhoto?.petPhoto || (pet?.name === name ? pet?.photo : null);
+  });
+
   const cards = allPets.map(name => {
-    // Busca la entrada más reciente que tenga foto guardada para esta mascota
-    const photoEntry = history.find(e => (e.petName || pet?.name || "Mascota") === name && e.petPhoto);
-    const entry = history.find(e => (e.petName || pet?.name || "Mascota") === name);
-    const photo = photoEntry?.petPhoto || (pet?.name === name ? pet?.photo : null);
+    const entry = history.find(e => e.petName === name);
     return (
       <PetCard
         key={name}
         name={name}
         species={entry?.petSpecies || "dog"}
-        photo={photo}
+        photo={photoMap[name]}
         active={name === activePet}
         onPress={() => onSelect(name)}
       />
     );
   });
-  // Con 1 o 2 tarjetas: centradas. Con 3+: scroll horizontal
+
   if (allPets.length <= 2) {
-    return <View style={pc.centeredWrap}>{cards}</View>;
+    return (
+      <View style={{ flexDirection:"row", justifyContent:"center", gap:12, paddingBottom:14, paddingHorizontal:20 }}>
+        {cards}
+      </View>
+    );
   }
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={pc.row}>
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal:20, paddingBottom:14, gap:12 }}>
       {cards}
     </ScrollView>
   );
@@ -510,7 +517,6 @@ function PetSelector({ allPets, activePet, history, pet, onSelect }) {
 
 const pc = StyleSheet.create({
   row:        { paddingHorizontal:20, paddingBottom:14, gap:12 },
-  centeredWrap:{ paddingBottom:14, flexDirection:"row", justifyContent:"center", gap:12, width:"100%" },
   card:      { width:124, borderRadius:22, paddingBottom:14, alignItems:"center", overflow:"hidden", borderWidth:1.5, borderColor:"rgba(255,255,255,0.08)" },
   cardOn:    { shadowOpacity:0.35, shadowRadius:14, shadowOffset:{width:0,height:4}, elevation:7 },
   mediaWrap: { width:96, height:88, overflow:"hidden", marginTop:10, alignItems:"center", justifyContent:"center" },
