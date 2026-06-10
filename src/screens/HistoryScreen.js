@@ -32,22 +32,82 @@ const EMO = {
   Hambriento: { color:"#FB923C", g1:"#7C2D12", g2:"#9A3412", icon:"food-drumstick-outline"  },
 };
 
-const WEEK = [
-  { day:"L", pct:75,  mood:"good" },
-  { day:"M", pct:50,  mood:"bad"  },
-  { day:"X", pct:100, mood:"good" },
-  { day:"J", pct:45,  mood:"bad"  },
-  { day:"V", pct:90,  mood:"good" },
-  { day:"S", pct:80,  mood:"good" },
-  { day:"D", pct:85,  mood:"good", today:true },
-];
+const STRESS_EMOTIONS = ["Estresado", "Asustado", "Alerta"];
+const GOOD_EMOTIONS   = ["Feliz", "Juguetón", "Tranquilo", "Curioso"];
+const DAY_LABELS      = ["D","L","M","X","J","V","S"];
+const DAY_NAMES       = ["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
 
-const METRICS = [
-  { icon:"emoticon-happy",         color:"#10B981", g1:"#065F46", g2:"#047857", label:"Emoción predominante",  value:"Feliz · 72% de los análisis",   badge:"72%" },
-  { icon:"lightning-bolt",         color:"#F87171", g1:"#7F1D1D", g2:"#991B1B", label:"Picos de estrés",        value:"Martes y Jueves por la tarde",   badge:"2 días" },
-  { icon:"chart-line-variant",     color:"#818CF8", g1:"#1E1B4B", g2:"#312E81", label:"Análisis esta semana",   value:"18 análisis en 4 días",          badge:"18" },
-  { icon:"white-balance-sunny",    color:"#FBBF24", g1:"#78350F", g2:"#92400E", label:"Día más feliz",          value:"Miércoles · 100% bienestar",     badge:"100%" },
-];
+function buildWeekData(history) {
+  const today = new Date();
+  const todayIdx = today.getDay(); // 0=dom
+  const days = [];
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const dayStr = d.toDateString();
+    const entries = history.filter(e => new Date(e.timestamp).toDateString() === dayStr);
+    const good = entries.filter(e => GOOD_EMOTIONS.includes(e.emotion)).length;
+    const total = entries.length;
+    const pct = total === 0 ? 0 : Math.round((good / total) * 100);
+    const mood = pct >= 50 ? "good" : "bad";
+    days.push({ day: DAY_LABELS[d.getDay()], fullDay: DAY_NAMES[d.getDay()], pct, mood, today: i === 0, count: total });
+  }
+  return days;
+}
+
+function buildMetrics(history) {
+  if (history.length === 0) return null;
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate() - 7);
+  const week = history.filter(e => new Date(e.timestamp) >= weekAgo);
+
+  // Emoción predominante
+  const freq = {};
+  week.forEach(e => { freq[e.emotion] = (freq[e.emotion] || 0) + 1; });
+  const topEmo = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
+  const topPct = topEmo ? Math.round((topEmo[1]/week.length)*100) : 0;
+  const topEmoData = topEmo ? (EMO[topEmo[0]] || EMO.Tranquilo) : EMO.Tranquilo;
+
+  // Días con estrés
+  const stressDays = new Set(week.filter(e=>STRESS_EMOTIONS.includes(e.emotion)).map(e=>new Date(e.timestamp).getDay()));
+
+  // Día más feliz
+  const byDay = {};
+  week.forEach(e => {
+    const d = new Date(e.timestamp).getDay();
+    if (!byDay[d]) byDay[d] = { good:0, total:0 };
+    byDay[d].total++;
+    if (GOOD_EMOTIONS.includes(e.emotion)) byDay[d].good++;
+  });
+  const bestDay = Object.entries(byDay).sort((a,b)=>(b[1].good/b[1].total)-(a[1].good/a[1].total))[0];
+  const bestPct = bestDay ? Math.round((bestDay[1].good/bestDay[1].total)*100) : 0;
+
+  return [
+    {
+      icon:"emoticon-happy", color: topEmoData.color, g1: topEmoData.g1, g2: topEmoData.g2,
+      label:"Emoción predominante",
+      value: topEmo ? `${topEmo[0]} · ${topPct}% de los análisis` : "Sin datos",
+      badge: topEmo ? `${topPct}%` : "—",
+    },
+    {
+      icon:"lightning-bolt", color:"#F87171", g1:"#7F1D1D", g2:"#991B1B",
+      label:"Días con estrés",
+      value: stressDays.size > 0 ? [...stressDays].map(d=>DAY_NAMES[d]).join(", ") : "Ninguno esta semana",
+      badge: `${stressDays.size}d`,
+    },
+    {
+      icon:"chart-line-variant", color:"#818CF8", g1:"#1E1B4B", g2:"#312E81",
+      label:"Análisis esta semana",
+      value: `${week.length} análisis en ${Object.keys(byDay).length} días`,
+      badge: `${week.length}`,
+    },
+    {
+      icon:"white-balance-sunny", color:"#FBBF24", g1:"#78350F", g2:"#92400E",
+      label:"Día más feliz",
+      value: bestDay ? `${DAY_NAMES[bestDay[0]]} · ${bestPct}% bienestar` : "Sin datos",
+      badge: bestDay ? `${bestPct}%` : "—",
+    },
+  ];
+}
 
 // ── Tabs ───────────────────────────────────────────────────────────────────────
 function Tabs({ active, onChange }) {
@@ -254,7 +314,14 @@ const mc = StyleSheet.create({
 });
 
 // ── Diary tab ──────────────────────────────────────────────────────────────────
-function DiaryTab({ isPremium }) {
+function DiaryTab({ isPremium, history }) {
+  const week = buildWeekData(history);
+  const metrics = buildMetrics(history);
+
+  const goodDays = week.filter(d => d.pct >= 50 && d.count > 0).length;
+  const totalDays = week.filter(d => d.count > 0).length;
+  const wellnessPct = totalDays > 0 ? Math.round((goodDays / totalDays) * 100) : 0;
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:28, paddingTop:4 }}>
 
@@ -265,7 +332,9 @@ function DiaryTab({ isPremium }) {
         </LinearGradient>
         <View>
           <Text style={dr.stripTitle}>Esta semana tu mascota estuvo</Text>
-          <Text style={dr.stripValue}>Feliz el 72% del tiempo 🐾</Text>
+          <Text style={dr.stripValue}>
+            {history.length === 0 ? "Sin análisis aún 🐾" : `Bien el ${wellnessPct}% del tiempo 🐾`}
+          </Text>
         </View>
       </View>
 
@@ -278,7 +347,7 @@ function DiaryTab({ isPremium }) {
 
         <View style={[!isPremium && { opacity:0.30 }]}>
           <View style={dr.bars}>
-            {WEEK.map(w => <Bar key={w.day} item={w}/>)}
+            {week.map((w,i) => <Bar key={i} item={w}/>)}
           </View>
           <View style={dr.legend}>
             {[["#34D399","Bienestar"], ["#F87171","Estrés"]].map(([c,l]) => (
@@ -316,19 +385,21 @@ function DiaryTab({ isPremium }) {
       )}
 
       {/* Metrics grid 2×2 */}
-      <View style={[!isPremium && { opacity:0.45 }]}>
-        <Text style={dr.gridTitle}>Métricas de la semana</Text>
-        <View style={dr.grid}>
-          <View style={dr.gridCol}>
-            <Metric item={METRICS[0]}/>
-            <Metric item={METRICS[2]}/>
-          </View>
-          <View style={dr.gridCol}>
-            <Metric item={METRICS[1]}/>
-            <Metric item={METRICS[3]}/>
+      {metrics && (
+        <View style={[!isPremium && { opacity:0.45 }]}>
+          <Text style={dr.gridTitle}>Métricas de la semana</Text>
+          <View style={dr.grid}>
+            <View style={dr.gridCol}>
+              <Metric item={metrics[0]}/>
+              <Metric item={metrics[2]}/>
+            </View>
+            <View style={dr.gridCol}>
+              <Metric item={metrics[1]}/>
+              <Metric item={metrics[3]}/>
+            </View>
           </View>
         </View>
-      </View>
+      )}
 
     </ScrollView>
   );
@@ -523,7 +594,7 @@ export default function HistoryScreen({ navigation }) {
 
         <Tabs active={tab} onChange={setTab}/>
         <View style={{ flex:1 }}>
-          {tab===0 ? <ChatTab history={petHistory}/> : <DiaryTab isPremium={isPremium}/>}
+          {tab===0 ? <ChatTab history={petHistory}/> : <DiaryTab isPremium={isPremium} history={petHistory}/>}
         </View>
 
       </SafeAreaView>
