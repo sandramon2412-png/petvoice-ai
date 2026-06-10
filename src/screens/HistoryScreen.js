@@ -131,9 +131,9 @@ function Tabs({ active, onChange }) {
   );
 }
 const tb = StyleSheet.create({
-  wrap:    { flexDirection:"row", backgroundColor:"rgba(255,255,255,0.04)", borderRadius:16, padding:4, marginHorizontal:20, marginBottom:16, borderWidth:1, borderColor:C.border, overflow:"hidden" },
-  tab:     { flex:1, flexDirection:"row", alignItems:"center", justifyContent:"center", gap:6, paddingVertical:11, borderRadius:13, overflow:"hidden" },
-  tabOn:   { borderWidth:1, borderColor:"rgba(129,140,248,0.30)" },
+  wrap:    { flexDirection:"row", backgroundColor:"rgba(255,255,255,0.04)", borderRadius:16, padding:4, marginHorizontal:20, marginBottom:16, borderWidth:1, borderColor:C.border },
+  tab:     { flex:1, flexDirection:"row", alignItems:"center", justifyContent:"center", gap:6, paddingVertical:11, borderRadius:13 },
+  tabOn:   {},
   label:   { fontFamily:"Inter_600SemiBold", fontSize:13, color:C.muted },
   labelOn: { color:"#818CF8" },
 });
@@ -482,9 +482,10 @@ function PetCard({ name, species, photo, active, onPress }) {
 
 function PetSelector({ allPets, activePet, history, pet, onSelect }) {
   const cards = allPets.map(name => {
+    // Busca la entrada más reciente que tenga foto guardada para esta mascota
+    const photoEntry = history.find(e => (e.petName || pet?.name || "Mascota") === name && e.petPhoto);
     const entry = history.find(e => (e.petName || pet?.name || "Mascota") === name);
-    // Usa petPhoto del historial (guardada al momento del análisis) o la del perfil actual
-    const photo = entry?.petPhoto || (pet?.name === name ? pet?.photo : null);
+    const photo = photoEntry?.petPhoto || (pet?.name === name ? pet?.photo : null);
     return (
       <PetCard
         key={name}
@@ -509,7 +510,7 @@ function PetSelector({ allPets, activePet, history, pet, onSelect }) {
 
 const pc = StyleSheet.create({
   row:        { paddingHorizontal:20, paddingBottom:14, gap:12 },
-  centeredWrap:{ paddingHorizontal:20, paddingBottom:14, flexDirection:"row", justifyContent:"center", gap:12 },
+  centeredWrap:{ paddingBottom:14, flexDirection:"row", justifyContent:"center", gap:12, width:"100%" },
   card:      { width:124, borderRadius:22, paddingBottom:14, alignItems:"center", overflow:"hidden", borderWidth:1.5, borderColor:"rgba(255,255,255,0.08)" },
   cardOn:    { shadowOpacity:0.35, shadowRadius:14, shadowOffset:{width:0,height:4}, elevation:7 },
   mediaWrap: { width:96, height:88, overflow:"hidden", marginTop:10, alignItems:"center", justifyContent:"center" },
