@@ -86,7 +86,7 @@ const nav = StyleSheet.create({
 });
 
 export default function SettingsScreen({ navigation }) {
-  const { pet } = useApp();
+  const { pet, pets, switchPet } = useApp();
 
   return (
     <View style={{ flex:1, backgroundColor:C.bg }}>
@@ -101,6 +101,35 @@ export default function SettingsScreen({ navigation }) {
         </View>
 
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:24 }}>
+
+          {/* Selector de mascota activa */}
+          {pets.length > 1 && (
+            <View style={{ marginHorizontal:20, marginBottom:16 }}>
+              <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:11, color:C.muted, letterSpacing:0.8, textTransform:"uppercase", marginBottom:10 }}>Mascota activa</Text>
+              <View style={{ flexDirection:"row", gap:8, flexWrap:"wrap" }}>
+                {pets.map(p => {
+                  const active = p.name === pet?.name;
+                  return (
+                    <TouchableOpacity
+                      key={p.name}
+                      onPress={() => switchPet(p.name)}
+                      activeOpacity={0.75}
+                      style={{
+                        flexDirection:"row", alignItems:"center", gap:7,
+                        paddingHorizontal:14, paddingVertical:9, borderRadius:20,
+                        backgroundColor: active ? "rgba(129,140,248,0.18)" : C.card,
+                        borderWidth:1, borderColor: active ? "rgba(129,140,248,0.45)" : C.border,
+                      }}
+                    >
+                      <MaterialCommunityIcons name="paw" size={13} color={active ? C.indigo : C.muted}/>
+                      <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:13, color: active ? C.indigo : C.text }}>{p.name}</Text>
+                      {active && <MaterialCommunityIcons name="check-circle" size={13} color={C.indigo}/>}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
 
           {/* Plan card */}
           <View style={sc.planWrap}>

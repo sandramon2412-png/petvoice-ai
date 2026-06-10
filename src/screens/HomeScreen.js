@@ -171,7 +171,7 @@ function EnvDropdown({ visible, onClose, selected, onSelect }) {
 
 // ─── HomeScreen ───────────────────────────────────────────────────────────────
 export default function HomeScreen({ navigation }) {
-  const { pet, canRecord, remaining, setLastPosture, setLastEnvironment, setLastAnalysisAudio, saveResult } = useApp();
+  const { pet, pets, switchPet, canRecord, remaining, setLastPosture, setLastEnvironment, setLastAnalysisAudio, saveResult } = useApp();
 
   const species = pet?.species || "dog";
   const postures = species === "cat" ? POSTURES_CAT : POSTURES_DOG;
@@ -314,6 +314,37 @@ export default function HomeScreen({ navigation }) {
               </PressableScale>
             </View>
           </View>
+
+          {/* ── Selector de mascota (solo si hay más de una) ── */}
+          {pets.length > 1 && (
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal:20, paddingBottom:12, gap:8 }}>
+              {pets.map(p => {
+                const active = p.name === pet?.name;
+                return (
+                  <TouchableOpacity
+                    key={p.name}
+                    onPress={() => switchPet(p.name)}
+                    activeOpacity={0.75}
+                    style={{
+                      flexDirection:"row", alignItems:"center", gap:7,
+                      paddingHorizontal:14, paddingVertical:8, borderRadius:20,
+                      backgroundColor: active ? "rgba(129,140,248,0.20)" : "rgba(255,255,255,0.06)",
+                      borderWidth:1,
+                      borderColor: active ? "rgba(129,140,248,0.45)" : "rgba(255,255,255,0.10)",
+                    }}
+                  >
+                    {p.photo
+                      ? <Image source={{ uri: p.photo }} style={{ width:22, height:22, borderRadius:11 }}/>
+                      : <MaterialCommunityIcons name="paw" size={14} color={active ? "#818CF8" : "rgba(255,255,255,0.4)"}/>
+                    }
+                    <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:13, color: active ? "#818CF8" : "rgba(255,255,255,0.55)" }}>
+                      {p.name}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          )}
 
           {/* ── Pet + quota ── */}
           <GlassView intensity={18} tint="dark" style={s.statusCard}>
