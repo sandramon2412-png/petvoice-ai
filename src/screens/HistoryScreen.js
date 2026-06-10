@@ -566,10 +566,11 @@ export default function HistoryScreen({ navigation }) {
   const [selectedPet, setSelectedPet] = useState(null);
   const isPremium = false;
 
-  // Todas las mascotas con historial (sin duplicados)
-  const allPets = [...new Set(history.map(e => e.petName || pet?.name || "Mascota").filter(Boolean))];
-  const activePet = selectedPet || pet?.name || allPets[0] || "Mascota";
-  const petHistory = history.filter(e => (e.petName || pet?.name || "Mascota") === activePet);
+  // Solo entradas con petName explícito para evitar mezcla con datos viejos
+  const allPets = [...new Set(history.map(e => e.petName).filter(Boolean))];
+  // Si no hay entradas con petName, caer al perfil activo
+  const activePet = selectedPet || (allPets.includes(pet?.name) ? pet?.name : allPets[0]) || pet?.name || "Mascota";
+  const petHistory = history.filter(e => e.petName === activePet);
 
   return (
     <View style={{ flex:1, backgroundColor:C.bg }}>
