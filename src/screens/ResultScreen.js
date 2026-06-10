@@ -108,6 +108,7 @@ export default function ResultScreen({ navigation }) {
         text:        analysisResult.traduccion_humana,
         petName:     pet?.name || "Mascota",
         petSpecies:  pet?.species || "dog",
+        petPhoto:    pet?.photo || null,
         posture:     lastPosture,
         environment: lastEnvironment,
       });

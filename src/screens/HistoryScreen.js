@@ -412,19 +412,22 @@ function PetCard({ name, species, photo, active, onPress }) {
 function PetSelector({ allPets, activePet, history, pet, onSelect }) {
   const cards = allPets.map(name => {
     const entry = history.find(e => (e.petName || pet?.name || "Mascota") === name);
+    // Usa petPhoto del historial (guardada al momento del análisis) o la del perfil actual
+    const photo = entry?.petPhoto || (pet?.name === name ? pet?.photo : null);
     return (
       <PetCard
         key={name}
         name={name}
         species={entry?.petSpecies || "dog"}
-        photo={pet?.name === name ? pet?.photo : null}
+        photo={photo}
         active={name === activePet}
         onPress={() => onSelect(name)}
       />
     );
   });
-  if (allPets.length === 1) {
-    return <View style={pc.singleWrap}>{cards}</View>;
+  // Con 1 o 2 tarjetas: centradas. Con 3+: scroll horizontal
+  if (allPets.length <= 2) {
+    return <View style={pc.centeredWrap}>{cards}</View>;
   }
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={pc.row}>
@@ -434,8 +437,8 @@ function PetSelector({ allPets, activePet, history, pet, onSelect }) {
 }
 
 const pc = StyleSheet.create({
-  row:       { paddingHorizontal:20, paddingBottom:14, gap:12 },
-  singleWrap:{ paddingHorizontal:20, paddingBottom:14, alignItems:"center" },
+  row:        { paddingHorizontal:20, paddingBottom:14, gap:12 },
+  centeredWrap:{ paddingHorizontal:20, paddingBottom:14, flexDirection:"row", justifyContent:"center", gap:12 },
   card:      { width:124, borderRadius:22, paddingBottom:14, alignItems:"center", overflow:"hidden", borderWidth:1.5, borderColor:"rgba(255,255,255,0.08)" },
   cardOn:    { shadowOpacity:0.35, shadowRadius:14, shadowOffset:{width:0,height:4}, elevation:7 },
   mediaWrap: { width:96, height:88, overflow:"hidden", marginTop:10, alignItems:"center", justifyContent:"center" },
