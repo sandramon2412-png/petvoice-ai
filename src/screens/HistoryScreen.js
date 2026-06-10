@@ -370,8 +370,71 @@ const dr = StyleSheet.create({
 });
 
 // ── Pet cards ──────────────────────────────────────────────────────────────────
+const DOG_LOTTIE = require("../../assets/lottie/dog.json");
+const CAT_LOTTIE = require("../../assets/lottie/cat.json");
+
+function PetCard({ name, species, photo, active, onPress }) {
+  const isDog = species !== "cat";
+  const accentColor = isDog ? "#FB923C" : "#A78BFA";
+  return (
+    <TouchableOpacity onPress={onPress} activeOpacity={0.85}>
+      <View style={[pc.card, active && pc.cardOn, active && { borderColor: accentColor + "88", shadowColor: accentColor }]}>
+        <LinearGradient
+          colors={isDog ? ["#2A1A0A","#3D2610"] : ["#1A0A2E","#2E1065"]}
+          start={{x:0,y:0}} end={{x:1,y:1}}
+          style={StyleSheet.absoluteFill}
+        />
+        {active && (
+          <LinearGradient
+            colors={[accentColor + "22","transparent"]}
+            start={{x:0,y:0}} end={{x:0,y:1}}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
+        <View style={pc.mediaWrap}>
+          {photo ? (
+            <Image source={{ uri: photo }} style={pc.photo}/>
+          ) : (
+            <LottieView source={isDog ? DOG_LOTTIE : CAT_LOTTIE} autoPlay loop style={pc.lottie}/>
+          )}
+        </View>
+        <Text style={[pc.name, { color: active ? accentColor : C.text }]}>{name}</Text>
+        {active && (
+          <View style={[pc.badge, { backgroundColor: accentColor + "22", borderColor: accentColor + "66" }]}>
+            <Text style={[pc.badgeTxt, { color: accentColor }]}>Activo</Text>
+          </View>
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+function PetSelector({ allPets, activePet, history, pet, onSelect }) {
+  const cards = allPets.map(name => {
+    const entry = history.find(e => (e.petName || pet?.name || "Mascota") === name);
+    return (
+      <PetCard
+        key={name}
+        name={name}
+        species={entry?.petSpecies || "dog"}
+        photo={pet?.name === name ? pet?.photo : null}
+        active={name === activePet}
+        onPress={() => onSelect(name)}
+      />
+    );
+  });
+  if (allPets.length === 1) {
+    return <View style={pc.singleWrap}>{cards}</View>;
+  }
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={pc.row}>
+      {cards}
+    </ScrollView>
+  );
+}
+
 const pc = StyleSheet.create({
-  row:       { paddingHorizontal:20, paddingBottom:14, gap:12, flexDirection:"row", alignItems:"flex-start" },
+  row:       { paddingHorizontal:20, paddingBottom:14, gap:12 },
   singleWrap:{ paddingHorizontal:20, paddingBottom:14, alignItems:"center" },
   card:      { width:124, borderRadius:22, paddingBottom:14, alignItems:"center", overflow:"hidden", borderWidth:1.5, borderColor:"rgba(255,255,255,0.08)" },
   cardOn:    { shadowOpacity:0.35, shadowRadius:14, shadowOffset:{width:0,height:4}, elevation:7 },
@@ -447,56 +510,13 @@ export default function HistoryScreen({ navigation }) {
         </View>
 
         {/* Selector de mascota — tarjetas con foto o Lottie */}
-        {(() => {
-          const cards = allPets.map(name => {
-            const entry = history.find(e => (e.petName || pet?.name || "Mascota") === name);
-            const species = entry?.petSpecies || "dog";
-            const isDog = species !== "cat";
-            const photo = (pet?.name === name) ? pet?.photo : null;
-            const on = name === activePet;
-            const accentColor = isDog ? "#FB923C" : "#A78BFA";
-            return (
-              <TouchableOpacity key={name} onPress={() => setSelectedPet(name)} activeOpacity={0.85}>
-                <View style={[pc.card, on && pc.cardOn, on && { borderColor: accentColor + "88" }]}>
-                  <LinearGradient
-                    colors={isDog ? ["#2A1A0A","#3D2610"] : ["#1A0A2E","#2E1065"]}
-                    start={{x:0,y:0}} end={{x:1,y:1}}
-                    style={StyleSheet.absoluteFill}
-                  />
-                  {on && (
-                    <LinearGradient
-                      colors={[accentColor + "22","transparent"]}
-                      start={{x:0,y:0}} end={{x:0,y:1}}
-                      style={StyleSheet.absoluteFill}
-                    />
-                  )}
-                  <View style={pc.mediaWrap}>
-                    {photo ? (
-                      <Image source={{ uri: photo }} style={pc.photo}/>
-                    ) : (
-                      <LottieView
-                        source={isDog ? require("../../assets/lottie/dog.json") : require("../../assets/lottie/cat.json")}
-                        autoPlay loop
-                        style={pc.lottie}
-                      />
-                    )}
-                  </View>
-                  <Text style={[pc.name, { color: on ? accentColor : C.text }]}>{name}</Text>
-                  {on && (
-                    <View style={[pc.badge, { backgroundColor: accentColor + "22", borderColor: accentColor + "66" }]}>
-                      <Text style={[pc.badgeTxt, { color: accentColor }]}>Activo</Text>
-                    </View>
-                  )}
-                </View>
-              </TouchableOpacity>
-            );
-          });
-          return allPets.length === 1 ? (
-            <View style={pc.singleWrap}>{cards}</View>
-          ) : (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={pc.row}>{cards}</ScrollView>
-          );
-        })()}
+        <PetSelector
+          allPets={allPets}
+          activePet={activePet}
+          history={history}
+          pet={pet}
+          onSelect={setSelectedPet}
+        />
 
         <Tabs active={tab} onChange={setTab}/>
         <View style={{ flex:1 }}>
