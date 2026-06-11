@@ -13,18 +13,46 @@ import { useApp } from "../context/AppContext";
 const { width: W, height: H } = Dimensions.get("window");
 
 // Each emotion: rich multi-stop gradient + accent colors for glow blobs
-const EMOTION_MAP = {
-  Feliz:      { gradient:["#022C22","#064E3B","#065F46"], accent1:"#10B981", accent2:"#34D399", light:"#6EE7B7", icon:"emoticon-excited-outline" },
-  "Juguetón": { gradient:["#0C1A4E","#1E3A8A","#2563EB"], accent1:"#60A5FA", accent2:"#93C5FD", light:"#BFDBFE", icon:"tennis-ball" },
-  Alerta:     { gradient:["#1C0A00","#92400E","#B45309"], accent1:"#FBBF24", accent2:"#FCD34D", light:"#FEF08A", icon:"bell-ring-outline" },
-  Curioso:    { gradient:["#0F0D2A","#1E1B4B","#312E81"], accent1:"#818CF8", accent2:"#A5B4FC", light:"#C7D2FE", icon:"eye-outline" },
-  Estresado:  { gradient:["#200A0A","#7F1D1D","#991B1B"], accent1:"#F87171", accent2:"#FCA5A5", light:"#FECACA", icon:"lightning-bolt" },
-  Asustado:   { gradient:["#130520","#3B0764","#5B21B6"], accent1:"#A78BFA", accent2:"#C4B5FD", light:"#DDD6FE", icon:"ghost-outline" },
-  Tranquilo:  { gradient:["#06141A","#0C2E40","#0E3D52"], accent1:"#38BDF8", accent2:"#7DD3FC", light:"#BAE6FD", icon:"weather-night" },
-  Hambriento: { gradient:["#1C0A00","#78350F","#92400E"], accent1:"#FB923C", accent2:"#FDBA74", light:"#FED7AA", icon:"food-drumstick-outline" },
+const EMOTION_BASE = {
+  Feliz:      { gradient:["#022C22","#064E3B","#065F46"], accent1:"#10B981", accent2:"#34D399", light:"#6EE7B7" },
+  "Juguetón": { gradient:["#0C1A4E","#1E3A8A","#2563EB"], accent1:"#60A5FA", accent2:"#93C5FD", light:"#BFDBFE" },
+  Alerta:     { gradient:["#1C0A00","#92400E","#B45309"], accent1:"#FBBF24", accent2:"#FCD34D", light:"#FEF08A" },
+  Curioso:    { gradient:["#0F0D2A","#1E1B4B","#312E81"], accent1:"#818CF8", accent2:"#A5B4FC", light:"#C7D2FE" },
+  Estresado:  { gradient:["#200A0A","#7F1D1D","#991B1B"], accent1:"#F87171", accent2:"#FCA5A5", light:"#FECACA" },
+  Asustado:   { gradient:["#130520","#3B0764","#5B21B6"], accent1:"#A78BFA", accent2:"#C4B5FD", light:"#DDD6FE" },
+  Tranquilo:  { gradient:["#06141A","#0C2E40","#0E3D52"], accent1:"#38BDF8", accent2:"#7DD3FC", light:"#BAE6FD" },
+  Hambriento: { gradient:["#1C0A00","#78350F","#92400E"], accent1:"#FB923C", accent2:"#FDBA74", light:"#FED7AA" },
 };
 
-function getEmo(e) { return EMOTION_MAP[e] || EMOTION_MAP["Tranquilo"]; }
+// Iconos específicos por especie
+const ICONS_DOG = {
+  Feliz:      "dog",
+  "Juguetón": "tennis-ball",
+  Alerta:     "bell-ring-outline",
+  Curioso:    "nose",
+  Estresado:  "lightning-bolt",
+  Asustado:   "shield-alert-outline",
+  Tranquilo:  "sleep",
+  Hambriento: "food-drumstick-outline",
+};
+
+const ICONS_CAT = {
+  Feliz:      "cat",
+  "Juguetón": "mouse-variant-off",
+  Alerta:     "eye-outline",
+  Curioso:    "magnify",
+  Estresado:  "lightning-bolt",
+  Asustado:   "ghost-outline",
+  Tranquilo:  "weather-night",
+  Hambriento: "fish",
+};
+
+function getEmo(emotion, species) {
+  const base = EMOTION_BASE[emotion] || EMOTION_BASE["Tranquilo"];
+  const icons = species === "cat" ? ICONS_CAT : ICONS_DOG;
+  const icon = icons[emotion] || (species === "cat" ? "cat" : "dog");
+  return { ...base, icon };
+}
 
 function PressableScale({ onPress, children, style }) {
   const s = useRef(new Animated.Value(1)).current;
@@ -150,7 +178,7 @@ export default function ResultScreen({ navigation }) {
     consejo_propietario: "Tu mascota está en su mejor momento emocional. Una caricia o juguete reforzará este vínculo.",
   };
 
-  const emo     = getEmo(result.emocion_principal);
+  const emo     = getEmo(result.emocion_principal, pet?.species);
   const petName = pet?.name || "Tu mascota";
 
   return (

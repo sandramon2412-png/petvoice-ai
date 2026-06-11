@@ -21,16 +21,24 @@ const C = {
 };
 
 // Colores más saturados/visibles sobre fondo oscuro
-const EMO = {
-  Feliz:      { color:"#10B981", g1:"#065F46", g2:"#047857", icon:"emoticon-excited-outline" },
-  "Juguetón": { color:"#60A5FA", g1:"#1E3A8A", g2:"#1D4ED8", icon:"tennis-ball"             },
-  Alerta:     { color:"#FBBF24", g1:"#78350F", g2:"#92400E", icon:"bell-ring-outline"       },
-  Curioso:    { color:"#A78BFA", g1:"#2E1065", g2:"#4C1D95", icon:"eye-outline"             },
-  Estresado:  { color:"#F87171", g1:"#7F1D1D", g2:"#991B1B", icon:"lightning-bolt"          },
-  Asustado:   { color:"#C084FC", g1:"#3B0764", g2:"#4C1D95", icon:"ghost-outline"           },
-  Tranquilo:  { color:"#94A3B8", g1:"#1E293B", g2:"#334155", icon:"weather-night"           },
-  Hambriento: { color:"#FB923C", g1:"#7C2D12", g2:"#9A3412", icon:"food-drumstick-outline"  },
+const EMO_BASE = {
+  Feliz:      { color:"#10B981", g1:"#065F46", g2:"#047857" },
+  "Juguetón": { color:"#60A5FA", g1:"#1E3A8A", g2:"#1D4ED8" },
+  Alerta:     { color:"#FBBF24", g1:"#78350F", g2:"#92400E" },
+  Curioso:    { color:"#A78BFA", g1:"#2E1065", g2:"#4C1D95" },
+  Estresado:  { color:"#F87171", g1:"#7F1D1D", g2:"#991B1B" },
+  Asustado:   { color:"#C084FC", g1:"#3B0764", g2:"#4C1D95" },
+  Tranquilo:  { color:"#94A3B8", g1:"#1E293B", g2:"#334155" },
+  Hambriento: { color:"#FB923C", g1:"#7C2D12", g2:"#9A3412" },
 };
+const EMO_ICONS_DOG = { Feliz:"dog", "Juguetón":"tennis-ball", Alerta:"bell-ring-outline", Curioso:"nose", Estresado:"lightning-bolt", Asustado:"shield-alert-outline", Tranquilo:"sleep", Hambriento:"food-drumstick-outline" };
+const EMO_ICONS_CAT = { Feliz:"cat", "Juguetón":"mouse-variant-off", Alerta:"eye-outline", Curioso:"magnify", Estresado:"lightning-bolt", Asustado:"ghost-outline", Tranquilo:"weather-night", Hambriento:"fish" };
+
+function getEMO(emotion, species) {
+  const base = EMO_BASE[emotion] || EMO_BASE.Tranquilo;
+  const icons = species === "cat" ? EMO_ICONS_CAT : EMO_ICONS_DOG;
+  return { ...base, icon: icons[emotion] || "paw" };
+}
 
 const STRESS_EMOTIONS = ["Estresado", "Asustado", "Alerta"];
 const GOOD_EMOTIONS   = ["Feliz", "Juguetón", "Tranquilo", "Curioso"];
@@ -156,7 +164,7 @@ const dy = StyleSheet.create({
 
 // ── Bubble ─────────────────────────────────────────────────────────────────────
 function Bubble({ item }) {
-  const m = EMO[item.emotion] || EMO.Tranquilo;
+  const m = getEMO(item.emotion, item.petSpecies);
 
   if (item.owner) return (
     <View style={b.right}>
