@@ -106,7 +106,11 @@ export async function analyzeSound(species, name, posture, environment) {
     const data = await res.json();
     return parseAIResponse(data.content?.[0]?.text);
   }
-  // Demo mode — resultados diferenciados por especie
+  // Demo mode — rota secuencialmente para ver todas las emociones
   const demos = species === "cat" ? DEMOS_CAT : DEMOS_DOG;
-  return Promise.resolve(demos[Math.floor(Math.random() * demos.length)]);
+  const idx = demoCounter % demos.length;
+  demoCounter += 1;
+  return Promise.resolve(demos[idx]);
 }
+
+let demoCounter = 0;
