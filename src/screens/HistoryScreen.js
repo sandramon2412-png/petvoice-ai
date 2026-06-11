@@ -73,7 +73,7 @@ function buildMetrics(history) {
   week.forEach(e => { freq[e.emotion] = (freq[e.emotion] || 0) + 1; });
   const topEmo = Object.entries(freq).sort((a,b)=>b[1]-a[1])[0];
   const topPct = topEmo ? Math.round((topEmo[1]/week.length)*100) : 0;
-  const topEmoData = topEmo ? (EMO[topEmo[0]] || EMO.Tranquilo) : EMO.Tranquilo;
+  const topEmoData = topEmo ? (EMO_BASE[topEmo[0]] || EMO_BASE.Tranquilo) : EMO_BASE.Tranquilo;
 
   // Días con estrés
   const stressDays = new Set(week.filter(e=>STRESS_EMOTIONS.includes(e.emotion)).map(e=>new Date(e.timestamp).getDay()));
