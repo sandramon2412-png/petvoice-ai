@@ -47,7 +47,17 @@ const ICONS_CAT = {
   Hambriento: "fish",
 };
 
-function getEmo(emotion, species) {
+// Imágenes Fluent 3D por emoción
+const EMOTION_IMAGES = {
+  Feliz:      require("../../assets/emotions/feliz.png"),
+  "Juguetón": require("../../assets/emotions/jugueton.png"),
+  Alerta:     require("../../assets/emotions/alerta.png"),
+  Curioso:    require("../../assets/emotions/curioso.png"),
+  Estresado:  require("../../assets/emotions/estresado.png"),
+  Asustado:   require("../../assets/emotions/asustado.png"),
+  Tranquilo:  require("../../assets/emotions/tranquilo.png"),
+  Hambriento: require("../../assets/emotions/hambriento.png"),
+};
   const base = EMOTION_BASE[emotion] || EMOTION_BASE["Tranquilo"];
   const icons = species === "cat" ? ICONS_CAT : ICONS_DOG;
   const icon = icons[emotion] || (species === "cat" ? "cat" : "dog");
@@ -260,14 +270,16 @@ export default function ResultScreen({ navigation }) {
             ]}>
               {/* Outer glow blob */}
               <View style={[styles.emotionImgGlow, { backgroundColor: emo.accent1 }]} />
-              {/* Premium icon: gradient circle + large icon */}
-              <LinearGradient
-                colors={[emo.accent2, emo.accent1]}
-                start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}
-                style={styles.emotionIconCircle}
-              >
-                <MaterialCommunityIcons name={emo.icon} size={52} color="#fff" />
-              </LinearGradient>
+              {/* Imagen Fluent 3D premium */}
+              <Image
+                source={EMOTION_IMAGES[result.emocion_principal] || EMOTION_IMAGES.Tranquilo}
+                style={styles.emotionImg}
+                resizeMode="contain"
+              />
+              {/* Badge especie pequeño */}
+              <View style={[styles.speciesBadge, { backgroundColor: emo.accent1 + "33", borderColor: emo.accent1 + "66" }]}>
+                <MaterialCommunityIcons name={emo.icon} size={14} color={emo.accent1} />
+              </View>
             </Animated.View>
 
             {/* Confidence strip */}
@@ -387,6 +399,15 @@ const styles = StyleSheet.create({
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.35, shadowRadius: 16, elevation: 12,
+  },
+  emotionImg: {
+    width: 120, height: 120,
+  },
+  speciesBadge: {
+    position: "absolute", bottom: -4, right: -4,
+    width: 28, height: 28, borderRadius: 14,
+    alignItems: "center", justifyContent: "center",
+    borderWidth: 1,
   },
   emotionImgGlow: {
     position: "absolute",
