@@ -280,7 +280,7 @@ export default function ResultScreen({ navigation }) {
               />
               {/* Badge especie pequeño */}
               <View style={[styles.speciesBadge, { backgroundColor: emo.accent1 + "33", borderColor: emo.accent1 + "66" }]}>
-                <MaterialCommunityIcons name={emo.icon} size={14} color={emo.accent1} />
+                <MaterialCommunityIcons name={emo.icon} size={17} color={emo.accent1} />
               </View>
             </Animated.View>
 
@@ -407,7 +407,7 @@ const styles = StyleSheet.create({
   },
   speciesBadge: {
     position: "absolute", bottom: -4, right: -4,
-    width: 28, height: 28, borderRadius: 14,
+    width: 34, height: 34, borderRadius: 17,
     alignItems: "center", justifyContent: "center",
     borderWidth: 1,
   },

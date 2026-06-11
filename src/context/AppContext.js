@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const AppContext = createContext(null);
 
-const FREE_DAILY_LIMIT = 5;
+const FREE_DAILY_LIMIT = 20;
 const HISTORY_KEY = "@petvoice_history";
 const PET_KEY     = "@petvoice_pet";
 const PETS_KEY    = "@petvoice_pets";
