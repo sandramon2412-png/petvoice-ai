@@ -58,6 +58,8 @@ const EMOTION_IMAGES = {
   Tranquilo:  require("../../assets/emotions/tranquilo.png"),
   Hambriento: require("../../assets/emotions/hambriento.png"),
 };
+
+function getEmo(emotion, species) {
   const base = EMOTION_BASE[emotion] || EMOTION_BASE["Tranquilo"];
   const icons = species === "cat" ? ICONS_CAT : ICONS_DOG;
   const icon = icons[emotion] || (species === "cat" ? "cat" : "dog");
