@@ -120,6 +120,16 @@ const SettingsScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
 
+      {/* Add pet button */}
+      <TouchableOpacity
+        style={styles.addPetBtn}
+        onPress={() => navigation.navigate('Onboarding', { addMode: true })}
+        activeOpacity={0.75}
+      >
+        <Text style={styles.addPetIcon}>＋</Text>
+        <Text style={styles.addPetText}>Agregar mascota</Text>
+      </TouchableOpacity>
+
       {/* Account section */}
       <Text style={styles.sectionHeader}>Cuenta</Text>
       <View style={styles.settingsGroup}>
@@ -272,6 +282,28 @@ const styles = StyleSheet.create({
   },
 
   // Settings groups
+  addPetBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: COLORS.PRIMARY,
+    borderStyle: 'dashed',
+    borderRadius: 14,
+    paddingVertical: 13,
+    paddingHorizontal: 18,
+    marginBottom: 28,
+    gap: 10,
+  },
+  addPetIcon: {
+    fontSize: 20,
+    color: COLORS.PRIMARY,
+    lineHeight: 22,
+  },
+  addPetText: {
+    fontSize: FONTS.size.md,
+    fontWeight: FONTS.weight.semibold,
+    color: COLORS.PRIMARY,
+  },
   sectionHeader: {
     fontSize: FONTS.size.xs,
     fontWeight: FONTS.weight.bold,

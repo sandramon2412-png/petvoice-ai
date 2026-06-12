@@ -224,6 +224,11 @@ export default function HomeScreen({ navigation }) {
                   <Text style={s.upgradeBtnText}>Pro</Text>
                 </LinearGradient>
               </PressableScale>
+              <PressableScale activeScale={0.9} onPress={() => navigation.navigate("Settings")}>
+                <View style={s.settingsBtn}>
+                  <MaterialCommunityIcons name="cog-outline" size={20} color={C.muted} />
+                </View>
+              </PressableScale>
             </View>
           </View>
 
@@ -376,6 +381,7 @@ const s = StyleSheet.create({
     borderWidth: 1, borderColor: "rgba(79,70,229,0.2)",
   },
   upgradeBtnText: { fontFamily: "Inter_700Bold", fontSize: 12, color: C.indigo },
+  settingsBtn: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center" },
 
   statusCard: {
     marginHorizontal: 20, marginBottom: 20, borderRadius: 18, padding: 16,

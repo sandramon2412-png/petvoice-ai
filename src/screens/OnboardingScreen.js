@@ -79,8 +79,9 @@ function ProgressBar({ step, total }) {
 }
 
 // ─── OnboardingScreen ─────────────────────────────────────────────────────────
-export default function OnboardingScreen({ navigation }) {
-  const { savePet } = useApp();
+export default function OnboardingScreen({ navigation, route }) {
+  const addMode = route?.params?.addMode ?? false;
+  const { savePet, addPet } = useApp();
   const [step, setStep] = useState(0);
   const [species, setSpecies] = useState(null);
   const [petName, setPetName] = useState("");
@@ -120,8 +121,14 @@ export default function OnboardingScreen({ navigation }) {
   };
 
   const finish = () => {
-    savePet({ name: petName.trim(), species, age: petAge.trim(), photo: petPhoto });
-    navigation.replace("Home");
+    const data = { name: petName.trim(), species, age: petAge.trim(), photo: petPhoto };
+    if (addMode) {
+      addPet(data);
+      navigation.goBack();
+    } else {
+      savePet(data);
+      navigation.replace("Home");
+    }
   };
 
   const canContinue = () => {
