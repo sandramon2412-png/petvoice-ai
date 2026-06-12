@@ -1,19 +1,30 @@
 import React from "react";
+import { View, ActivityIndicator } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OnboardingScreen from "../screens/OnboardingScreen";
 import HomeScreen from "../screens/HomeScreen";
 import LoadingScreen from "../screens/LoadingScreen";
 import ResultScreen from "../screens/ResultScreen";
-import SettingsScreen from "../screens/SettingsScreen";
 import HistoryScreen from "../screens/HistoryScreen";
+import SettingsScreen from "../screens/SettingsScreen";
 import PaywallScreen from "../screens/PaywallScreen";
 import { useApp } from "../context/AppContext";
 
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
-  const { pet } = useApp();
+  const { pet, ready } = useApp();
+
+  // Espera a que AsyncStorage cargue antes de decidir la ruta inicial
+  if (!ready) {
+    return (
+      <View style={{ flex:1, backgroundColor:"#06071A", alignItems:"center", justifyContent:"center" }}>
+        <ActivityIndicator color="#818CF8" size="large"/>
+      </View>
+    );
+  }
+
   return (
     <NavigationContainer>
       <Stack.Navigator
@@ -24,8 +35,9 @@ export default function AppNavigator() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Loading" component={LoadingScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Result" component={ResultScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="History" component={HistoryScreen} />
         <Stack.Screen name="Historial" component={HistoryScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Paywall" component={PaywallScreen} />
       </Stack.Navigator>
     </NavigationContainer>

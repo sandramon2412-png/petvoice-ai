@@ -1,393 +1,191 @@
-import React from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-  Alert,
-  Platform,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useApp } from '../context/AppContext';
-import { COLORS } from '../constants/colors';
-import { FONTS } from '../constants/typography';
+import React from "react";
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, StatusBar, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { LinearGradient } from "expo-linear-gradient";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useApp } from "../context/AppContext";
 
-const SettingRow = ({ icon, label, value, onPress, danger }) => (
-  <TouchableOpacity
-    style={styles.settingRow}
-    onPress={onPress}
-    activeOpacity={onPress ? 0.7 : 1}
-  >
-    <View style={styles.settingLeft}>
-      <Text style={styles.settingIcon}>{icon}</Text>
-      <Text style={[styles.settingLabel, danger && styles.settingLabelDanger]}>
-        {label}
-      </Text>
-    </View>
-    {value !== undefined && (
-      <Text style={styles.settingValue}>{value}</Text>
-    )}
-    {onPress && !danger && (
-      <Text style={styles.settingArrow}>›</Text>
-    )}
-  </TouchableOpacity>
-);
-
-const SettingsScreen = ({ navigation }) => {
-  const { pet, user, clearHistory, setPremium } = useApp();
-  const insets = useSafeAreaInsets();
-
-  const petInitial = pet?.name ? pet.name.charAt(0).toUpperCase() : '?';
-
-  const handleClearHistory = () => {
-    Alert.alert(
-      'Borrar historial',
-      '¿Estás seguro? Esto eliminará todas las conversaciones guardadas.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Borrar',
-          style: 'destructive',
-          onPress: async () => {
-            await clearHistory();
-            Alert.alert('Listo', 'El historial fue borrado.');
-          },
-        },
-      ]
-    );
-  };
-
-  const handleEditPet = () => {
-    navigation.navigate('Onboarding');
-  };
-
-  const handleManagePremium = () => {
-    if (user.isPremium) {
-      Alert.alert(
-        'Gestionar suscripción',
-        'Para cancelar tu suscripción, ve a la configuración de tu tienda de aplicaciones.',
-        [{ text: 'Entendido' }]
-      );
-    } else {
-      navigation.navigate('Paywall');
-    }
-  };
-
-  // Dev-only: toggle premium for testing
-  const handleTogglePremiumDev = () => {
-    Alert.alert(
-      'Demo: Toggle Premium',
-      `Cambiar a ${user.isPremium ? 'Free' : 'Premium'}?`,
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Confirmar',
-          onPress: () => setPremium(!user.isPremium),
-        },
-      ]
-    );
-  };
-
-  return (
-    <ScrollView
-      style={[styles.container, { paddingTop: insets.top + 12 }]}
-      contentContainerStyle={styles.content}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.screenTitle}>Ajustes</Text>
-
-      {/* Pet profile card */}
-      <View style={styles.petCard}>
-        {pet?.photo ? (
-          <Image source={{ uri: pet.photo }} style={styles.petCardAvatar} />
-        ) : (
-          <View style={styles.petCardAvatarFallback}>
-            <Text style={styles.petCardAvatarInitial}>{petInitial}</Text>
-          </View>
-        )}
-        <View style={styles.petCardInfo}>
-          <Text style={styles.petCardName}>{pet?.name || 'Sin nombre'}</Text>
-          <Text style={styles.petCardDetails}>
-            {pet?.species === 'cat' ? 'Gato' : 'Perro'}
-            {pet?.breed ? ` · ${pet.breed}` : ''}
-            {pet?.age ? ` · ${pet.age}` : ''}
-          </Text>
-        </View>
-        <TouchableOpacity style={styles.editBtn} onPress={handleEditPet}>
-          <Text style={styles.editBtnText}>Editar</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Add pet button */}
-      <TouchableOpacity
-        style={styles.addPetBtn}
-        onPress={() => navigation.navigate('Onboarding', { addMode: true })}
-        activeOpacity={0.75}
-      >
-        <Text style={styles.addPetIcon}>＋</Text>
-        <Text style={styles.addPetText}>Agregar mascota</Text>
-      </TouchableOpacity>
-
-      {/* Account section */}
-      <Text style={styles.sectionHeader}>Cuenta</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow
-          icon={user.isPremium ? '⭐' : '🔒'}
-          label={user.isPremium ? 'PetVoice Premium' : 'Actualizar a Premium'}
-          value={user.isPremium ? 'Activo' : undefined}
-          onPress={handleManagePremium}
-        />
-        <View style={styles.groupDivider} />
-        <SettingRow
-          icon="📊"
-          label="Traducciones hoy"
-          value={user.isPremium ? 'Ilimitadas' : `${user.translationsToday} / 3`}
-        />
-      </View>
-
-      {/* Data section */}
-      <Text style={styles.sectionHeader}>Datos</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow
-          icon="💬"
-          label="Ver historial"
-          onPress={() => navigation.navigate('Historial')}
-        />
-        <View style={styles.groupDivider} />
-        <SettingRow
-          icon="🗑"
-          label="Borrar historial"
-          onPress={handleClearHistory}
-          danger
-        />
-      </View>
-
-      {/* About section */}
-      <Text style={styles.sectionHeader}>Acerca de</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow icon="📝" label="Términos de servicio" onPress={() => {}} />
-        <View style={styles.groupDivider} />
-        <SettingRow icon="🔐" label="Política de privacidad" onPress={() => {}} />
-        <View style={styles.groupDivider} />
-        <SettingRow icon="⭐" label="Calificar la app" onPress={() => {}} />
-        <View style={styles.groupDivider} />
-        <SettingRow icon="📱" label="Versión" value="1.0.0" />
-      </View>
-
-      {/* Dev tools */}
-      <Text style={styles.sectionHeader}>Herramientas de demo</Text>
-      <View style={styles.settingsGroup}>
-        <SettingRow
-          icon="🧪"
-          label={`Toggle Premium (ahora: ${user.isPremium ? 'ON' : 'OFF'})`}
-          onPress={handleTogglePremiumDev}
-        />
-      </View>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>🐾 PetVoice AI</Text>
-        <Text style={styles.footerSubText}>
-          Hecho con amor para las mascotas y sus familias
-        </Text>
-      </View>
-
-      <View style={{ height: insets.bottom + 24 }} />
-    </ScrollView>
-  );
+const C = {
+  bg:     "#06071A",
+  card:   "rgba(255,255,255,0.06)",
+  border: "rgba(255,255,255,0.09)",
+  text:   "#F1F5F9",
+  muted:  "#64748B",
+  sub:    "#94A3B8",
+  indigo: "#818CF8",
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.BG,
-  },
-  content: {
-    paddingHorizontal: 20,
-  },
-  screenTitle: {
-    fontSize: FONTS.size.xxl,
-    fontWeight: FONTS.weight.extrabold,
-    color: COLORS.DARK,
-    marginBottom: 20,
-  },
-
-  // Pet card
-  petCard: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 16,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    marginBottom: 28,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.07,
-        shadowRadius: 8,
-      },
-      android: { elevation: 2 },
-    }),
-  },
-  petCardAvatar: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    borderWidth: 2,
-    borderColor: COLORS.PRIMARY,
-  },
-  petCardAvatarFallback: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: COLORS.PRIMARY,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  petCardAvatarInitial: {
-    color: COLORS.WHITE,
-    fontSize: FONTS.size.xl,
-    fontWeight: FONTS.weight.bold,
-  },
-  petCardInfo: {
-    flex: 1,
-  },
-  petCardName: {
-    fontSize: FONTS.size.lg,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.DARK,
-    marginBottom: 3,
-  },
-  petCardDetails: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.MUTED,
-    textTransform: 'capitalize',
-  },
-  editBtn: {
-    borderWidth: 1.5,
-    borderColor: COLORS.PRIMARY,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-  },
-  editBtnText: {
-    color: COLORS.PRIMARY,
-    fontSize: FONTS.size.sm,
-    fontWeight: FONTS.weight.semibold,
-  },
-
-  // Settings groups
-  addPetBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1.5,
-    borderColor: COLORS.PRIMARY,
-    borderStyle: 'dashed',
-    borderRadius: 14,
-    paddingVertical: 13,
-    paddingHorizontal: 18,
-    marginBottom: 28,
-    gap: 10,
-  },
-  addPetIcon: {
-    fontSize: 20,
-    color: COLORS.PRIMARY,
-    lineHeight: 22,
-  },
-  addPetText: {
-    fontSize: FONTS.size.md,
-    fontWeight: FONTS.weight.semibold,
-    color: COLORS.PRIMARY,
-  },
-  sectionHeader: {
-    fontSize: FONTS.size.xs,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.MUTED,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  settingsGroup: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.BORDER,
-    marginBottom: 20,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 4,
-      },
-      android: { elevation: 1 },
-    }),
-  },
-  settingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 15,
-  },
-  settingLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 12,
-  },
-  settingIcon: {
-    fontSize: 20,
-    width: 26,
-    textAlign: 'center',
-  },
-  settingLabel: {
-    fontSize: FONTS.size.md,
-    color: COLORS.DARK,
-    fontWeight: FONTS.weight.medium,
-  },
-  settingLabelDanger: {
-    color: COLORS.DANGER,
-  },
-  settingValue: {
-    fontSize: FONTS.size.sm,
-    color: COLORS.MUTED,
-    fontWeight: FONTS.weight.medium,
-    marginRight: 4,
-  },
-  settingArrow: {
-    fontSize: FONTS.size.xl,
-    color: COLORS.MUTED,
-    marginLeft: 4,
-  },
-  groupDivider: {
-    height: 1,
-    backgroundColor: COLORS.BORDER,
-    marginLeft: 54,
-  },
-
-  // Footer
-  footer: {
-    alignItems: 'center',
-    paddingVertical: 16,
-    gap: 4,
-  },
-  footerText: {
-    fontSize: FONTS.size.lg,
-    fontWeight: FONTS.weight.bold,
-    color: COLORS.PRIMARY,
-  },
-  footerSubText: {
-    fontSize: FONTS.size.xs,
-    color: COLORS.MUTED,
-    textAlign: 'center',
-  },
+function Row({ icon, color, label, value, onPress, last }) {
+  return (
+    <TouchableOpacity
+      style={[r.row, last && r.last]}
+      onPress={onPress}
+      activeOpacity={onPress ? 0.7 : 1}
+    >
+      <View style={[r.icon, { backgroundColor: color + "20" }]}>
+        <MaterialCommunityIcons name={icon} size={18} color={color}/>
+      </View>
+      <Text style={r.label}>{label}</Text>
+      <View style={{ flex:1 }}/>
+      {value ? <Text style={r.value}>{value}</Text> : null}
+      {onPress ? <MaterialCommunityIcons name="chevron-right" size={17} color="rgba(255,255,255,0.2)"/> : null}
+    </TouchableOpacity>
+  );
+}
+const r = StyleSheet.create({
+  row:   { flexDirection:"row", alignItems:"center", gap:12, paddingVertical:14, paddingHorizontal:16, borderBottomWidth:1, borderBottomColor:"rgba(255,255,255,0.05)" },
+  last:  { borderBottomWidth:0 },
+  icon:  { width:36, height:36, borderRadius:10, alignItems:"center", justifyContent:"center" },
+  label: { fontFamily:"Inter_500Medium", fontSize:15, color:C.text },
+  value: { fontFamily:"Inter_400Regular", fontSize:13, color:C.muted, marginRight:4 },
 });
 
-export default SettingsScreen;
+function Card({ title, children }) {
+  return (
+    <View style={card.wrap}>
+      <Text style={card.title}>{title}</Text>
+      <View style={card.body}>{children}</View>
+    </View>
+  );
+}
+const card = StyleSheet.create({
+  wrap:  { marginHorizontal:20, marginBottom:14, backgroundColor:C.card, borderRadius:20, borderWidth:1, borderColor:C.border, overflow:"hidden" },
+  title: { fontFamily:"Inter_600SemiBold", fontSize:11, color:C.muted, letterSpacing:0.8, textTransform:"uppercase", paddingHorizontal:16, paddingTop:14, paddingBottom:8 },
+  body:  {},
+});
+
+function BottomNav({ navigation }) {
+  const TABS = [
+    { label:"Inicio",    icon:"home-outline",          iconOn:"home",             screen:"Home"     },
+    { label:"Historial", icon:"clock-time-four-outline",iconOn:"clock-time-four",  screen:"History"  },
+    { label:"Ajustes",   icon:"cog-outline",           iconOn:"cog",              screen:"Settings" },
+  ];
+  return (
+    <View style={nav.bar}>
+      {TABS.map(tab => {
+        const on = tab.screen === "Settings";
+        return (
+          <TouchableOpacity key={tab.screen} style={nav.item} onPress={()=>!on&&navigation.navigate(tab.screen)} activeOpacity={0.7}>
+            <View style={[nav.icon, on && nav.iconOn]}>
+              <MaterialCommunityIcons name={on ? tab.iconOn : tab.icon} size={23} color={on?"#818CF8":C.muted}/>
+            </View>
+            <Text style={[nav.label, on && nav.labelOn]}>{tab.label}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+const nav = StyleSheet.create({
+  bar:    { flexDirection:"row", paddingTop:8, paddingBottom:4, paddingHorizontal:12, backgroundColor:"#0A0C22", borderTopWidth:1, borderTopColor:C.border },
+  item:   { flex:1, alignItems:"center", gap:3 },
+  icon:   { width:42, height:34, borderRadius:13, alignItems:"center", justifyContent:"center" },
+  iconOn: { backgroundColor:"rgba(129,140,248,0.15)" },
+  label:  { fontFamily:"Inter_400Regular", fontSize:10, color:C.muted },
+  labelOn:{ fontFamily:"Inter_600SemiBold", fontSize:10, color:"#818CF8" },
+});
+
+export default function SettingsScreen({ navigation }) {
+  const { pet, pets, switchPet } = useApp();
+
+  return (
+    <View style={{ flex:1, backgroundColor:C.bg }}>
+      <LinearGradient colors={["#06071A","#0C0E2E","#080C24"]} style={StyleSheet.absoluteFill}/>
+      <LinearGradient colors={["#4F46E518","transparent","#7C3AED10"]} style={StyleSheet.absoluteFill} start={{x:1,y:0}} end={{x:0,y:1}}/>
+      <StatusBar barStyle="light-content" backgroundColor={C.bg}/>
+      <SafeAreaView style={{ flex:1 }} edges={["top"]}>
+
+        <View style={sc.header}>
+          <Text style={sc.title}>Ajustes</Text>
+          <Text style={sc.sub}>{pet?.name||"Tu mascota"} · PetVoice AI</Text>
+        </View>
+
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:24 }}>
+
+          {/* Selector de mascota activa */}
+          {pets.length > 1 && (
+            <View style={{ marginHorizontal:20, marginBottom:16 }}>
+              <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:11, color:C.muted, letterSpacing:0.8, textTransform:"uppercase", marginBottom:10 }}>Mascota activa</Text>
+              <View style={{ flexDirection:"row", gap:8, flexWrap:"wrap" }}>
+                {pets.map(p => {
+                  const active = p.name === pet?.name;
+                  return (
+                    <TouchableOpacity
+                      key={p.name}
+                      onPress={() => switchPet(p.name)}
+                      activeOpacity={0.75}
+                      style={{
+                        flexDirection:"row", alignItems:"center", gap:7,
+                        paddingHorizontal:14, paddingVertical:9, borderRadius:20,
+                        backgroundColor: active ? "rgba(129,140,248,0.18)" : C.card,
+                        borderWidth:1, borderColor: active ? "rgba(129,140,248,0.45)" : C.border,
+                      }}
+                    >
+                      <MaterialCommunityIcons name="paw" size={13} color={active ? C.indigo : C.muted}/>
+                      <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:13, color: active ? C.indigo : C.text }}>{p.name}</Text>
+                      {active && <MaterialCommunityIcons name="check-circle" size={13} color={C.indigo}/>}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </View>
+          )}
+
+          {/* Plan card */}
+          <View style={sc.planWrap}>
+            <LinearGradient colors={["#4F46E5","#7C3AED"]} start={{x:0,y:0}} end={{x:1,y:1}} style={sc.planCard}>
+              <LinearGradient colors={["rgba(255,255,255,0.12)","transparent"]} style={StyleSheet.absoluteFill}/>
+              <View>
+                <Text style={sc.planBadge}>PLAN ACTIVO</Text>
+                <Text style={sc.planName}>Gratuito</Text>
+                <Text style={sc.planDesc}>5 análisis/día · Historial 7 días</Text>
+              </View>
+              <TouchableOpacity activeOpacity={0.85}>
+                <View style={sc.proBtn}>
+                  <MaterialCommunityIcons name="star" size={13} color="#F4511E"/>
+                  <Text style={sc.proBtnText}>Ver Pro</Text>
+                </View>
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
+
+          <Card title="Mi mascota">
+            <Row icon="paw"          color="#10B981" label="Nombre"  value={pet?.name||"—"} last={false}/>
+            <Row icon="dog"          color="#818CF8" label="Especie" value={pet?.species==="cat"?"Gato":"Perro"} last={false}/>
+            <Row icon="cake-variant" color="#FBBF24" label="Edad"    value={pet?.age?`${pet.age} años`:"—"} last/>
+          </Card>
+
+          <Card title="Preferencias">
+            <Row icon="bell-outline"          color="#818CF8" label="Notificaciones"  onPress={()=>Alert.alert("Próximamente","Esta función estará disponible pronto.")} last={false}/>
+            <Row icon="translate"             color="#60A5FA" label="Idioma"          value="Español" last={false}/>
+            <Row icon="moon-waning-crescent"  color="#A78BFA" label="Tema"            value="Oscuro" last/>
+          </Card>
+
+          <Card title="Soporte">
+            <Row icon="help-circle-outline"  color="#818CF8" label="Centro de ayuda"   onPress={()=>Alert.alert("Próximamente","Esta función estará disponible pronto.")} last={false}/>
+            <Row icon="message-outline"      color="#FBBF24" label="Enviar comentario" onPress={()=>Alert.alert("Próximamente","Esta función estará disponible pronto.")} last={false}/>
+            <Row icon="shield-check-outline" color="#10B981" label="Privacidad"        onPress={()=>Alert.alert("Próximamente","Esta función estará disponible pronto.")} last={false}/>
+            <Row icon="information-outline"  color={C.muted} label="Versión"           value="1.0.0" last/>
+          </Card>
+
+        </ScrollView>
+      </SafeAreaView>
+      <SafeAreaView edges={["bottom"]} style={{ backgroundColor:"#0A0C22" }}>
+        <BottomNav navigation={navigation}/>
+      </SafeAreaView>
+    </View>
+  );
+}
+
+const sc = StyleSheet.create({
+  header:   { paddingHorizontal:20, paddingTop:8, paddingBottom:20 },
+  title:    { fontFamily:"Inter_700Bold", fontSize:26, color:C.text, letterSpacing:-0.6 },
+  sub:      { fontFamily:"Inter_400Regular", fontSize:12, color:C.muted, marginTop:2 },
+  planWrap: { marginHorizontal:20, marginBottom:16 },
+  planCard: { borderRadius:22, padding:20, flexDirection:"row", alignItems:"center", justifyContent:"space-between", overflow:"hidden" },
+  planBadge:{ fontFamily:"Inter_600SemiBold", fontSize:10, color:"rgba(255,255,255,0.55)", letterSpacing:0.8, marginBottom:4 },
+  planName: { fontFamily:"Inter_700Bold", fontSize:22, color:"#fff" },
+  planDesc: { fontFamily:"Inter_400Regular", fontSize:12, color:"rgba(255,255,255,0.55)", marginTop:4 },
+  proBtn:   { backgroundColor:"#fff", borderRadius:20, paddingHorizontal:14, paddingVertical:8, flexDirection:"row", alignItems:"center", gap:5 },
+  proBtnText:{ fontFamily:"Inter_700Bold", fontSize:13, color:"#F4511E" },
+});
