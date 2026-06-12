@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 
 const AppContext = createContext(null);
 
@@ -28,6 +28,7 @@ export function AppProvider({ children }) {
   const saveResult = useCallback((result) => {
     setAnalysisResult(result);
     setRecordingsToday((n) => n + 1);
+    setUser((u) => ({ ...u, translationsToday: u.translationsToday + 1 }));
   }, []);
 
   const clearHistory = useCallback(async () => {}, []);

@@ -1,4 +1,4 @@
-﻿import React from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import OnboardingScreen from "../screens/OnboardingScreen";
@@ -6,6 +6,8 @@ import HomeScreen from "../screens/HomeScreen";
 import LoadingScreen from "../screens/LoadingScreen";
 import ResultScreen from "../screens/ResultScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import HistoryScreen from "../screens/HistoryScreen";
+import PaywallScreen from "../screens/PaywallScreen";
 import { useApp } from "../context/AppContext";
 
 const Stack = createNativeStackNavigator();
@@ -23,6 +25,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Loading" component={LoadingScreen} options={{ gestureEnabled: false }} />
         <Stack.Screen name="Result" component={ResultScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Historial" component={HistoryScreen} />
+        <Stack.Screen name="Paywall" component={PaywallScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
