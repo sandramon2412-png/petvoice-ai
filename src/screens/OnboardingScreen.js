@@ -5,7 +5,10 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
-import LottieView from "lottie-react-native";
+import { Platform } from "react-native";
+const LottieView = Platform.OS === "web"
+  ? () => null
+  : require("lottie-react-native").default;
 import GlassView from "../components/GlassView";
 import { DogIllustration } from "../components/PetIllustration";
 import { MaterialCommunityIcons } from "@expo/vector-icons";

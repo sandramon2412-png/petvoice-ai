@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Animated, Dimensions, StatusBar, Image,
+  Animated, Dimensions, StatusBar, Image, Platform,
 } from "react-native";
-import LottieView from "lottie-react-native";
+const LottieView = Platform.OS === "web"
+  ? () => null
+  : require("lottie-react-native").default;
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
