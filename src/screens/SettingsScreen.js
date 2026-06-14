@@ -86,7 +86,18 @@ const nav = StyleSheet.create({
 });
 
 export default function SettingsScreen({ navigation }) {
-  const { pet, pets, switchPet } = useApp();
+  const { pet, pets, switchPet, removePet } = useApp();
+
+  const handleRemovePet = (p) => {
+    Alert.alert(
+      `Eliminar a ${p.name}`,
+      "Se eliminará el perfil y todo su historial. Esta acción no se puede deshacer.",
+      [
+        { text: "Cancelar", style: "cancel" },
+        { text: "Eliminar", style: "destructive", onPress: () => removePet(p.name) },
+      ]
+    );
+  };
 
   return (
     <View style={{ flex:1, backgroundColor:C.bg }}>
@@ -103,33 +114,49 @@ export default function SettingsScreen({ navigation }) {
         <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom:24 }}>
 
           {/* Selector de mascota activa */}
-          {pets.length > 1 && (
-            <View style={{ marginHorizontal:20, marginBottom:16 }}>
-              <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:11, color:C.muted, letterSpacing:0.8, textTransform:"uppercase", marginBottom:10 }}>Mascota activa</Text>
-              <View style={{ flexDirection:"row", gap:8, flexWrap:"wrap" }}>
-                {pets.map(p => {
-                  const active = p.name === pet?.name;
-                  return (
-                    <TouchableOpacity
-                      key={p.name}
-                      onPress={() => switchPet(p.name)}
-                      activeOpacity={0.75}
-                      style={{
-                        flexDirection:"row", alignItems:"center", gap:7,
-                        paddingHorizontal:14, paddingVertical:9, borderRadius:20,
-                        backgroundColor: active ? "rgba(129,140,248,0.18)" : C.card,
-                        borderWidth:1, borderColor: active ? "rgba(129,140,248,0.45)" : C.border,
-                      }}
-                    >
-                      <MaterialCommunityIcons name="paw" size={13} color={active ? C.indigo : C.muted}/>
-                      <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:13, color: active ? C.indigo : C.text }}>{p.name}</Text>
-                      {active && <MaterialCommunityIcons name="check-circle" size={13} color={C.indigo}/>}
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
+          <View style={{ marginHorizontal:20, marginBottom:16 }}>
+            <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:11, color:C.muted, letterSpacing:0.8, textTransform:"uppercase", marginBottom:10 }}>Mascota activa</Text>
+            <View style={{ flexDirection:"row", gap:8, flexWrap:"wrap" }}>
+              {pets.map(p => {
+                const active = p.name === pet?.name;
+                return (
+                  <TouchableOpacity
+                    key={p.name}
+                    onPress={() => switchPet(p.name)}
+                    onLongPress={() => handleRemovePet(p)}
+                    activeOpacity={0.75}
+                    style={{
+                      flexDirection:"row", alignItems:"center", gap:7,
+                      paddingHorizontal:14, paddingVertical:9, borderRadius:20,
+                      backgroundColor: active ? "rgba(129,140,248,0.18)" : C.card,
+                      borderWidth:1, borderColor: active ? "rgba(129,140,248,0.45)" : C.border,
+                    }}
+                  >
+                    <MaterialCommunityIcons name="paw" size={13} color={active ? C.indigo : C.muted}/>
+                    <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:13, color: active ? C.indigo : C.text }}>{p.name}</Text>
+                    {active && <MaterialCommunityIcons name="check-circle" size={13} color={C.indigo}/>}
+                  </TouchableOpacity>
+                );
+              })}
+              {/* Botón agregar mascota */}
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Onboarding", { addMode: true })}
+                activeOpacity={0.75}
+                style={{
+                  flexDirection:"row", alignItems:"center", gap:7,
+                  paddingHorizontal:14, paddingVertical:9, borderRadius:20,
+                  backgroundColor: C.card,
+                  borderWidth:1, borderColor: C.border, borderStyle:"dashed",
+                }}
+              >
+                <MaterialCommunityIcons name="plus" size={13} color={C.muted}/>
+                <Text style={{ fontFamily:"Inter_600SemiBold", fontSize:13, color: C.muted }}>Agregar</Text>
+              </TouchableOpacity>
             </View>
-          )}
+            <Text style={{ fontFamily:"Inter_400Regular", fontSize:11, color:C.muted, marginTop:8, opacity:0.6 }}>
+              Mantén presionado un chip para eliminar esa mascota
+            </Text>
+          </View>
 
           {/* Plan card */}
           <View style={sc.planWrap}>

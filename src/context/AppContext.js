@@ -75,6 +75,23 @@ export function AppProvider({ children }) {
     });
   }, []);
 
+  const removePet = useCallback((petName) => {
+    setPets(prev => {
+      const next = prev.filter(p => p.name !== petName);
+      AsyncStorage.setItem(PETS_KEY, JSON.stringify(next)).catch(() => {});
+      // Si era la activa, cambiar a la primera disponible
+      setPet(cur => {
+        if (cur?.name === petName) {
+          const fallback = next[0] ?? null;
+          AsyncStorage.setItem(PET_KEY, fallback ? JSON.stringify(fallback) : "").catch(() => {});
+          return fallback;
+        }
+        return cur;
+      });
+      return next;
+    });
+  }, []);
+
   const saveResult = useCallback((result) => {
     setAnalysisResult(result);
     setRecordingsToday((n) => n + 1);
@@ -102,7 +119,7 @@ export function AppProvider({ children }) {
   return (
     <AppContext.Provider
       value={{
-        pet, pets, savePet, addPet, switchPet,
+        pet, pets, savePet, addPet, switchPet, removePet,
         analysisResult, saveResult,
         recordingsToday, remaining, canRecord,
         lastAnalysisAudio, setLastAnalysisAudio,
